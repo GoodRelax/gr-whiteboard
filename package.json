@@ -1,0 +1,13 @@
+{
+  "name": "whiteboard-chat-for-claude",
+  "version": "0.1.0",
+  "description": "Claude Code Skills: talk with Claude Code on a local whiteboard.",
+  "license": "Apache-2.0",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test"
+  }
+}

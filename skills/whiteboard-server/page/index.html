@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Whiteboard Chat</title>
+<link rel="stylesheet" href="https://esm.sh/@excalidraw/excalidraw@0.18.1/dist/prod/index.css">
+<style>
+  html, body, #root { height: 100%; margin: 0; }
+  #notice { position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+    font: 16px/1.5 system-ui, sans-serif; padding: 16px; text-align: center; background: #fff; color: #1e1e1e; z-index: 10; }
+  .wbc-status { font: 12px/1.4 system-ui, sans-serif; padding: 4px 8px; border-radius: 6px;
+    background: rgba(255, 255, 255, 0.9); color: #1e1e1e; border: 1px solid #ddd; white-space: nowrap; }
+  .wbc-status.off { background: #fff3bf; }
+</style>
+<script type="importmap">{"imports":{"react":"https://esm.sh/react@19.2.8","react/jsx-runtime":"https://esm.sh/react@19.2.8/jsx-runtime","react-dom":"https://esm.sh/react-dom@19.2.8","react-dom/client":"https://esm.sh/react-dom@19.2.8/client","@excalidraw/excalidraw":"https://esm.sh/@excalidraw/excalidraw@0.18.1/dist/prod/index.js?external=react,react-dom"}}</script>
+</head>
+<body>
+<div id="root"></div>
+<div id="notice"></div>
+<script type="module" src="/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+whiteboard-chat-for-claude
+Copyright 2026 GoodRelax
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product is not made by, endorsed by, or connected with Excalidraw.
+"Excalidraw" is used only to name the component that this product uses.
+
+At run time the web page of this product loads, from esm.sh:
+- @excalidraw/excalidraw (MIT License, Copyright (c) 2020 Excalidraw)
+- React and React DOM (MIT License, Copyright (c) Meta Platforms, Inc. and affiliates)
+In LAN mode, the setup script installs node-forge from npm
+(BSD-3-Clause License, chosen from its dual license; Copyright (c) 2010, Digital Bazaar, Inc.).
+None of them are included in this repository.

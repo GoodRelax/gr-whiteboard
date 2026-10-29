@@ -1,0 +1,168 @@
+"use strict";
+
+// The real server.js as a child process, with a fake page (SSE + POST) and the Control API.
+
+const test = require("node:test");
+const assert = require("node:assert/strict");
+const fs = require("fs");
+const http = require("http");
+const os = require("os");
+const path = require("path");
+const { spawn } = require("child_process");
+
+const SERVER = path.join(__dirname, "..", "..", "skills", "whiteboard-server", "scripts", "server.js");
+const BASE_PORT = 40000 + Math.floor(Math.random() * 20000);
+const PORT = BASE_PORT;
+const CONTROL_PORT = BASE_PORT + 1;
+
+// @purity non-pure
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// @purity non-pure
+async function until(check, timeoutMs, what) {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    const value = check();
+    if (value) return value;
+    if (Date.now() > deadline) throw new Error(`timed out waiting for ${what}`);
+    await delay(50);
+  }
+}
+
+// @purity non-pure
+function call(port, method, urlPath, { body, headers = {} } = {}) {
+  return new Promise((resolve, reject) => {
+    const data = body === undefined ? "" : JSON.stringify(body);
+    const req = http.request({
+      host: "127.0.0.1", port, method, path: urlPath,
+      headers: { "content-type": "application/json", "content-length": Buffer.byteLength(data), ...headers },
+    }, (res) => {
+      const chunks = [];
+      res.on("data", (chunk) => chunks.push(chunk));
+      res.on("end", () => {
+        const text = Buffer.concat(chunks).toString("utf8");
+        let json = null;
+        try {
+          json = JSON.parse(text);
+        } catch (error) {
+          json = null;
+        }
+        resolve({ status: res.statusCode, headers: res.headers, text, json });
+      });
+    });
+    req.on("error", reject);
+    req.end(data);
+  });
+}
+
+// A fake page: reads Server-Sent Events into `received`.
+// @purity non-pure
+function openPage(token, pageId) {
+  const received = [];
+  const req = http.get({ host: "127.0.0.1", port: PORT, path: `/api/stream?t=${token}&page=${pageId}` }, (res) => {
+    let buffer = "";
+    res.setEncoding("utf8");
+    res.on("data", (chunk) => {
+      buffer += chunk;
+      const blocks = buffer.split("\n\n");
+      buffer = blocks.pop();
+      for (const block of blocks) {
+        const type = /^event: (.*)$/m.exec(block);
+        const data = /^data: (.*)$/m.exec(block);
+        if (type && data) received.push({ type: type[1], data: JSON.parse(data[1]) });
+      }
+    });
+  });
+  req.on("error", () => {});
+  return {
+    received,
+    find: (type) => received.find((m) => m.type === type),
+    post: (urlPath, body) => call(PORT, "POST", urlPath, { body: { page: pageId, ...body }, headers: { "x-board-token": token } }),
+    close: () => req.destroy(),
+  };
+}
+
+// @purity non-pure
+function readLog(logPath) {
+  try {
+    return fs.readFileSync(logPath, "utf8").split("\n").filter(Boolean).map((line) => JSON.parse(line));
+  } catch (error) {
+    return [];
+  }
+}
+
+// @purity pure
+function textElement(id, text, extra = {}) {
+  return {
+    id, type: "text", version: 1, versionNonce: 7, isDeleted: false, x: 50, y: 60, width: 80, height: 25,
+    text, containerId: null, updated: Date.now(), ...extra,
+  };
+}
+
+test("page sync, Message events, Answers, safety checks, and saving", async () => {
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "wbc-server-"));
+  const logPath = path.join(dataDir, "server.log");
+  const child = spawn(process.execPath, [
+    SERVER, "--data", dataDir, "--port", String(PORT), "--control-port", String(CONTROL_PORT),
+    "--settle-ms", "200", "--tick-ms", "50", "--save-ms", "100",
+  ], { stdio: "ignore" });
+  const exited = new Promise((resolve) => child.on("exit", resolve));
+  try {
+    await until(() => readLog(logPath).find((e) => e.event === "ServerReady"), 10000, "ServerReady");
+    const token = fs.readFileSync(path.join(dataDir, "token.txt"), "utf8").trim();
+    assert.ok(!fs.readFileSync(logPath, "utf8").includes(token), "the log must not contain the Token");
+
+    const page = await call(PORT, "GET", "/");
+    assert.equal(page.status, 200);
+    assert.match(page.headers["content-security-policy"], /script-src 'self' https:\/\/esm\.sh/);
+    assert.equal((await call(PORT, "GET", `/api/stream?t=wrong&page=pageAAAA1`)).status, 403);
+    assert.equal((await call(PORT, "POST", "/api/elements", { body: {}, headers: { "x-board-token": "wrong" } })).status, 403);
+    const foreign = await call(PORT, "POST", "/api/elements", { body: {}, headers: { "x-board-token": token, origin: "https://evil.example" } });
+    assert.equal(foreign.status, 403);
+
+    const leader = openPage(token, "pageAAAA1");
+    const other = openPage(token, "pageBBBB2");
+    await until(() => leader.find("hello") && other.find("hello"), 5000, "hello");
+    assert.equal(leader.find("hello").data.leader, true);
+    assert.equal(other.find("hello").data.leader, false);
+
+    // A person types on the other page; the text is reported after it settles.
+    await other.post("/api/elements", { elements: [textElement("m1", "hello")], editingId: "m1" });
+    await until(() => leader.find("elements"), 5000, "elements on the leader page");
+    await delay(400);
+    assert.equal(readLog(logPath).some((e) => e.event === "MessageReceived"), false, "text being typed is not reported");
+    await other.post("/api/elements", { elements: [], editingId: null });
+    const message = await until(() => readLog(logPath).find((e) => e.event === "MessageReceived"), 5000, "MessageReceived");
+    assert.deepEqual([message.id, message.text, message.x, message.y], ["m1", "hello", 50, 60]);
+
+    // Claude answers; the Leader page writes the Answer.
+    const said = call(CONTROL_PORT, "POST", "/v1/say", { body: { text: "hi there" } });
+    const job = await until(() => leader.find("job"), 5000, "job");
+    assert.deepEqual([job.data.kind, job.data.text, job.data.x, job.data.y], ["answer", "hi there", 50, 125]);
+    const answer = textElement("a1", "hi there", { x: job.data.x, y: job.data.y, customData: { whiteboardChat: "answer" } });
+    assert.equal((await leader.post("/api/job", { jobId: job.data.jobId, ok: true, elements: [answer] })).status, 200);
+    const reply = await said;
+    assert.equal(reply.status, 200);
+    assert.deepEqual(reply.json.ids, ["a1"]);
+    await delay(400);
+    assert.equal(readLog(logPath).filter((e) => e.event === "MessageReceived").length, 1, "an Answer is not a Message");
+
+    // The Control API is for local tools only.
+    const fromPage = await call(CONTROL_PORT, "POST", "/v1/say", { body: { text: "x" }, headers: { origin: `http://127.0.0.1:${PORT}` } });
+    assert.equal(fromPage.status, 403);
+    const board = await call(CONTROL_PORT, "GET", "/v1/board");
+    assert.deepEqual(board.json.items.map((i) => [i.id, i.isAnswer]), [["m1", false], ["a1", true]]);
+
+    leader.close();
+    other.close();
+    assert.equal((await call(CONTROL_PORT, "POST", "/v1/stop")).status, 202);
+    assert.equal(await exited, 0);
+    const saved = JSON.parse(fs.readFileSync(path.join(dataDir, "board.json"), "utf8"));
+    assert.deepEqual(saved.elements.map((e) => e.id).sort(), ["a1", "m1"]);
+    assert.equal(readLog(logPath).at(-1).event, "ServerStopped");
+  } finally {
+    child.kill();
+  }
+});

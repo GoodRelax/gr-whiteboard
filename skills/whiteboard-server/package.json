@@ -1,0 +1,14 @@
+{
+  "name": "whiteboard-server",
+  "version": "0.1.0",
+  "description": "Claude Code Skill: a local whiteboard (Excalidraw component) that Claude Code can read and write.",
+  "license": "Apache-2.0",
+  "private": true,
+  "main": "scripts/server.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "node-forge": "1.4.0"
+  }
+}
