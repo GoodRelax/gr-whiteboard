@@ -12,7 +12,8 @@ const INTEGER_SETTINGS = Object.freeze([
   { name: "saveMs", flag: "--save-ms", defaultValue: 3000, min: 100, max: 600000 },
   { name: "jobTimeoutMs", flag: "--job-timeout-ms", defaultValue: 15000, min: 1000, max: 120000 },
   { name: "maxTextChars", flag: "--max-text-chars", defaultValue: 2000, min: 1, max: 20000 },
-  { name: "answerGapPx", flag: "--answer-gap-px", defaultValue: 40, min: 0, max: 1000 },
+  { name: "answerGapPx", flag: "--answer-gap-px", defaultValue: 12, min: 0, max: 1000 },
+  { name: "answerIndentPx", flag: "--answer-indent-px", defaultValue: 170, min: 0, max: 2000 },
 ]);
 
 // Flags that take no value.

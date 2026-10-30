@@ -3,6 +3,7 @@
 // DataFiles (Adapter). Reads and writes the files in the data folder. See spec 4.5.
 //   board.json   the Board (FR-040)
 //   token.txt    the Token (FR-045)
+//   baseline.json  the Board at the last Send, as summaries (FR-076)
 //   cert.pem, key.pem, cert-info.json   the self-signed certificate for LAN mode (FR-047)
 
 const crypto = require("crypto");
@@ -18,6 +19,7 @@ function dataPaths(dataDir) {
   return Object.freeze({
     board: path.join(dataDir, "board.json"),
     token: path.join(dataDir, "token.txt"),
+    baseline: path.join(dataDir, "baseline.json"),
     cert: path.join(dataDir, "cert.pem"),
     key: path.join(dataDir, "key.pem"),
     certInfo: path.join(dataDir, "cert-info.json"),

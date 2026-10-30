@@ -4,8 +4,11 @@
 //   GET  /                 the page (no Token needed: it holds no Board data)
 //   GET  /app.js           the page script
 //   GET  /api/stream       Server-Sent Events to one page (Token in the query, as EventSource has no headers)
+//                          events: hello, elements, role, job, signal, ping, bye
 //   POST /api/elements     changed elements from a page
 //   POST /api/job          the result of a Job from the Leader page
+//   POST /api/send         the Person pressed Send (FR-072)
+//   POST /api/auto-send    the Person turned automatic sending on or off (FR-074)
 
 const crypto = require("crypto");
 const fs = require("fs");
@@ -63,8 +66,9 @@ function isSameOrigin(req) {
 }
 
 // hub: BoardHub. token: the Token. redact(text) hides secrets.
+// inbox: { send(pageId) -> { sent }, setAutoSend(on) } (the Send handling in server.js).
 // @purity non-pure
-function createBoardApi({ hub, token, pageDir, redact, clock }) {
+function createBoardApi({ hub, inbox, token, pageDir, redact, clock }) {
   const files = loadPageFiles(pageDir);
   // pageId -> the open stream of that page. A page that connects again replaces its old stream.
   const streams = new Map();
@@ -97,7 +101,8 @@ function createBoardApi({ hub, token, pageDir, redact, clock }) {
     res.write("retry: 2000\n\n");
     // @purity non-pure
     const send = (type, data) => res.write(`event: ${type}\ndata: ${JSON.stringify(data)}\n\n`);
-    const keepAlive = clock.setInterval(() => res.write(": ping\n\n"), KEEP_ALIVE_MS);
+    // A real event (not a comment), so the page can see that the stream is alive (FR-023a).
+    const keepAlive = clock.setInterval(() => send("ping", {}), KEEP_ALIVE_MS);
     const stream = { res, keepAlive };
     streams.set(pageId, stream);
     req.on("close", () => {
@@ -148,6 +153,15 @@ function createBoardApi({ hub, token, pageDir, redact, clock }) {
         const body = await readPost(req, MAX_JOB_BYTES);
         hub.finishJob(String(body.page || ""), body);
         return sendJson(res, 200, {});
+      }
+      case "POST /api/send": {
+        const body = await readPost(req, MAX_ELEMENTS_BYTES);
+        return sendJson(res, 200, inbox.send(String(body.page || "")));
+      }
+      case "POST /api/auto-send": {
+        const body = await readPost(req, MAX_ELEMENTS_BYTES);
+        inbox.setAutoSend(body.on === true);
+        return sendJson(res, 200, { autoSend: body.on === true });
       }
       default:
         throw new AppError("NotFound", 404, `no route for ${key}`);

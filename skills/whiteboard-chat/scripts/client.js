@@ -6,6 +6,7 @@
 //   node scripts/client.js say [--file PATH] [--at X,Y]   text from PATH, or from stdin
 //   node scripts/client.js shot [ITEM_ID]
 //   node scripts/client.js board
+//   node scripts/client.js signal reading|working|waiting|none   shows what Claude is doing on every page
 //   node scripts/client.js stop
 //   node scripts/client.js wait [--timeout-ms N]         waits for ServerReady or ServerFailed in the log
 //   node scripts/client.js watch                         prints new events from the log, one per line, forever
@@ -26,7 +27,7 @@ const WAIT_LOOKBACK_MS = 5000;
 // Some editors on Windows put this mark at the start of UTF-8 files.
 const BYTE_ORDER_MARK = new RegExp("^" + String.fromCharCode(0xfeff));
 const WATCH_EVENTS = new Set([
-  "ServerReady", "MessageReceived", "MessageEdited", "DrawingAdded", "PageJoined", "PageLeft",
+  "ServerReady", "MessagesSent", "MessageReceived", "MessageEdited", "DrawingAdded", "PageJoined", "PageLeft",
   "AnswerFailed", "SaveFailed", "BoardWarning", "ServerStopped", "ServerFailed",
 ]);
 
@@ -183,11 +184,14 @@ async function sendHttp(args) {
     case "board":
       reply = await request(args.port, "GET", "/v1/board");
       break;
+    case "signal":
+      reply = await request(args.port, "POST", "/v1/signal", { state: args.rest[0] || "" });
+      break;
     case "stop":
       reply = await request(args.port, "POST", "/v1/stop");
       break;
     default:
-      process.stderr.write("usage: client.js say|shot|board|stop|wait|watch [--port N] [--log PATH] [--file PATH] [--at X,Y] [ITEM_ID]\n");
+      process.stderr.write("usage: client.js say|shot|board|signal|stop|wait|watch [--port N] [--log PATH] [--file PATH] [--at X,Y] [ITEM_ID]\n");
       process.exit(2);
   }
   process.stdout.write(reply.text + "\n");

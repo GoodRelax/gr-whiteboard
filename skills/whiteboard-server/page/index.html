@@ -12,6 +12,16 @@
   .wbc-status { font: 12px/1.4 system-ui, sans-serif; padding: 4px 8px; border-radius: 6px;
     background: rgba(255, 255, 255, 0.9); color: #1e1e1e; border: 1px solid #ddd; white-space: nowrap; }
   .wbc-status.off { background: #fff3bf; }
+  .wbc-bar { display: flex; gap: 6px; align-items: center; }
+  .wbc-signal { font: 600 13px/1.4 system-ui, sans-serif; padding: 4px 10px; border-radius: 6px; white-space: nowrap; color: #1e1e1e; }
+  .wbc-reading { background: #ffec99; }
+  .wbc-working { background: #a5d8ff; }
+  .wbc-waiting { background: #b2f2bb; }
+  .wbc-send { font: 600 13px/1.4 system-ui, sans-serif; padding: 4px 10px; border-radius: 6px; cursor: pointer;
+    border: 1px solid #ced4da; background: #f1f3f5; color: #495057; white-space: nowrap; }
+  .wbc-send.wbc-has { background: #1971c2; border-color: #1971c2; color: #fff; }
+  .wbc-auto { font: 12px/1.4 system-ui, sans-serif; display: flex; align-items: center; gap: 2px; color: #495057;
+    background: rgba(255, 255, 255, 0.9); padding: 3px 6px; border-radius: 6px; cursor: pointer; white-space: nowrap; }
 </style>
 <script type="importmap">{"imports":{"react":"https://esm.sh/react@19.2.8","react/jsx-runtime":"https://esm.sh/react@19.2.8/jsx-runtime","react-dom":"https://esm.sh/react-dom@19.2.8","react-dom/client":"https://esm.sh/react-dom@19.2.8/client","@excalidraw/excalidraw":"https://esm.sh/@excalidraw/excalidraw@0.18.1/dist/prod/index.js?external=react,react-dom"}}</script>
 </head>

@@ -9,6 +9,7 @@ import {
   CaptureUpdateAction,
   convertToExcalidrawElements,
   exportToBlob,
+  newElementWith,
   reconcileElements,
   restoreElements,
 } from "@excalidraw/excalidraw";
@@ -21,6 +22,20 @@ const ANSWER_FONT_SIZE = 20;
 const ANSWER_MARK = "answer";
 const SHOT_BOX = Object.freeze({ width: 1600, height: 1000 });
 const SHOT_MAX_PX = 2000;
+// The fonts of Answers: Excalifont, and Xiaolai for Chinese and Japanese characters.
+const ANSWER_FONT = `${ANSWER_FONT_SIZE}px Excalifont, Xiaolai`;
+// The Server sends "ping" every 20 s. Without any message for this long, open the stream again (FR-023a).
+const STREAM_STALE_MS = 50000;
+const WATCH_STREAM_MS = 5000;
+// Time for Excalidraw to finish the text after the editor loses focus.
+const BLUR_WAIT_MS = 50;
+const BLUR_TRIES = 20;
+// Every label is "Claude: <verb> <object>", so it is clear who does what (the owner's rule).
+const SIGNAL_TEXT = Object.freeze({
+  reading: "Claude: reading your text",
+  working: "Claude: working on it",
+  waiting: "Claude: waiting for you",
+});
 
 const token = new URLSearchParams(window.location.hash.slice(1)).get("t") || "";
 const pageId = randomId();
@@ -31,7 +46,11 @@ let firstHello = true;
 let editingId = null;
 let editingChanged = false;
 let flushTimer = null;
-let status = { online: false, leader: false };
+let source = null;
+let lastStreamMs = 0;
+let reopenTimer = null;
+let status = { online: false, leader: false, signal: "none", unsent: 0, autoSend: false };
+let sending = false;
 let showStatus = () => {};
 // id -> the version that the Server has (sent by us or received from it).
 const known = new Map();
@@ -65,6 +84,7 @@ function scheduleFlush(delayMs) {
 }
 
 async function flush() {
+  if (flushTimer !== null) clearTimeout(flushTimer);
   flushTimer = null;
   if (pending.size === 0 && !editingChanged) return;
   const list = [...pending.values()];
@@ -135,17 +155,103 @@ function applyRemote(list) {
 function onHello(data) {
   isLeader = data.leader;
   applyRemote(data.elements);
+  if (isLeader) fixAnswerSizes();
   // Elements made here while the Server was away go to the Server now.
   collectChanges();
   if (firstHello && data.elements.length > 0) api.scrollToContent(undefined, { fitToContent: true });
   firstHello = false;
-  setStatus({ online: true, leader: isLeader });
+  const inbox = data.inbox || { unsent: 0, autoSend: false };
+  setStatus({ ...status, online: true, leader: isLeader, signal: data.signal || "none", ...inbox });
 }
 
-function writeAnswer(job) {
+// A timer, not requestAnimationFrame: animation frames stop while the page is not drawn
+// (a tab in the background), and Send would then wait for ever.
+function shortWait() {
+  return new Promise((resolve) => setTimeout(resolve, BLUR_WAIT_MS));
+}
+
+// Send: finish the text that is being typed, send the last changes, then tell the Server (FR-072).
+async function sendToClaude() {
+  if (sending) return;
+  sending = true;
+  try {
+    // Escape in the text editor makes Excalidraw finish the text (its own "finish editing" key).
+    const editor = document.querySelector("textarea.excalidraw-wysiwyg");
+    if (editor) editor.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", code: "Escape", bubbles: true }));
+    for (let i = 0; i < BLUR_TRIES && api.getAppState().editingTextElement; i += 1) await shortWait();
+    // The text is finished now: tell the Server that nothing is being typed here, or it holds the text back.
+    if (editingId !== null) {
+      editingId = null;
+      editingChanged = true;
+    }
+    collectChanges();
+    await flush();
+    await post("/api/send", {});
+  } catch (error) {
+    setStatus({ ...status, online: false });
+  } finally {
+    sending = false;
+  }
+}
+
+// Ctrl+Shift+Enter (Cmd+Shift+Enter on a Mac) sends, also while typing (FR-073).
+// Neither Excalidraw 0.18.1 nor the browser uses it on a page; we catch it before Excalidraw sees Ctrl+Enter.
+function onKeyDown(event) {
+  if (event.key !== "Enter" || !event.shiftKey || event.altKey || !(event.ctrlKey || event.metaKey)) return;
+  if (event.isComposing) return;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  sendToClaude();
+}
+
+async function setAutoSend(on) {
+  try {
+    await post("/api/auto-send", { on });
+  } catch (error) {
+    setStatus({ ...status, online: false });
+  }
+}
+
+// Text is measured with the font that is loaded now. Excalifont loads late, so wait for it,
+// or the width is too small and the end of the line is cut (FR-028).
+async function loadAnswerFont(text) {
+  try {
+    await document.fonts.load(ANSWER_FONT, text);
+  } catch (error) {
+    // Measure with the fallback font; the text may then be cut.
+  }
+}
+
+function measure(text, x, y) {
   const [made] = convertToExcalidrawElements([
-    { type: "text", x: job.x, y: job.y, text: job.text, fontSize: ANSWER_FONT_SIZE, strokeColor: ANSWER_COLOR },
+    { type: "text", x, y, text, fontSize: ANSWER_FONT_SIZE, strokeColor: ANSWER_COLOR },
   ]);
+  return made;
+}
+
+// Answers that were measured before the font was loaded are too narrow. The Leader fixes them once.
+async function fixAnswerSizes() {
+  const answers = api.getSceneElements().filter((element) => isAnswer(element) && element.type === "text");
+  if (answers.length === 0) return;
+  await loadAnswerFont(answers.map((element) => element.text).join(""));
+  const fixed = [];
+  for (const element of answers) {
+    const size = measure(element.text, element.x, element.y);
+    if (size.width > element.width + 0.5 || size.height > element.height + 0.5) {
+      fixed.push(newElementWith(element, { width: size.width, height: size.height }));
+    }
+  }
+  if (fixed.length === 0) return;
+  const byId = new Map(fixed.map((element) => [element.id, element]));
+  api.updateScene({
+    elements: api.getSceneElementsIncludingDeleted().map((element) => byId.get(element.id) || element),
+    captureUpdate: CaptureUpdateAction.NEVER,
+  });
+}
+
+async function writeAnswer(job) {
+  await loadAnswerFont(job.text);
+  const made = measure(job.text, job.x, job.y);
   const element = { ...made, customData: { ...(made.customData || {}), whiteboardChat: ANSWER_MARK } };
   api.updateScene({
     elements: [...api.getSceneElementsIncludingDeleted(), element],
@@ -195,26 +301,60 @@ async function takeShot(job) {
 
 async function runJob(job) {
   try {
-    const result = job.kind === "answer" ? writeAnswer(job) : await takeShot(job);
+    const result = job.kind === "answer" ? await writeAnswer(job) : await takeShot(job);
     await post("/api/job", { jobId: job.jobId, ok: true, ...result });
   } catch (error) {
     await post("/api/job", { jobId: job.jobId, ok: false, error: String(error && error.message) }).catch(() => {});
   }
 }
 
-function connect() {
+function offline() {
+  setStatus({ ...status, online: false, leader: false });
+}
+
+function reopenLater() {
+  if (reopenTimer === null) reopenTimer = setTimeout(openStream, RETRY_MS);
+}
+
+// The browser opens a broken stream again by itself, but not always: some browsers give up
+// (readyState CLOSED), and a stream can stop without an error. Then we open a new one (FR-023a).
+function openStream() {
+  reopenTimer = null;
+  if (source) source.close();
   const query = new URLSearchParams({ t: token, page: pageId });
-  const source = new EventSource(`/api/stream?${query}`);
-  const on = (type, handler) => source.addEventListener(type, (event) => handler(JSON.parse(event.data)));
+  const current = new EventSource(`/api/stream?${query}`);
+  source = current;
+  lastStreamMs = Date.now();
+  const on = (type, handler) => current.addEventListener(type, (event) => {
+    lastStreamMs = Date.now();
+    handler(JSON.parse(event.data));
+  });
   on("hello", onHello);
+  on("ping", () => {});
   on("elements", (data) => applyRemote(data.elements));
   on("role", (data) => {
     isLeader = data.leader;
-    setStatus({ online: true, leader: isLeader });
+    setStatus({ ...status, online: true, leader: isLeader });
+    if (isLeader) fixAnswerSizes();
   });
+  on("signal", (data) => setStatus({ ...status, signal: data.state }));
+  on("inbox", (data) => setStatus({ ...status, unsent: data.unsent, autoSend: data.autoSend }));
   on("job", runJob);
-  on("bye", () => setStatus({ online: false, leader: false }));
-  source.onerror = () => setStatus({ online: false, leader: false });
+  on("bye", offline);
+  current.onerror = () => {
+    offline();
+    if (current.readyState === EventSource.CLOSED) reopenLater();
+  };
+}
+
+function connect() {
+  openStream();
+  setInterval(() => {
+    if (source && Date.now() - lastStreamMs > STREAM_STALE_MS) {
+      offline();
+      openStream();
+    }
+  }, WATCH_STREAM_MS);
 }
 
 function setStatus(next) {
@@ -231,7 +371,23 @@ function StatusBadge() {
   const text = shown.online
     ? `Whiteboard Chat: connected${shown.leader ? " (this page writes Claude's answers)" : ""}`
     : "Whiteboard Chat: not connected, trying again";
-  return h("div", { className: shown.online ? "wbc-status" : "wbc-status off" }, text);
+  const signal = SIGNAL_TEXT[shown.signal];
+  const send = shown.autoSend
+    ? null
+    : h("button", {
+      type: "button",
+      className: shown.unsent > 0 ? "wbc-send wbc-has" : "wbc-send",
+      title: "Send your text and drawings to Claude (Ctrl+Shift+Enter)",
+      onClick: sendToClaude,
+    }, `Send (${shown.unsent})`);
+  const auto = h("label", { className: "wbc-auto", title: "Send each text by itself, 1.5 s after you stop typing" },
+    h("input", { type: "checkbox", checked: shown.autoSend, onChange: (event) => setAutoSend(event.target.checked) }),
+    "auto");
+  return h("div", { className: "wbc-bar" },
+    send,
+    signal ? h("div", { className: `wbc-signal wbc-${shown.signal}` }, signal) : null,
+    h("div", { className: shown.online ? "wbc-status" : "wbc-status off" }, text),
+    auto);
 }
 
 function App() {
@@ -247,6 +403,8 @@ function App() {
     renderTopRightUI: () => h(StatusBadge),
   });
 }
+
+window.addEventListener("keydown", onKeyDown, true);
 
 if (!token) {
   showNotice("This page needs the full link that Claude Code showed you. It ends with #t= and a code.");

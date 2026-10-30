@@ -160,3 +160,13 @@ test("hand drawings older than notBeforeMs are not counted (FR-009a)", () => {
   const { events } = run(createTrackerState([], 5000), [[[draw("d1", 1000), draw("d2", 6000)], 7000]]);
   assert.deepEqual(events, [{ event: "DrawingAdded", drawingCount: 1, added: 1 }]);
 });
+
+test("shapes, arrows, and lines are Drawings too; text is not (FR-016)", () => {
+  const shape = (id, type) => ({ id, type, x: 0, y: 0, width: 1, height: 1, text: null, containerId: null, updatedMs: 1 });
+  const { events } = run(createTrackerState([]), [
+    [[shape("e1", "ellipse"), shape("r1", "rectangle"), shape("a1", "arrow"), shape("l1", "line"), shape("d1", "diamond")], 0],
+  ]);
+  assert.deepEqual(events, [{ event: "DrawingAdded", drawingCount: 5, added: 5 }]);
+  const textOnly = run(createTrackerState([]), [[[text("t", "hi")], 0]]);
+  assert.equal(textOnly.events.some((e) => e.event === "DrawingAdded"), false);
+});

@@ -43,7 +43,8 @@ function within(promise, ms, clock) {
   });
 }
 
-// handlers: { status(), board(), say(text, at) -> { jobId, done }, shot(focusId) -> Promise<{ path }>, stop() }
+// handlers: { status(), board(), say(text, at) -> { jobId, done }, shot(focusId) -> Promise<{ path }>,
+//             signal(state), stop() }
 // @purity non-pure
 function createControlApi({ handlers, maxTextChars, sayWaitMs, redact, clock }) {
   let port = 0;
@@ -70,6 +71,11 @@ function createControlApi({ handlers, maxTextChars, sayWaitMs, redact, clock }) 
       case "POST /v1/shot": {
         const request = parseJsonBody(await readBody(req, MAX_BODY_BYTES), true);
         return [200, await handlers.shot(request.focusId)];
+      }
+      case "POST /v1/signal": {
+        const request = parseJsonBody(await readBody(req, MAX_BODY_BYTES), false);
+        handlers.signal(String(request.state || ""));
+        return [200, { state: request.state }];
       }
       case "POST /v1/stop":
         clock.setTimeout(handlers.stop, 0);

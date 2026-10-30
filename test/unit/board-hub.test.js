@@ -187,3 +187,21 @@ test("close rejects waiting jobs and says bye", async () => {
   hub.close();
   assert.ok(page.last("bye"));
 });
+
+test("the Signal goes to every page and to new pages; an Answer sets waiting (FR-038, FR-039)", () => {
+  const { hub } = setup();
+  const p1 = fakePage();
+  hub.addPage("page-0001", p1.send);
+  assert.equal(p1.last("hello").data.signal, "none");
+  hub.setSignal("reading");
+  hub.setSignal("reading");
+  assert.deepEqual(p1.got.filter((m) => m.type === "signal").map((m) => m.data.state), ["reading"]);
+  const p2 = fakePage();
+  hub.addPage("page-0002", p2.send);
+  assert.equal(p2.last("hello").data.signal, "reading");
+  hub.queueAnswer("hi", null);
+  hub.finishJob("page-0001", { jobId: 1, ok: true, elements: [answer("a1")] });
+  assert.equal(hub.signal(), "waiting");
+  assert.equal(p2.last("signal").data.state, "waiting");
+  assert.throws(() => hub.setSignal("dancing"), { code: "InvalidSignal" });
+});

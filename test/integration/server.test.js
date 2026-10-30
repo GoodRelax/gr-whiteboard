@@ -128,39 +128,67 @@ test("page sync, Message events, Answers, safety checks, and saving", async () =
     assert.equal(leader.find("hello").data.leader, true);
     assert.equal(other.find("hello").data.leader, false);
 
-    // A person types on the other page; the text is reported after it settles.
+    // A person types on the other page. Nothing goes to the Agent until the person presses Send.
+    assert.deepEqual(other.find("hello").data.inbox, { unsent: 0, autoSend: false });
     await other.post("/api/elements", { elements: [textElement("m1", "hello")], editingId: "m1" });
     await until(() => leader.find("elements"), 5000, "elements on the leader page");
     await delay(400);
-    assert.equal(readLog(logPath).some((e) => e.event === "MessageReceived"), false, "text being typed is not reported");
+    assert.equal(other.received.some((m) => m.type === "inbox"), false, "text being typed is not counted");
     await other.post("/api/elements", { elements: [], editingId: null });
-    const message = await until(() => readLog(logPath).find((e) => e.event === "MessageReceived"), 5000, "MessageReceived");
-    assert.deepEqual([message.id, message.text, message.x, message.y], ["m1", "hello", 50, 60]);
+    await until(() => other.received.some((m) => m.type === "inbox" && m.data.unsent === 1), 5000, "unsent 1");
+    assert.equal(readLog(logPath).some((e) => e.event.startsWith("Message")), false, "nothing goes to the Agent before Send");
+    assert.deepEqual((await other.post("/api/send", {})).json.sent, 1);
+    const sent = await until(() => readLog(logPath).find((e) => e.event === "MessagesSent"), 5000, "MessagesSent");
+    assert.deepEqual(sent.messages.map((m) => [m.id, m.text, m.x, m.y]), [["m1", "hello", 50, 60]]);
+    assert.deepEqual(sent.changes, []);
+    await until(() => other.received.some((m) => m.type === "inbox" && m.data.unsent === 0), 5000, "unsent 0");
+    assert.deepEqual((await other.post("/api/send", {})).json.sent, 0, "Send with nothing new sends nothing");
 
     // Claude answers; the Leader page writes the Answer.
     const said = call(CONTROL_PORT, "POST", "/v1/say", { body: { text: "hi there" } });
     const job = await until(() => leader.find("job"), 5000, "job");
-    assert.deepEqual([job.data.kind, job.data.text, job.data.x, job.data.y], ["answer", "hi there", 50, 125]);
+    // Chat style: right below the Message (y 60 + height 25 + gap 12), 170 px to the left.
+    assert.deepEqual([job.data.kind, job.data.text, job.data.x, job.data.y], ["answer", "hi there", -120, 97]);
     const answer = textElement("a1", "hi there", { x: job.data.x, y: job.data.y, customData: { whiteboardChat: "answer" } });
     assert.equal((await leader.post("/api/job", { jobId: job.data.jobId, ok: true, elements: [answer] })).status, 200);
     const reply = await said;
     assert.equal(reply.status, 200);
     assert.deepEqual(reply.json.ids, ["a1"]);
     await delay(400);
-    assert.equal(readLog(logPath).filter((e) => e.event === "MessageReceived").length, 1, "an Answer is not a Message");
+    assert.equal((await call(CONTROL_PORT, "GET", "/v1/status")).json.unsent, 0, "an Answer is not news for Claude");
+
+    // Moving a text is a change too; the next Send lists it (FR-075).
+    await other.post("/api/elements", { elements: [textElement("m1", "hello", { version: 2, x: 250 })], editingId: null });
+    await until(() => other.received.some((m) => m.type === "inbox" && m.data.unsent === 1), 5000, "unsent 1 after a move");
+    await other.post("/api/send", {});
+    const moved = await until(() => readLog(logPath).filter((e) => e.event === "MessagesSent")[1], 5000, "second MessagesSent");
+    assert.deepEqual(moved.messages, []);
+    assert.deepEqual(moved.changes.map((c) => [c.kind, c.id, c.what, c.from]), [["changed", "m1", ["moved"], { x: 50, y: 60 }]]);
+
+    // With automatic sending on, each text goes to the Agent by itself when it is Settled.
+    assert.equal((await other.post("/api/auto-send", { on: true })).status, 200);
+    await until(() => leader.received.some((m) => m.type === "inbox" && m.data.autoSend), 5000, "autoSend on");
+    await other.post("/api/elements", { elements: [textElement("m2", "auto text", { x: 900, y: 900 })], editingId: null });
+    const auto = await until(() => readLog(logPath).find((e) => e.event === "MessageReceived"), 5000, "MessageReceived");
+    assert.deepEqual([auto.id, auto.text], ["m2", "auto text"]);
+
+    // The Signal reaches the pages.
+    assert.equal((await call(CONTROL_PORT, "POST", "/v1/signal", { body: { state: "working" } })).status, 200);
+    await until(() => other.received.some((m) => m.type === "signal" && m.data.state === "working"), 5000, "signal");
+    assert.equal((await call(CONTROL_PORT, "POST", "/v1/signal", { body: { state: "bad" } })).json.error, "InvalidSignal");
 
     // The Control API is for local tools only.
     const fromPage = await call(CONTROL_PORT, "POST", "/v1/say", { body: { text: "x" }, headers: { origin: `http://127.0.0.1:${PORT}` } });
     assert.equal(fromPage.status, 403);
     const board = await call(CONTROL_PORT, "GET", "/v1/board");
-    assert.deepEqual(board.json.items.map((i) => [i.id, i.isAnswer]), [["m1", false], ["a1", true]]);
+    assert.deepEqual(board.json.items.map((i) => [i.id, i.isAnswer]), [["m1", false], ["a1", true], ["m2", false]]);
 
     leader.close();
     other.close();
     assert.equal((await call(CONTROL_PORT, "POST", "/v1/stop")).status, 202);
     assert.equal(await exited, 0);
     const saved = JSON.parse(fs.readFileSync(path.join(dataDir, "board.json"), "utf8"));
-    assert.deepEqual(saved.elements.map((e) => e.id).sort(), ["a1", "m1"]);
+    assert.deepEqual(saved.elements.map((e) => e.id).sort(), ["a1", "m1", "m2"]);
     assert.equal(readLog(logPath).at(-1).event, "ServerStopped");
   } finally {
     child.kill();

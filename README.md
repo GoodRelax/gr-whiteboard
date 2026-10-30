@@ -41,7 +41,11 @@ Or simply ask Claude Code: "Install the two skills in the skills folder of https
 
 1. In Claude Code, type `/whiteboard-chat`.
 2. Claude Code starts the board and shows a link. Open it in your browser.
-3. Write on the board with the text tool (**T**). Claude answers below, in blue.
+3. Write on the board with the text tool (**T**). You can use several texts and drawings.
+4. Press **Send** (top right) or **Ctrl+Shift+Enter**. Claude answers right below, a little to the left, in blue, like a chat on a phone.
+
+The top right also shows what Claude is doing: "reading your text", "working on it", or "waiting for you".
+Turn on **auto** to send each text by itself, 1.5 seconds after you stop typing.
 
 To end, say "stop" in the chat. The board is saved and comes back next time.
 
@@ -50,7 +54,7 @@ To let other computers on your network join, say "open the whiteboard to the LAN
 ## How it works
 
 A small Node.js program (the Server) serves the board page and keeps the board. It sends each change to every open page and saves the board to a JSON file.
-The Server also reads the board. When your text stops changing for 1.5 seconds, it tells Claude Code.
+The Server also reads the board. When you press Send, it tells Claude Code everything you wrote since the last Send.
 Claude Code sends its answer to the Server, and the first open page puts the answer on the board.
 
 Details: [docs/spec-en.md](docs/spec-en.md).

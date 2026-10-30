@@ -14,10 +14,16 @@ function isBlank(text) {
   return typeof text !== "string" || text.trim() === "";
 }
 
-// Counts hand drawings that are not old (see notBeforeMs below).
+// A Drawing is every Item that is not text: pen lines, shapes, arrows, lines (FR-016).
+// @purity pure
+function isDrawing(item) {
+  return item.type !== "text";
+}
+
+// Counts Drawings that are not old (see notBeforeMs below).
 // @purity pure
 function countDrawings(items, notBeforeMs) {
-  return items.filter((item) => item.type === "freedraw" && !(item.updatedMs < notBeforeMs)).length;
+  return items.filter((item) => isDrawing(item) && !(item.updatedMs < notBeforeMs)).length;
 }
 
 // @purity pure

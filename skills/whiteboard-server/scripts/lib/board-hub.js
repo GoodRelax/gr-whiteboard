@@ -6,10 +6,16 @@
 // The first page that connects is the Leader. When it leaves, the next page becomes the Leader (FR-034).
 // Only the Leader writes Answers, because only a browser can measure text (ADR-003).
 // Jobs run one at a time, in arrival order (FR-027).
+// The Signal ("reading", "working", "waiting", or "none") tells every page what Claude is doing (FR-038).
 
 const { AppError } = require("./app-error");
 const { mergeElements, toItems, isElement, ANSWER_MARK } = require("./board-store");
-const { placeAnswer, clearOfItems } = require("./answer-placement");
+const { placeAnswer, clearOfItems, estimateSize } = require("./answer-placement");
+
+// The font size that the page uses for Answers (page/app.js).
+const ANSWER_FONT_SIZE_PX = 20;
+
+const SIGNALS = Object.freeze(["none", "reading", "working", "waiting"]);
 
 // On an empty Board, (0, 0) is under the menu of a new page. Start a little inside.
 const EMPTY_BOARD_POINT = Object.freeze({ x: 100, y: 100 });
@@ -20,14 +26,18 @@ function isAnswerElement(element) {
 }
 
 // elements: Map of id -> element (the Board). events: EventPort (emit).
-// clock: { setTimeout, clearTimeout }. onBoardChanged(): called after the Board changed.
+// clock: { setTimeout, clearTimeout }. onBoardChanged(changed): called with the Elements that changed the Board.
+// onAnswerWritten(elements): called with the Answer Elements that the Leader wrote.
 // @purity non-pure
-function createBoardHub({ elements, events, clock, jobTimeoutMs, gapPx, onBoardChanged }) {
+function createBoardHub({ elements, events, clock, jobTimeoutMs, gapPx, indentPx = 0, onBoardChanged, onAnswerWritten = () => {} }) {
   // pageId -> { send(type, data), editingId }. A Map keeps the order in which pages joined.
   const pages = new Map();
   const jobs = [];
   let current = null;
   let nextJobId = 1;
+  let signal = "none";
+  // What the Send button shows on every page (FR-071, FR-074).
+  let inbox = Object.freeze({ unsent: 0, autoSend: false });
 
   // @purity semi-pure-b
   function leaderId() {
@@ -51,10 +61,11 @@ function createBoardHub({ elements, events, clock, jobTimeoutMs, gapPx, onBoardC
   // @purity semi-pure-b
   function answerPoint(job) {
     const items = toItems(elements);
-    if (job.at) return clearOfItems(job.at, items, gapPx);
+    const size = estimateSize(job.text, ANSWER_FONT_SIZE_PX);
+    if (job.at) return clearOfItems(job.at, items, gapPx, size);
     if (items.length === 0) return EMPTY_BOARD_POINT;
     const answerIds = new Set(items.filter((item) => item.isAnswer).map((item) => item.id));
-    return placeAnswer(items, answerIds, gapPx);
+    return placeAnswer(items, answerIds, gapPx, indentPx, size);
   }
 
   // @purity non-pure
@@ -110,7 +121,7 @@ function createBoardHub({ elements, events, clock, jobTimeoutMs, gapPx, onBoardC
   function addPage(pageId, send) {
     pages.set(pageId, { send, editingId: null });
     const isLeader = leaderId() === pageId;
-    send("hello", { pageId, leader: isLeader, elements: [...elements.values()] });
+    send("hello", { pageId, leader: isLeader, signal, inbox, elements: [...elements.values()] });
     events.emit({ event: "PageJoined", pageCount: pages.size });
     if (isLeader) pump();
   }
@@ -139,7 +150,7 @@ function createBoardHub({ elements, events, clock, jobTimeoutMs, gapPx, onBoardC
     const changed = mergeElements(elements, Array.isArray(list) ? list : []);
     if (changed.length > 0) {
       broadcast("elements", { elements: changed }, pageId);
-      onBoardChanged();
+      onBoardChanged(changed);
     }
     return changed.length;
   }
@@ -186,11 +197,29 @@ function createBoardHub({ elements, events, clock, jobTimeoutMs, gapPx, onBoardC
     const changed = mergeElements(elements, written);
     if (changed.length > 0) {
       broadcast("elements", { elements: changed }, pageId);
-      onBoardChanged();
+      onBoardChanged(changed);
     }
+    onAnswerWritten(written);
     const result = { jobId: current.id, ids: written.map((element) => element.id), x: current.point.x, y: current.point.y };
     events.emit({ event: "AnswerPosted", ...result });
+    // An Answer ends Claude's turn (FR-039).
+    setSignal("waiting");
     endJob(null, result);
+  }
+
+  // @purity non-pure
+  function setInbox(unsent, autoSend) {
+    if (unsent === inbox.unsent && autoSend === inbox.autoSend) return;
+    inbox = Object.freeze({ unsent, autoSend });
+    broadcast("inbox", inbox);
+  }
+
+  // @purity non-pure
+  function setSignal(state) {
+    if (!SIGNALS.includes(state)) throw new AppError("InvalidSignal", 400, `signal must be one of ${SIGNALS.join(", ")}`);
+    if (state === signal) return;
+    signal = state;
+    broadcast("signal", { state });
   }
 
   // @purity non-pure
@@ -210,6 +239,10 @@ function createBoardHub({ elements, events, clock, jobTimeoutMs, gapPx, onBoardC
     queueAnswer,
     requestShot,
     finishJob,
+    setSignal,
+    signal: () => signal,
+    setInbox,
+    inbox: () => inbox,
     close,
     pageCount: () => pages.size,
     queueLength: () => jobs.length + (current ? 1 : 0),

@@ -15,11 +15,12 @@ const path = require("path");
 const { parseConfig } = require("./lib/config");
 const { createEventSink, redact } = require("./lib/event-sink");
 const { createTrackerState, trackMessages } = require("./lib/message-tracker");
+const { summarize, summarizeBoard, diffBoards, countOf, toSentEvent } = require("./lib/board-diff");
 const { toItems, pruneDeleted } = require("./lib/board-store");
 const { createBoardHub } = require("./lib/board-hub");
 const { createBoardApi } = require("./lib/board-api");
 const { createControlApi } = require("./lib/control-api");
-const { dataPaths, loadBoard, saveBoard, loadOrCreateToken } = require("./lib/data-files");
+const { dataPaths, loadBoard, saveBoard, loadOrCreateToken, writeFileAtomic, readJsonOrNull } = require("./lib/data-files");
 const { lanAddresses, boardUrls } = require("./lib/lan");
 const { AppError } = require("./lib/app-error");
 
@@ -93,22 +94,102 @@ async function main() {
     if (element && typeof element.id === "string") elements.set(element.id, element);
   }
 
+  // When the Server first got each Element, so added texts can be listed in the order they were written.
+  const firstSeenMs = new Map();
+  // The Board at the last Send (FR-076). Kept on disk, so a restart does not lose what is not sent yet.
+  const savedBaseline = readJsonOrNull(paths.baseline);
+  let baseline = savedBaseline && Array.isArray(savedBaseline.items)
+    ? new Map(savedBaseline.items.map((item) => [item.id, item]))
+    : summarizeBoard(elements.values());
+
+  // @purity non-pure
+  function saveBaseline() {
+    try {
+      writeFileAtomic(paths.baseline, JSON.stringify({ v: 1, items: [...baseline.values()] }));
+    } catch (error) {
+      events.emit({ event: "SaveFailed", message: String(error && error.message) });
+    }
+  }
+
   let dirty = false;
   let stopping = false;
   const clock = { setTimeout, clearTimeout, setInterval, clearInterval };
   const hub = createBoardHub({
-    elements, events, clock, jobTimeoutMs: config.jobTimeoutMs, gapPx: config.answerGapPx,
-    onBoardChanged: () => { dirty = true; },
+    elements, events, clock, jobTimeoutMs: config.jobTimeoutMs, gapPx: config.answerGapPx, indentPx: config.answerIndentPx,
+    onBoardChanged: (changed) => {
+      dirty = true;
+      const now = Date.now();
+      for (const element of changed) {
+        if (!firstSeenMs.has(element.id)) firstSeenMs.set(element.id, now);
+      }
+    },
+    // Claude's own Answers are not news for Claude.
+    onAnswerWritten: (written) => {
+      for (const element of written) baseline.set(element.id, summarize(element));
+      saveBaseline();
+    },
   });
 
   // @purity semi-pure-b
   const messageItems = () => toItems(elements).filter((item) => !item.isAnswer);
   let trackerState = createTrackerState(messageItems(), STARTED_AT_MS - OLD_TEXT_MARGIN_MS);
-  const tickTimer = setInterval(() => {
+  // By default, nothing goes to the Agent until the Person presses Send; then the Agent gets every change
+  // since the last Send (FR-070). With autoSend on, each Message goes when it is Settled, as before (FR-074).
+  let autoSend = false;
+
+  // @purity semi-pure-b
+  function currentDiff() {
+    return diffBoards(baseline, summarizeBoard(elements.values()), firstSeenMs, hub.editingIds());
+  }
+
+  // @purity non-pure
+  function tick() {
+    if (!autoSend) {
+      hub.setInbox(countOf(currentDiff()), autoSend);
+      return;
+    }
     const result = trackMessages(trackerState, { items: messageItems(), editingIds: hub.editingIds() }, Date.now(), config.settleMs);
     trackerState = result.trackerState;
     for (const event of result.messageEvents) events.emit(event);
-  }, config.tickMs);
+  }
+
+  // The new Baseline is the Board now, except the texts that someone is still typing (FR-076).
+  // @purity non-pure
+  function moveBaseline() {
+    const next = summarizeBoard(elements.values());
+    for (const id of hub.editingIds()) {
+      if (baseline.has(id)) next.set(id, baseline.get(id));
+      else next.delete(id);
+    }
+    baseline = next;
+    saveBaseline();
+  }
+
+  // Sends every change since the last Send as one MessagesSent (FR-072).
+  // @purity non-pure
+  function sendChanges() {
+    const diff = currentDiff();
+    const sent = countOf(diff);
+    if (sent > 0) events.emit(toSentEvent(diff));
+    moveBaseline();
+    hub.setInbox(0, autoSend);
+    return { sent };
+  }
+
+  // @purity non-pure
+  function setAutoSend(on) {
+    if (on === autoSend) return;
+    if (on) {
+      sendChanges();
+      trackerState = createTrackerState(messageItems(), Date.now());
+    } else {
+      moveBaseline();
+    }
+    autoSend = on;
+    hub.setInbox(on ? 0 : countOf(currentDiff()), autoSend);
+  }
+
+  const tickTimer = setInterval(tick, config.tickMs);
 
   // @purity non-pure
   function saveNow() {
@@ -137,7 +218,9 @@ async function main() {
     return { path: filePath };
   }
 
-  const boardApi = createBoardApi({ hub, token, pageDir: PAGE_DIR, redact: hide, clock });
+  const boardApi = createBoardApi({
+    hub, inbox: { send: sendChanges, setAutoSend }, token, pageDir: PAGE_DIR, redact: hide, clock,
+  });
   const boardServer = tls
     ? https.createServer({ cert: tls.cert, key: tls.key }, boardApi.handle)
     : http.createServer(boardApi.handle);
@@ -174,6 +257,9 @@ async function main() {
       lanUrls: urls.lan,
       pageCount: hub.pageCount(),
       queueLength: hub.queueLength(),
+      signal: hub.signal(),
+      autoSend,
+      unsent: autoSend ? 0 : countOf(currentDiff()),
       itemCount: toItems(elements).length,
       dataDir: config.dataDir,
       logPath: config.logPath,
@@ -187,6 +273,7 @@ async function main() {
       board: () => ({ items: toItems(elements), pageCount: hub.pageCount() }),
       say: (text, at) => hub.queueAnswer(text, at),
       shot: takeShot,
+      signal: (state) => hub.setSignal(state),
       stop,
     },
     maxTextChars: config.maxTextChars,
