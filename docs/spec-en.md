@@ -4,7 +4,7 @@
 | -------- | --------------------------------------- |
 | Document | spec-en.md                              |
 | Template | ANMS v0.34 (gr-sw-maker process-rules)  |
-| Version  | 0.3.0 (draft)                           |
+| Version  | 0.3.1 (draft)                           |
 | Date     | 2026-10-30                              |
 | Status   | Draft. A person must review it.         |
 | License  | Apache-2.0                              |
@@ -230,6 +230,7 @@ How to check each requirement: T = test, I = inspection (a person reads it), A =
 | FR-060 | The Server shall write every Event, in UTF-8, to `<dataDir>/server.log` as well as to its output. It shall empty the log file when it starts. | T |
 | FR-061 | When `client.js wait` runs, the client shall print the first `ServerReady` or `ServerFailed` Event in the log that is not older than 5 s before the command started, or print `WaitTimeout` and exit with code 1 after `--timeout-ms`. | T |
 | FR-062 | While `client.js watch` runs, the client shall print each new Event in the log whose name is in the Monitor list of 4.7, one line each. If the log becomes shorter or its first line changes, it shall read it again from the start. | T |
+| FR-078 | When `client.js watch` prints a `MessagesSent`, the client shall print only `atMs`, `messageCount`, `changeCount`, and `read` (the `sent` command for this event); `client.js sent --at-ms N` shall print the full `MessagesSent` with that `atMs` (the last one without `--at-ms`), and `NoSent` with exit code 1 if there is none. Reason: a Monitor cut long events, and the Agent missed changes (R-011). | T |
 | FR-063 | Every step of both Skills shall be a plain `node` command, so that it works in bash, PowerShell, and cmd. | I |
 | FR-064 | `setup.js --check` shall finish without using the network. | I |
 
@@ -840,6 +841,7 @@ Run: `npm test` in the repository root (Node.js 20 or later). No install is need
 
 | Version | Date | Change |
 | ------- | ---- | ------ |
+| 0.3.1 | 2026-10-31 | `watch` prints `MessagesSent` as a short line, and the new `client.js sent` prints the full event (FR-078). Reason: in the live test, a Monitor cut a long `MessagesSent`, so the Agent did not get every change. The owner chose this fix (R-011). |
 | 0.3.0 | 2026-10-30 | Chat-style placement (4.6, FR-030), as the owner asked in the live test: the Answer goes right below the newest Message, 170 px to the left. Default `answerGapPx` 40 -> 12. New `answerIndentPx`. Signal labels and names changed to "reading your text" (`reading`), "working on it" (`working`), "waiting for you" (`waiting`): "your turn" did not say whose turn, and "read" can be an order and has no clear tense. All three are "Claude: verb-ing + object". FR-029 now checks the expected size of the Answer, not only its corner. Live test: shapes did not count for Send, because only pen lines were Drawings; FR-016 now counts every Item that is not text. Added Send (FR-070 to FR-077, 4.10): nothing goes to the Agent until the Person presses Send or Ctrl+Shift+Enter; then one `MessagesSent` has the new texts first, then every other change since the last Send (the owner chose "tell every change", also moves, deletions, and colors, and set the reading order). "auto" keeps the old behavior. Reason: the Agent answered while the Person was still writing. |
 | 0.2.0 | 2026-10-30 | Live test with the owner. Answers written soon after a Page opened were cut at the right end (measured before Excalifont loaded): added the font wait to FR-028 and FR-028a. An Edge Page lost its event stream after about 70 s and did not open it again: added FR-023a (ping event, watchdog). Added the Signal (FR-038, FR-039, FR-053a), as the owner asked. |
 | 0.1.0 | 2026-10-30 | First version. Replaces excalidraw-room-chat (which used excalidraw.com with Playwright). Decisions R-001 to R-018. Kept from the old project: MessageTracker (now with `editingIds` for many Pages), AnswerPlacement, EventSink, `client.js` (`wait`, `watch`, `say`). |

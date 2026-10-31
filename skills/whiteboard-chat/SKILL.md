@@ -55,7 +55,13 @@ Tell the user in the chat: "Write on the board. Say 'stop' here to end."
 
 Each Monitor event is one JSON line.
 
-- `MessagesSent`: the person pressed **Send**. It has every change on the board since the last Send. Read it in this order:
+- `MessagesSent`: the person pressed **Send**. The Monitor line is short: `messageCount`, `changeCount`, and `read`. First run the command in `read` to get the full event (a Monitor cuts long lines):
+
+  ```
+  node "SKILL_DIR/scripts/client.js" sent --at-ms ATMS
+  ```
+
+  The full event has every change on the board since the last Send. Read it in this order:
   1. `messages`: the new texts, in the order they were written. Read them all first, to know what the person says now.
   2. `changes`: everything else, one entry per item, with `kind`:
      - `edited`: a text with new words (`text` now, `oldText` before).

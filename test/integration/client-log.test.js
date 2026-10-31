@@ -72,3 +72,41 @@ test("watch prints only new watched events, keeps UTF-8, and survives truncation
   assert.deepEqual(lines.map((e) => e.event), ["MessageReceived", "ServerReady"]);
   assert.equal(lines[0].text, JAPANESE_TEXT);
 });
+
+// @purity pure
+function sentLine(atMs, changeCount) {
+  const changes = Array.from({ length: changeCount }, (_, i) => ({ kind: "changed", id: `c${i}`, what: ["moved"] }));
+  return eventLine("MessagesSent", { messages: [{ id: "m1", text: JAPANESE_TEXT }], changes, atMs });
+}
+
+test("watch prints MessagesSent as a short line, and sent prints it in full (FR-078)", async () => {
+  const log = tempLog();
+  fs.writeFileSync(log, "");
+  const run = runClient(["watch", "--log", log]);
+  await delay(500);
+  fs.appendFileSync(log, sentLine(1000, 200));
+  fs.appendFileSync(log, sentLine(2000, 1));
+  await delay(700);
+  run.child.kill();
+  await run.done;
+  const short = run.output().trim().split("\n").map((line) => JSON.parse(line));
+  assert.deepEqual(short[0], {
+    v: 1, event: "MessagesSent", atMs: 1000, messageCount: 1, changeCount: 200, read: "client.js sent --at-ms 1000",
+  });
+  assert.ok(run.output().split("\n")[0].length < 200);
+
+  const first = await runClient(["sent", "--log", log, "--at-ms", "1000"]).done;
+  assert.equal(first.code, 0);
+  assert.equal(JSON.parse(first.out).changes.length, 200);
+  assert.equal(JSON.parse(first.out).messages[0].text, JAPANESE_TEXT);
+  const last = await runClient(["sent", "--log", log]).done;
+  assert.equal(JSON.parse(last.out).atMs, 2000);
+});
+
+test("sent says NoSent with exit code 1 when the log has no MessagesSent", async () => {
+  const log = tempLog();
+  fs.writeFileSync(log, eventLine("ServerReady", { atMs: 1 }));
+  const { code, out } = await runClient(["sent", "--log", log]).done;
+  assert.equal(code, 1);
+  assert.equal(JSON.parse(out).error, "NoSent");
+});

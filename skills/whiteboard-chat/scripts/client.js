@@ -10,6 +10,8 @@
 //   node scripts/client.js stop
 //   node scripts/client.js wait [--timeout-ms N]         waits for ServerReady or ServerFailed in the log
 //   node scripts/client.js watch                         prints new events from the log, one per line, forever
+//                                                        (MessagesSent as a short line; read it with `sent`)
+//   node scripts/client.js sent [--at-ms N]              prints the full MessagesSent with atMs N (default: the last one)
 // Common flags: --port N (the control port, default 47831),
 //               --log PATH (default <skills folder>/whiteboard-server/.data/server.log).
 // HTTP commands print the JSON reply; exit code 0 for HTTP 2xx, 1 otherwise.
@@ -33,19 +35,33 @@ const WATCH_EVENTS = new Set([
 
 // @purity pure
 function parseArgs(argv) {
-  const args = { command: argv[0], port: DEFAULT_PORT, log: DEFAULT_LOG, at: null, file: null, timeoutMs: DEFAULT_WAIT_MS, rest: [] };
+  const args = { command: argv[0], port: DEFAULT_PORT, log: DEFAULT_LOG, at: null, atMs: null, file: null, timeoutMs: DEFAULT_WAIT_MS, rest: [] };
   for (let i = 1; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === "--port") args.port = Number(argv[(i += 1)]);
     else if (arg === "--log") args.log = argv[(i += 1)];
     else if (arg === "--file") args.file = argv[(i += 1)];
     else if (arg === "--timeout-ms") args.timeoutMs = Number(argv[(i += 1)]);
+    else if (arg === "--at-ms") args.atMs = Number(argv[(i += 1)]);
     else if (arg === "--at") {
       const [x, y] = String(argv[(i += 1)]).split(",").map(Number);
       args.at = { x, y };
     } else args.rest.push(arg);
   }
   return args;
+}
+
+// A Monitor cuts long lines, so `watch` prints MessagesSent as a short line (FR-078).
+// @purity pure
+function shortSent(event) {
+  return JSON.stringify({
+    v: 1,
+    event: "MessagesSent",
+    atMs: event.atMs,
+    messageCount: Array.isArray(event.messages) ? event.messages.length : 0,
+    changeCount: Array.isArray(event.changes) ? event.changes.length : 0,
+    read: `client.js sent --at-ms ${event.atMs}`,
+  });
 }
 
 // @purity pure
@@ -161,9 +177,33 @@ async function waitForReady(args) {
 async function watchEvents(args) {
   await followLog(args.log, false, (line) => {
     const event = parseEventLine(line);
-    if (event && WATCH_EVENTS.has(event.event)) process.stdout.write(line + "\n");
+    if (!event || !WATCH_EVENTS.has(event.event)) return false;
+    process.stdout.write((event.event === "MessagesSent" ? shortSent(event) : line) + "\n");
     return false;
   }, null);
+}
+
+// Prints the full MessagesSent with the given atMs, or the last one (FR-078).
+// @purity non-pure
+function printSent(args) {
+  let text = "";
+  try {
+    text = fs.readFileSync(args.log, "utf8");
+  } catch (error) {
+    text = "";
+  }
+  let found = null;
+  for (const line of text.split("\n")) {
+    const event = parseEventLine(line.trim());
+    if (!event || event.event !== "MessagesSent") continue;
+    if (args.atMs === null || event.atMs === args.atMs) found = line.trim();
+  }
+  if (found === null) {
+    process.stdout.write(JSON.stringify({ v: 1, error: "NoSent", message: `no MessagesSent in ${args.log}` }) + "\n");
+    process.exit(1);
+  }
+  process.stdout.write(found + "\n");
+  process.exit(0);
 }
 
 // @purity non-pure
@@ -191,7 +231,7 @@ async function sendHttp(args) {
       reply = await request(args.port, "POST", "/v1/stop");
       break;
     default:
-      process.stderr.write("usage: client.js say|shot|board|signal|stop|wait|watch [--port N] [--log PATH] [--file PATH] [--at X,Y] [ITEM_ID]\n");
+      process.stderr.write("usage: client.js say|shot|board|signal|stop|wait|watch|sent [--port N] [--log PATH] [--file PATH] [--at X,Y] [--at-ms N] [ITEM_ID]\n");
       process.exit(2);
   }
   process.stdout.write(reply.text + "\n");
@@ -203,6 +243,7 @@ async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.command === "wait") return waitForReady(args);
   if (args.command === "watch") return watchEvents(args);
+  if (args.command === "sent") return printSent(args);
   return sendHttp(args);
 }
 
