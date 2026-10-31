@@ -10,6 +10,7 @@
 //   POST /api/send         the Person pressed Send (FR-072)
 //   POST /api/auto-send    the Person turned automatic sending on or off (FR-074)
 //   POST /api/files        new image files from a page (FR-081)
+//   POST /api/visibility   the page was shown or hidden (FR-085)
 
 const crypto = require("crypto");
 const fs = require("fs");
@@ -111,7 +112,7 @@ function createBoardApi({ hub, inbox, token, pageDir, redact, clock }) {
     req.on("close", () => {
       if (streams.get(pageId) === stream) endStream(pageId, stream);
     });
-    hub.addPage(pageId, send);
+    hub.addPage(pageId, send, url.searchParams.get("visible") !== "0");
   }
 
   // @purity non-pure
@@ -151,6 +152,11 @@ function createBoardApi({ hub, inbox, token, pageDir, redact, clock }) {
         const body = await readPost(req, MAX_ELEMENTS_BYTES);
         const changed = hub.receiveElements(String(body.page || ""), body.elements, body.editingId);
         return sendJson(res, 200, { changed });
+      }
+      case "POST /api/visibility": {
+        const body = await readPost(req, MAX_ELEMENTS_BYTES);
+        hub.setVisible(String(body.page || ""), body.visible === true);
+        return sendJson(res, 200, {});
       }
       case "POST /api/files": {
         const body = await readPost(req, MAX_FILES_BYTES);

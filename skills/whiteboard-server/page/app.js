@@ -78,7 +78,11 @@ async function post(path, body) {
     headers: { "content-type": "application/json", "x-board-token": token },
     body: JSON.stringify({ page: pageId, ...body }),
   });
-  if (!res.ok) throw new Error(`${path}: HTTP ${res.status}`);
+  if (!res.ok) {
+    const error = new Error(`${path}: HTTP ${res.status}`);
+    error.status = res.status;
+    throw error;
+  }
   return res.json();
 }
 
@@ -333,13 +337,34 @@ async function takeShot(job) {
   return { png: await blobToBase64(blob) };
 }
 
+// Takes an Answer off this page again. The Server gave the Job to another page while this page
+// was frozen, so the other page wrote the same Answer (FR-086).
+function removeLocal(elements) {
+  const ids = new Set(elements.map((element) => element.id));
+  for (const id of ids) known.delete(id);
+  api.updateScene({
+    elements: api.getSceneElementsIncludingDeleted().filter((element) => !ids.has(element.id)),
+    captureUpdate: CaptureUpdateAction.NEVER,
+  });
+}
+
 async function runJob(job) {
+  let result = null;
   try {
-    const result = job.kind === "answer" ? await writeAnswer(job) : await takeShot(job);
-    await post("/api/job", { jobId: job.jobId, ok: true, ...result });
+    result = job.kind === "answer" ? await writeAnswer(job) : await takeShot(job);
   } catch (error) {
     await post("/api/job", { jobId: job.jobId, ok: false, error: String(error && error.message) }).catch(() => {});
+    return;
   }
+  try {
+    await post("/api/job", { jobId: job.jobId, ok: true, ...result });
+  } catch (error) {
+    if (error.status === 409 && result.elements) removeLocal(result.elements);
+  }
+}
+
+function reportVisibility() {
+  post("/api/visibility", { visible: document.visibilityState === "visible" }).catch(() => {});
 }
 
 function offline() {
@@ -355,7 +380,7 @@ function reopenLater() {
 function openStream() {
   reopenTimer = null;
   if (source) source.close();
-  const query = new URLSearchParams({ t: token, page: pageId });
+  const query = new URLSearchParams({ t: token, page: pageId, visible: document.visibilityState === "visible" ? "1" : "0" });
   const current = new EventSource(`/api/stream?${query}`);
   source = current;
   lastStreamMs = Date.now();
@@ -439,6 +464,8 @@ function App() {
 }
 
 window.addEventListener("keydown", onKeyDown, true);
+// A hidden page gives the Leader role to a page on screen (FR-085).
+document.addEventListener("visibilitychange", reportVisibility);
 
 if (!token) {
   showNotice("This page needs the full link that Claude Code showed you. It ends with #t= and a code.");

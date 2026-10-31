@@ -3,8 +3,10 @@
 // BoardHub (Use Case). Connects the open pages, keeps the Board in step between them,
 // and gives Jobs (write an Answer, take a Screenshot) to the Leader page. See spec 3.5.
 //
-// The first page that connects is the Leader. When it leaves, the next page becomes the Leader (FR-034).
+// The Leader is the first page that is shown on screen; with no page on screen, the first page (FR-034, FR-085).
+// A browser may freeze a page in a hidden tab, so a hidden page is a poor Leader.
 // Only the Leader writes Answers, because only a browser can measure text (ADR-003).
+// A Job that times out goes once to another page (FR-086).
 // Jobs run one at a time, in arrival order (FR-027).
 // The Signal ("reading", "working", "waiting", or "none") tells every page what Claude is doing (FR-038).
 
@@ -35,8 +37,10 @@ function createBoardHub({
   elements, events, clock, jobTimeoutMs, gapPx, indentPx = 0, onBoardChanged, onAnswerWritten = () => {},
   files = new Map(), onFilesAdded = () => {},
 }) {
-  // pageId -> { send(type, data), editingId }. A Map keeps the order in which pages joined.
+  // pageId -> { send(type, data), editingId, visible }. A Map keeps the order in which pages joined.
   const pages = new Map();
+  // A Job goes to at most this many pages before it fails.
+  const JOB_TRIES = 2;
   const jobs = [];
   let current = null;
   let nextJobId = 1;
@@ -44,10 +48,30 @@ function createBoardHub({
   // What the Send button shows on every page (FR-071, FR-074).
   let inbox = Object.freeze({ unsent: 0, autoSend: false });
 
+  // The first page on screen, else the first page, leaving out the pages in `skip`.
+  // @purity semi-pure-b
+  function pickPage(skip = new Set()) {
+    let fallback = null;
+    for (const [pageId, page] of pages) {
+      if (skip.has(pageId)) continue;
+      if (page.visible) return pageId;
+      if (fallback === null) fallback = pageId;
+    }
+    return fallback;
+  }
+
   // @purity semi-pure-b
   function leaderId() {
-    const first = pages.keys().next();
-    return first.done ? null : first.value;
+    return pickPage();
+  }
+
+  // Tells the old and the new Leader when the Leader changed. `toldId` already knows (it got hello).
+  // @purity non-pure
+  function announceLeader(before, toldId = null) {
+    const after = leaderId();
+    if (after === before) return;
+    if (before !== null && pages.has(before)) sendTo(before, "role", { leader: false });
+    if (after !== null && after !== toldId) sendTo(after, "role", { leader: true });
   }
 
   // @purity non-pure
@@ -76,10 +100,11 @@ function createBoardHub({
   // @purity non-pure
   function pump() {
     if (current !== null || jobs.length === 0) return;
-    const pageId = leaderId();
+    const pageId = pickPage(jobs[0].tried);
     if (pageId === null) return;
     current = jobs.shift();
     current.pageId = pageId;
+    current.tried.add(pageId);
     const payload = { jobId: current.id, kind: current.kind };
     if (current.kind === "answer") {
       const point = answerPoint(current);
@@ -88,8 +113,23 @@ function createBoardHub({
     } else {
       payload.focusId = current.focusId;
     }
-    current.timer = clock.setTimeout(() => endJob(new AppError("JobTimeout", 504, `the page did not finish job ${payload.jobId}`)), jobTimeoutMs);
+    current.timer = clock.setTimeout(() => timeOut(payload.jobId), jobTimeoutMs);
     sendTo(pageId, "job", payload);
+  }
+
+  // A page did not finish the Job in time: give it once to another page (FR-086), else fail.
+  // @purity non-pure
+  function timeOut(jobId) {
+    const job = current;
+    if (job === null || job.id !== jobId) return;
+    if (job.tried.size < JOB_TRIES && pickPage(job.tried) !== null) {
+      events.emit({ event: "JobRetried", jobId, kind: job.kind });
+      current = null;
+      jobs.unshift(job);
+      pump();
+      return;
+    }
+    endJob(new AppError("JobTimeout", 504, `the page did not finish job ${jobId}`));
   }
 
   // @purity non-pure
@@ -111,6 +151,7 @@ function createBoardHub({
   function addJob(job) {
     job.id = nextJobId;
     nextJobId += 1;
+    job.tried = new Set();
     const done = new Promise((resolve, reject) => {
       job.resolve = resolve;
       job.reject = reject;
@@ -123,28 +164,42 @@ function createBoardHub({
   }
 
   // @purity non-pure
-  function addPage(pageId, send) {
-    pages.set(pageId, { send, editingId: null });
+  // visible: whether the page is shown on screen now (a page that does not say counts as shown).
+  // @purity non-pure
+  function addPage(pageId, send, visible = true) {
+    const before = leaderId();
+    pages.set(pageId, { send, editingId: null, visible: visible !== false });
     const isLeader = leaderId() === pageId;
     send("hello", { pageId, leader: isLeader, signal, inbox, elements: [...elements.values()], files: [...files.values()] });
     events.emit({ event: "PageJoined", pageCount: pages.size });
-    if (isLeader) pump();
+    announceLeader(before, pageId);
+    pump();
   }
 
   // @purity non-pure
   function removePage(pageId) {
-    const wasLeader = leaderId() === pageId;
+    const before = leaderId();
     if (!pages.delete(pageId)) return;
     events.emit({ event: "PageLeft", pageCount: pages.size });
-    if (!wasLeader) return;
     if (current !== null && current.pageId === pageId) {
-      // The Leader left in the middle of a Job: give it to the next Leader.
+      // The page left in the middle of a Job: give the Job to the next page.
       clock.clearTimeout(current.timer);
+      current.tried.delete(pageId);
       jobs.unshift(current);
       current = null;
     }
-    const next = leaderId();
-    if (next !== null) sendTo(next, "role", { leader: true });
+    announceLeader(before === pageId ? null : before);
+    pump();
+  }
+
+  // A page was shown or hidden (FR-085). The Leader may change.
+  // @purity non-pure
+  function setVisible(pageId, visible) {
+    const page = pages.get(pageId);
+    if (!page) return;
+    const before = leaderId();
+    page.visible = visible === true;
+    announceLeader(before);
     pump();
   }
 
@@ -251,6 +306,7 @@ function createBoardHub({
   return Object.freeze({
     addPage,
     removePage,
+    setVisible,
     receiveElements,
     receiveFiles,
     editingIds,

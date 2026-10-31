@@ -4,7 +4,7 @@
 | -------- | --------------------------------------- |
 | Document | spec-en.md                              |
 | Template | ANMS v0.34 (gr-sw-maker process-rules)  |
-| Version  | 0.4.0 (draft)                           |
+| Version  | 0.4.1 (draft)                           |
 | Date     | 2026-10-30                              |
 | Status   | Draft. A person must review it.         |
 | License  | Apache-2.0                              |
@@ -172,7 +172,9 @@ How to check each requirement: T = test, I = inspection (a person reads it), A =
 | FR-031 | When the Server receives `POST /v1/shot` and a Page is open, the Leader shall export the Board as PNG (at most 2000 px on the long side, white background), and the Server shall save it in `shotDir` and reply with the file path. If no Page is open, the Server shall reply 503 `NoPage`. | T, D |
 | FR-032 | Where `shot` has `focusId`, the Leader shall export only Items that overlap a 1600 x 1000 box around the center of that Item. If no Item has that ID, the Job shall fail (`JobFailed`). | D |
 | FR-033 | If the Leader does not finish a Job within `jobTimeoutMs`, then the Server shall end the Job with `JobTimeout` and send `AnswerFailed` for an Answer Job. | T |
-| FR-034 | The first Page that connects shall be the Leader. When the Leader leaves, the Server shall make the next Page the Leader and give it the running Job again. | T |
+| FR-034 | The Leader shall be the first Page that is on screen (FR-085), or the first Page when no Page is on screen. When the Leader leaves, the Server shall make the next Page the Leader and give it the running Job again. When the Leader changes, the Server shall send `role` to the old and the new Leader. | T |
+| FR-085 | When a Page is shown or hidden, the Page shall post `/api/visibility`, and the Server shall choose the Leader again (FR-034). A new Page tells it with `visible` in the stream query. Reason (live test, 0.4.0): Edge froze the Leader in a hidden tab, and every Answer timed out while the iPad page was awake. | T |
+| FR-086 | If a Page does not finish a Job in time, then the Server shall send `JobRetried` and give the Job once to another Page; with no other Page, or after the second try, the Job fails with `JobTimeout`. If the first Page finishes the Job late, the Server refuses it (409), and that Page takes its Answer off its Board, so the Answer is on the Board once. | T |
 | FR-035 | When a new Answer appears on a Page outside the visible area, the Page shall scroll to it. | D |
 | FR-028a | When a Page becomes the Leader, it shall measure every Answer again with the loaded font and make any Answer that is too small as wide and high as its text. Reason: Answers measured before the font loaded were cut at the right end. | D |
 | FR-036 | When the Server receives `GET /v1/board`, the Server shall reply with all Items and the number of Pages. | T |
@@ -681,6 +683,7 @@ Flags of `server.js` (and of `board.js start`, which passes them on):
 | `POST /api/elements` | header `x-board-token` | `{page, elements, editingId}` | `{v, changed}` |
 | `POST /api/send` | header `x-board-token` | `{page}` | `{v, sent}` (FR-072) |
 | `POST /api/auto-send` | header `x-board-token` | `{page, on}` | `{v, autoSend}` (FR-074) |
+| `POST /api/visibility` | header `x-board-token` | `{page, visible}` | `{v}` (FR-085) |
 | `POST /api/files` | header `x-board-token` | `{page, files: [{id, mimeType, dataURL, created}]}` | `{v, added, rejected: [{id, reason}]}` (FR-081) |
 | `POST /api/job` | header `x-board-token` | `{page, jobId, ok, elements}` (answer), `{page, jobId, ok, png}` (shot, base64), or `{page, jobId, ok: false, error}` | `{v}`; 409 `UnknownJob` if the Job does not run on that Page. |
 
@@ -737,6 +740,7 @@ Every Event has `v: 1`, `event`, and `atMs`.
 | `AnswerFailed` | `jobId, error, message` | yes |
 | `SaveFailed` | `message` | yes |
 | `FileRejected` | `id, reason` (FR-083) | yes |
+| `JobRetried` | `jobId, kind` (FR-086) | no |
 | `BoardWarning` | `message` | yes |
 
 ### 4.8 Errors
@@ -854,6 +858,7 @@ Run: `npm test` in the repository root (Node.js 20 or later). No install is need
 
 | Version | Date | Change |
 | ------- | ---- | ------ |
+| 0.4.1 | 2026-10-31 | The Leader is the first Page on screen (FR-034, FR-085), and a Job that times out goes once to another Page (FR-086). Reason: in the LAN test, Edge froze the Leader in a hidden tab, and Answers timed out while the iPad page was awake. The owner chose this fix from four options (R-012). |
 | 0.4.0 | 2026-10-31 | Images on the Board (FR-080 to FR-084): the image tool is on; pages share image files through the Server, which checks and saves them. Reason (the owner, in the live test of 0.3.1): "I cannot paste images; I want to point at a part of the spec." |
 | 0.3.1 | 2026-10-31 | `watch` prints `MessagesSent` as a short line, and the new `client.js sent` prints the full event (FR-078). Reason: in the live test, a Monitor cut a long `MessagesSent`, so the Agent did not get every change. The owner chose this fix (R-011). |
 | 0.3.0 | 2026-10-30 | Chat-style placement (4.6, FR-030), as the owner asked in the live test: the Answer goes right below the newest Message, 170 px to the left. Default `answerGapPx` 40 -> 12. New `answerIndentPx`. Signal labels and names changed to "reading your text" (`reading`), "working on it" (`working`), "waiting for you" (`waiting`): "your turn" did not say whose turn, and "read" can be an order and has no clear tense. All three are "Claude: verb-ing + object". FR-029 now checks the expected size of the Answer, not only its corner. Live test: shapes did not count for Send, because only pen lines were Drawings; FR-016 now counts every Item that is not text. Added Send (FR-070 to FR-077, 4.10): nothing goes to the Agent until the Person presses Send or Ctrl+Shift+Enter; then one `MessagesSent` has the new texts first, then every other change since the last Send (the owner chose "tell every change", also moves, deletions, and colors, and set the reading order). "auto" keeps the old behavior. Reason: the Agent answered while the Person was still writing. |

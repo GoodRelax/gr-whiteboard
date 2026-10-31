@@ -205,3 +205,47 @@ test("the Signal goes to every page and to new pages; an Answer sets waiting (FR
   assert.equal(p2.last("signal").data.state, "waiting");
   assert.throws(() => hub.setSignal("dancing"), { code: "InvalidSignal" });
 });
+
+test("a page on screen is the Leader before a hidden page, and both hear of a change (FR-085)", () => {
+  const { hub } = setup();
+  const pc = fakePage();
+  const pad = fakePage();
+  hub.addPage("page-pc01", pc.send, true);
+  hub.addPage("page-pad1", pad.send, true);
+  assert.equal(pad.last("hello").data.leader, false);
+  hub.setVisible("page-pc01", false);
+  assert.deepEqual(pc.last("role").data, { leader: false });
+  assert.deepEqual(pad.last("role").data, { leader: true });
+  hub.setVisible("page-pc01", true);
+  assert.deepEqual(pc.last("role").data, { leader: true });
+  assert.deepEqual(pad.last("role").data, { leader: false });
+});
+
+test("a hidden page that joins does not take the Leader role; with no page on screen, the first page leads", () => {
+  const { hub } = setup();
+  const hidden = fakePage();
+  const shown = fakePage();
+  hub.addPage("page-hid1", hidden.send, false);
+  assert.equal(hidden.last("hello").data.leader, true);
+  hub.addPage("page-shw1", shown.send, true);
+  assert.equal(shown.last("hello").data.leader, true);
+  assert.deepEqual(hidden.last("role").data, { leader: false });
+});
+
+test("a job that times out goes once to another page, then fails (FR-086)", async () => {
+  const { hub, clock, emitted } = setup();
+  const frozen = fakePage();
+  const awake = fakePage();
+  hub.addPage("page-frz1", frozen.send, true);
+  hub.addPage("page-awk1", awake.send, true);
+  const queued = hub.queueAnswer("hi", null);
+  assert.ok(frozen.last("job"));
+  assert.equal(awake.last("job"), undefined);
+  clock.fireAll();
+  assert.ok(emitted.some((e) => e.event === "JobRetried"));
+  const job = awake.last("job");
+  assert.equal(job.data.text, "hi");
+  assert.throws(() => hub.finishJob("page-frz1", { jobId: job.data.jobId, ok: true, elements: [] }), { code: "UnknownJob" });
+  clock.fireAll();
+  await assert.rejects(queued.done, { code: "JobTimeout" });
+});
