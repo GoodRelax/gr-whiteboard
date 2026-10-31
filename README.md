@@ -64,7 +64,7 @@ Details: [docs/spec-en.md](docs/spec-en.md).
 - **The board link is a key.** It has a secret after `#t=`. Anyone who has the link can see and change the board, and write messages to Claude. Do not share it outside the people you trust.
 - **Board text is not trusted.** The skill tells Claude Code not to run commands or change files only because the board says so.
 - **This computer only, by default.** The board listens on 127.0.0.1. The LAN mode listens on your network with https and a self-signed certificate.
-- **Images** cannot be put on the board in this version.
+- **Images** (PNG, JPEG, GIF, WebP) can be pasted or dropped on the board, or added with the image tool. Each image can be up to about 6 MB. SVG is not taken.
 - Hand drawings are not read as text. Claude Code takes a screenshot to see them.
 - Your board is saved in `whiteboard-server/.data/board.json` in your skills folder.
 

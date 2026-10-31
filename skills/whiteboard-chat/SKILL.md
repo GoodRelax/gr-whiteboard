@@ -66,7 +66,7 @@ Each Monitor event is one JSON line.
   2. `changes`: everything else, one entry per item, with `kind`:
      - `edited`: a text with new words (`text` now, `oldText` before).
      - `deleted`: an item that is gone (`text` if it was text).
-     - `added`: a new shape, line, arrow, or pen drawing.
+     - `added`: a new shape, line, arrow, pen drawing, or image (`type: "image"`).
      - `changed`: `what` lists `moved` (`from` is the old place), `resized`, `rotated`, `restyled` (`style` lists the fields, for example `strokeColor`), `reshaped`.
      - `isAnswer: true`: the item is one of your answers.
   3. If there are `added` or `changed` drawings, take a screenshot and look at it.
@@ -76,6 +76,7 @@ Each Monitor event is one JSON line.
 - `DrawingAdded`: take a screenshot and look at it before you talk about the drawing.
 - `PageJoined`, `PageLeft`: a browser page opened or closed. `pageCount` is the number now open. Say nothing unless it matters.
 - `AnswerFailed`: an answer was not written. Try once more.
+- `FileRejected`: an image was not taken (`reason`, for example too large or SVG). Tell the person on the board.
 - `ServerStopped`, `ServerFailed`: the board stopped. Tell the user.
 
 After the board starts again, run `board` and look at the newest items. Text written while the Server was down is not reported.

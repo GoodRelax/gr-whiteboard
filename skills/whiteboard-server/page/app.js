@@ -56,6 +56,9 @@ let showStatus = () => {};
 const known = new Map();
 // id -> element changed here and not sent yet.
 const pending = new Map();
+// Ids of image files that the Server has (sent by us or received from it) (FR-081).
+const knownFiles = new Set();
+let filesRetryTimer = null;
 
 function randomId() {
   const bytes = new Uint8Array(12);
@@ -112,6 +115,32 @@ function collectChanges() {
   if (pending.size > 0) scheduleFlush(FLUSH_MS);
 }
 
+// Sends the image files that the Server does not have yet (FR-081).
+async function sendNewFiles() {
+  if (!api) return;
+  const list = Object.values(api.getFiles()).filter((file) => !knownFiles.has(file.id));
+  if (list.length === 0) return;
+  for (const file of list) knownFiles.add(file.id);
+  const body = list.map((file) => ({ id: file.id, mimeType: file.mimeType, dataURL: file.dataURL, created: file.created }));
+  try {
+    await post("/api/files", { files: body });
+  } catch (error) {
+    for (const file of list) knownFiles.delete(file.id);
+    if (filesRetryTimer === null) {
+      filesRetryTimer = setTimeout(() => {
+        filesRetryTimer = null;
+        sendNewFiles();
+      }, RETRY_MS);
+    }
+  }
+}
+
+function applyRemoteFiles(list) {
+  if (!api || !Array.isArray(list) || list.length === 0) return;
+  for (const file of list) knownFiles.add(file.id);
+  api.addFiles(list);
+}
+
 function onChange(elements, appState) {
   const nowEditing = appState.editingTextElement ? appState.editingTextElement.id : null;
   if (nowEditing !== editingId) {
@@ -120,6 +149,7 @@ function onChange(elements, appState) {
     scheduleFlush(FLUSH_MS);
   }
   collectChanges();
+  sendNewFiles();
 }
 
 function isAnswer(element) {
@@ -154,10 +184,14 @@ function applyRemote(list) {
 
 function onHello(data) {
   isLeader = data.leader;
+  // The Server may have restarted: it has exactly the files in this list.
+  knownFiles.clear();
+  applyRemoteFiles(data.files || []);
   applyRemote(data.elements);
   if (isLeader) fixAnswerSizes();
-  // Elements made here while the Server was away go to the Server now.
+  // Elements and images made here while the Server was away go to the Server now.
   collectChanges();
+  sendNewFiles();
   if (firstHello && data.elements.length > 0) api.scrollToContent(undefined, { fitToContent: true });
   firstHello = false;
   const inbox = data.inbox || { unsent: 0, autoSend: false };
@@ -332,6 +366,7 @@ function openStream() {
   on("hello", onHello);
   on("ping", () => {});
   on("elements", (data) => applyRemote(data.elements));
+  on("files", (data) => applyRemoteFiles(data.files));
   on("role", (data) => {
     isLeader = data.leader;
     setStatus({ ...status, online: true, leader: isLeader });
@@ -399,7 +434,6 @@ function App() {
     },
     onChange,
     name: "Whiteboard Chat",
-    UIOptions: { tools: { image: false } },
     renderTopRightUI: () => h(StatusBadge),
   });
 }

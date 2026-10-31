@@ -4,7 +4,7 @@
 | -------- | --------------------------------------- |
 | Document | spec-en.md                              |
 | Template | ANMS v0.34 (gr-sw-maker process-rules)  |
-| Version  | 0.3.1 (draft)                           |
+| Version  | 0.4.0 (draft)                           |
 | Date     | 2026-10-30                              |
 | Status   | Draft. A person must review it.         |
 | License  | Apache-2.0                              |
@@ -55,13 +55,12 @@ So this project does not use excalidraw.com at all. It runs its own small board 
 
 In scope:
 - One Board, saved on disk (R-006).
-- Text, shapes, arrows, and hand drawings made with the Excalidraw component.
+- Text, shapes, arrows, hand drawings, and images (PNG, JPEG, GIF, WebP) made with the Excalidraw component.
 - This computer only (default), or the LAN with https and a Token (R-004, R-010, R-013, R-014).
 - Answers as text. Screenshots for Claude Code.
 
 Out of scope:
 - excalidraw.com and its rooms (R-001, R-011).
-- Images on the Board (the image tool is off).
 - Many Boards, user accounts, and access over the internet.
 - Seeing other people's mouse pointers.
 - A build step for the page.
@@ -194,6 +193,16 @@ How to check each requirement: T = test, I = inspection (a person reads it), A =
 | FR-076 | The Server shall keep the Baseline (the Board at the last Send, as summaries) in `baseline.json`, so a restart does not lose unsent changes. An Answer that the Leader writes shall go into the Baseline at once, because it is not news for the Agent. | T |
 | FR-077 | In `MessagesSent`, the Server shall list the added texts first, in the order the Server got them, and then the other changes, sorted by kind (edited texts, deleted texts, added drawings, changed items, deleted drawings), and in each kind from top to bottom. Reason (the owner): read the new words first to know the situation, then check the other changes. | T |
 
+#### Images
+
+| ID     | Requirement (EARS) | Check |
+| ------ | ------------------ | ----- |
+| FR-080 | The Page shall show the image tool, and a Person shall put an image on the Board with the tool, by paste, or by drop. Reason (the owner): a Person wants to paste a part of a spec and talk about it. | D |
+| FR-081 | When a Page has an image file that the Server does not have, the Page shall post it to `/api/files`; the Server shall then send it to every other Page as SSE `files`, and every Page shall add it to its Board. `hello` shall carry every file. | T |
+| FR-082 | The Server shall save each new file at once as `files/<id>.json` and load the files when it starts, so images come back after a restart. | T |
+| FR-083 | The Server shall take only PNG, JPEG, GIF, and WebP files whose `dataURL` matches the type, at most 8 MB of `dataURL` text each and 200 MB on the Board, and shall send `FileRejected` for any other file. SVG is left out, because an SVG file can hold scripts and links. | T |
+| FR-084 | An image on the Board shall count as a Drawing: Send lists it as `added` with `type: "image"`, and its moves and other changes as `changed`; a new picture in the same image is `restyled` with `fileId`. The Agent takes a Screenshot to see it. | T |
+
 #### Saving
 
 | ID     | Requirement (EARS) | Check |
@@ -261,7 +270,7 @@ Clean Architecture, small. Four rings:
 
 | Ring | Files |
 | ---- | ----- |
-| Entity | `message-tracker.js`, `answer-placement.js`, `board-store.js`, `board-diff.js` |
+| Entity | `message-tracker.js`, `answer-placement.js`, `board-store.js`, `board-diff.js`, `board-files.js` |
 | Use Case | `board-hub.js`, the tracker loop in `server.js` |
 | Adapter | `board-api.js`, `control-api.js`, `event-sink.js`, `data-files.js`, `http-util.js` |
 | Framework and drivers | `server.js` (wiring), Node `http`/`https`, the Page (`page/app.js` with Excalidraw) |
@@ -293,6 +302,7 @@ graph LR
 | MessageTracker | Entity | Decides which Text Items are new or changed Messages (3.4.3). Pure functions. |
 | AnswerPlacement | Entity | Finds the Board Point for an Answer (4.6). Pure functions. |
 | BoardDiff | Entity | Compares the Board with the Baseline and lists the changes for Send (FR-070 to FR-077, 4.10). Pure functions. |
+| BoardFiles | Entity | Checks the image files and keeps them within the limits (FR-080 to FR-084). Pure functions. |
 | BoardStore | Entity | Checks and merges Elements (FR-021, FR-024). Makes Items. |
 | BoardHub | Use Case | Knows the Pages and the Leader. Sends Board changes to Pages. Runs Jobs one at a time (3.4.2). |
 | Tracker loop | Use Case | Every `tickMs`: Items without Answers, plus the IDs being typed, into MessageTracker; Events out. |
@@ -459,7 +469,7 @@ sequenceDiagram
 ### 3.6 The Page
 
 - Plain browser module. No build. `index.html` has an import map: `react`, `react-dom`, and `@excalidraw/excalidraw` from esm.sh, fixed versions (R-005, NFR-009).
-- Excalidraw options: image tool off; in the top right, the Signal (FR-038: "Claude: reading your text" yellow, "Claude: working on it" blue, "Claude: waiting for you" green; every label is "Claude: verb + object", so it is clear who does what) and a status label ("connected", "this page writes Claude's answers", or "not connected, trying again").
+- Excalidraw options: the image tool is on (FR-080); in the top right, the Signal (FR-038: "Claude: reading your text" yellow, "Claude: working on it" blue, "Claude: waiting for you" green; every label is "Claude: verb + object", so it is clear who does what) and a status label ("connected", "this page writes Claude's answers", or "not connected, trying again").
 - Answer Job: see FR-028. Screenshot Job: see FR-031, FR-032.
 
 ### 3.7 Decisions
@@ -671,9 +681,10 @@ Flags of `server.js` (and of `board.js start`, which passes them on):
 | `POST /api/elements` | header `x-board-token` | `{page, elements, editingId}` | `{v, changed}` |
 | `POST /api/send` | header `x-board-token` | `{page}` | `{v, sent}` (FR-072) |
 | `POST /api/auto-send` | header `x-board-token` | `{page, on}` | `{v, autoSend}` (FR-074) |
+| `POST /api/files` | header `x-board-token` | `{page, files: [{id, mimeType, dataURL, created}]}` | `{v, added, rejected: [{id, reason}]}` (FR-081) |
 | `POST /api/job` | header `x-board-token` | `{page, jobId, ok, elements}` (answer), `{page, jobId, ok, png}` (shot, base64), or `{page, jobId, ok: false, error}` | `{v}`; 409 `UnknownJob` if the Job does not run on that Page. |
 
-The Page and the Page script need no Token, because they have no Board data. Bodies: at most 8 MB (`elements`) and 32 MB (`job`).
+The Page and the Page script need no Token, because they have no Board data. Bodies: at most 8 MB (`elements`), 32 MB (`job`), and 40 MB (`files`).
 
 ### 4.4 Control API (`127.0.0.1:<control-port>`)
 
@@ -693,6 +704,7 @@ The Page and the Page script need no Token, because they have no Board data. Bod
 | `board.json` | `{"v": 1, "elements": [...]}`. Written through `board.json.tmp` and a rename. |
 | `token.txt` | The Token and a line break. |
 | `baseline.json` | `{"v": 1, "items": [summary, ...]}`: the Board at the last Send (FR-076). |
+| `files/<id>.json` | `{id, mimeType, dataURL, created}`: one image file (FR-082). |
 | `server.log` | Events (4.7), UTF-8, emptied at each start. |
 | `cert.pem`, `key.pem`, `cert-info.json` | LAN mode only. `cert-info.json`: `{addresses, createdMs, notAfterMs}`. The certificate is valid for 397 days. |
 
@@ -724,6 +736,7 @@ Every Event has `v: 1`, `event`, and `atMs`.
 | `AnswerPosted` | `jobId, ids, x, y` | no |
 | `AnswerFailed` | `jobId, error, message` | yes |
 | `SaveFailed` | `message` | yes |
+| `FileRejected` | `id, reason` (FR-083) | yes |
 | `BoardWarning` | `message` | yes |
 
 ### 4.8 Errors
@@ -766,7 +779,7 @@ What the Agent shows a new user (Skill `whiteboard-chat`):
 
 ### 4.10 Changes since the last Send
 
-The Baseline holds a summary of each item that is not deleted: `id, type, x, y, width, height, angle, text, containerId, isAnswer, style, shape` (`style`: strokeColor, backgroundColor, fillStyle, strokeWidth, strokeStyle, roughness, opacity, fontSize, fontFamily, textAlign; `shape`: the points of a line, arrow, or pen drawing, rounded to whole pixels).
+The Baseline holds a summary of each item that is not deleted: `id, type, x, y, width, height, angle, text, containerId, isAnswer, style, shape` (`style`: strokeColor, backgroundColor, fillStyle, strokeWidth, strokeStyle, roughness, opacity, fontSize, fontFamily, textAlign, fileId; `shape`: the points of a line, arrow, or pen drawing, rounded to whole pixels).
 
 | `kind` | When | Fields besides `id, type, x, y, isAnswer` |
 | ------ | ---- | ----------------------------------------- |
@@ -841,6 +854,7 @@ Run: `npm test` in the repository root (Node.js 20 or later). No install is need
 
 | Version | Date | Change |
 | ------- | ---- | ------ |
+| 0.4.0 | 2026-10-31 | Images on the Board (FR-080 to FR-084): the image tool is on; pages share image files through the Server, which checks and saves them. Reason (the owner, in the live test of 0.3.1): "I cannot paste images; I want to point at a part of the spec." |
 | 0.3.1 | 2026-10-31 | `watch` prints `MessagesSent` as a short line, and the new `client.js sent` prints the full event (FR-078). Reason: in the live test, a Monitor cut a long `MessagesSent`, so the Agent did not get every change. The owner chose this fix (R-011). |
 | 0.3.0 | 2026-10-30 | Chat-style placement (4.6, FR-030), as the owner asked in the live test: the Answer goes right below the newest Message, 170 px to the left. Default `answerGapPx` 40 -> 12. New `answerIndentPx`. Signal labels and names changed to "reading your text" (`reading`), "working on it" (`working`), "waiting for you" (`waiting`): "your turn" did not say whose turn, and "read" can be an order and has no clear tense. All three are "Claude: verb-ing + object". FR-029 now checks the expected size of the Answer, not only its corner. Live test: shapes did not count for Send, because only pen lines were Drawings; FR-016 now counts every Item that is not text. Added Send (FR-070 to FR-077, 4.10): nothing goes to the Agent until the Person presses Send or Ctrl+Shift+Enter; then one `MessagesSent` has the new texts first, then every other change since the last Send (the owner chose "tell every change", also moves, deletions, and colors, and set the reading order). "auto" keeps the old behavior. Reason: the Agent answered while the Person was still writing. |
 | 0.2.0 | 2026-10-30 | Live test with the owner. Answers written soon after a Page opened were cut at the right end (measured before Excalifont loaded): added the font wait to FR-028 and FR-028a. An Edge Page lost its event stream after about 70 s and did not open it again: added FR-023a (ping event, watchdog). Added the Signal (FR-038, FR-039, FR-053a), as the owner asked. |

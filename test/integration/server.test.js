@@ -194,3 +194,55 @@ test("page sync, Message events, Answers, safety checks, and saving", async () =
     child.kill();
   }
 });
+
+// @purity non-pure
+async function startServer(dataDir, logPath) {
+  // The log of an earlier run still has its ServerReady.
+  fs.rmSync(logPath, { force: true });
+  const child = spawn(process.execPath, [
+    SERVER, "--data", dataDir, "--port", String(PORT), "--control-port", String(CONTROL_PORT), "--save-ms", "100",
+  ], { stdio: "ignore" });
+  const exited = new Promise((resolve) => child.on("exit", resolve));
+  await until(() => readLog(logPath).find((e) => e.event === "ServerReady"), 10000, "ServerReady");
+  return { child, exited };
+}
+
+const PNG_FILE = Object.freeze({ id: "file0001abcd", mimeType: "image/png", dataURL: "data:image/png;base64,iVBORw0KGgo=", created: 5 });
+
+test("image files go to the other pages, are saved, and come back after a restart (FR-081, FR-082)", async () => {
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "wbc-files-"));
+  const logPath = path.join(dataDir, "server.log");
+  let server = await startServer(dataDir, logPath);
+  try {
+    const token = fs.readFileSync(path.join(dataDir, "token.txt"), "utf8").trim();
+    const first = openPage(token, "pageFILES1");
+    const second = openPage(token, "pageFILES2");
+    await until(() => first.find("hello") && second.find("hello"), 5000, "hello");
+    assert.deepEqual(first.find("hello").data.files, []);
+
+    const svg = { id: "file0002abcd", mimeType: "image/svg+xml", dataURL: "data:image/svg+xml;base64,PHN2Zz4=" };
+    const reply = await first.post("/api/files", { files: [PNG_FILE, svg] });
+    assert.equal(reply.json.added, 1);
+    assert.deepEqual(reply.json.rejected.map((r) => r.id), ["file0002abcd"]);
+    const got = await until(() => second.find("files"), 5000, "files on the other page");
+    assert.deepEqual(got.data.files, [PNG_FILE]);
+    assert.equal(first.received.some((m) => m.type === "files"), false, "the sender does not get its own file back");
+    assert.ok(readLog(logPath).some((e) => e.event === "FileRejected" && e.id === "file0002abcd"));
+    assert.deepEqual(JSON.parse(fs.readFileSync(path.join(dataDir, "files", "file0001abcd.json"), "utf8")), PNG_FILE);
+    assert.equal((await first.post("/api/files", { files: [PNG_FILE] })).json.added, 0, "a known file is not added twice");
+
+    first.close();
+    second.close();
+    await call(CONTROL_PORT, "POST", "/v1/stop");
+    await server.exited;
+    server = await startServer(dataDir, logPath);
+    const later = openPage(token, "pageFILES3");
+    await until(() => later.find("hello"), 5000, "hello after the restart");
+    assert.deepEqual(later.find("hello").data.files, [PNG_FILE]);
+    later.close();
+    await call(CONTROL_PORT, "POST", "/v1/stop");
+    await server.exited;
+  } finally {
+    server.child.kill();
+  }
+});

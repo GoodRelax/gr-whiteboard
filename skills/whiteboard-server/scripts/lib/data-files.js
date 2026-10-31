@@ -5,6 +5,7 @@
 //   token.txt    the Token (FR-045)
 //   baseline.json  the Board at the last Send, as summaries (FR-076)
 //   cert.pem, key.pem, cert-info.json   the self-signed certificate for LAN mode (FR-047)
+//   files/<id>.json   one image file of the Board (FR-082)
 
 const crypto = require("crypto");
 const fs = require("fs");
@@ -23,6 +24,7 @@ function dataPaths(dataDir) {
     cert: path.join(dataDir, "cert.pem"),
     key: path.join(dataDir, "key.pem"),
     certInfo: path.join(dataDir, "cert-info.json"),
+    files: path.join(dataDir, "files"),
   });
 }
 
@@ -82,4 +84,23 @@ function readJsonOrNull(filePath) {
   }
 }
 
-module.exports = { dataPaths, writeFileAtomic, loadBoard, saveBoard, loadOrCreateToken, readJsonOrNull };
+// Returns every file object in `filesDir` (the caller checks them). Broken files are skipped.
+// @purity semi-pure-b
+function loadFiles(filesDir) {
+  let names = [];
+  try {
+    names = fs.readdirSync(filesDir).filter((name) => name.endsWith(".json"));
+  } catch (error) {
+    return [];
+  }
+  return names.map((name) => readJsonOrNull(path.join(filesDir, name))).filter((file) => file !== null);
+}
+
+// `file` was checked (board-files.js), so its id is safe as a file name.
+// @purity non-pure
+function saveFile(filesDir, file) {
+  fs.mkdirSync(filesDir, { recursive: true });
+  writeFileAtomic(path.join(filesDir, `${file.id}.json`), JSON.stringify(file));
+}
+
+module.exports = { dataPaths, writeFileAtomic, loadBoard, saveBoard, loadOrCreateToken, readJsonOrNull, loadFiles, saveFile };

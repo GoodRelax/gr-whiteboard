@@ -85,3 +85,11 @@ test("deleted items in the Baseline are not reported again; the event has both l
   assert.deepEqual(toSentEvent({ messages: [1], changes: [2] }), { event: "MessagesSent", messages: [1], changes: [2] });
   assert.equal(summarize(text("x", "t")).text, "t");
 });
+
+test("an image is a Drawing: added, then a new picture is restyled with fileId (FR-084)", () => {
+  const image = el("img", "image", { fileId: "file0001" });
+  const added = diff([], [image]);
+  assert.deepEqual(added.changes.map((c) => [c.kind, c.type]), [["added", "image"]]);
+  const swapped = diff([image], [{ ...image, fileId: "file0002" }]);
+  assert.deepEqual(swapped.changes.map((c) => [c.kind, c.what, c.style]), [["changed", ["restyled"], ["fileId"]]]);
+});

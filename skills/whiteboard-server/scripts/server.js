@@ -20,7 +20,10 @@ const { toItems, pruneDeleted } = require("./lib/board-store");
 const { createBoardHub } = require("./lib/board-hub");
 const { createBoardApi } = require("./lib/board-api");
 const { createControlApi } = require("./lib/control-api");
-const { dataPaths, loadBoard, saveBoard, loadOrCreateToken, writeFileAtomic, readJsonOrNull } = require("./lib/data-files");
+const {
+  dataPaths, loadBoard, saveBoard, loadOrCreateToken, writeFileAtomic, readJsonOrNull, loadFiles, saveFile,
+} = require("./lib/data-files");
+const { addFiles } = require("./lib/board-files");
 const { lanAddresses, boardUrls } = require("./lib/lan");
 const { AppError } = require("./lib/app-error");
 
@@ -94,6 +97,11 @@ async function main() {
     if (element && typeof element.id === "string") elements.set(element.id, element);
   }
 
+  // The image files of the Board (FR-082). Files that fail the check are left out.
+  const files = new Map();
+  const loadedFiles = addFiles(files, loadFiles(paths.files));
+  for (const bad of loadedFiles.rejected) events.emit({ event: "FileRejected", id: bad.id, reason: bad.reason });
+
   // When the Server first got each Element, so added texts can be listed in the order they were written.
   const firstSeenMs = new Map();
   // The Board at the last Send (FR-076). Kept on disk, so a restart does not lose what is not sent yet.
@@ -127,6 +135,16 @@ async function main() {
     onAnswerWritten: (written) => {
       for (const element of written) baseline.set(element.id, summarize(element));
       saveBaseline();
+    },
+    files,
+    onFilesAdded: (added) => {
+      for (const file of added) {
+        try {
+          saveFile(paths.files, file);
+        } catch (error) {
+          events.emit({ event: "SaveFailed", message: String(error && error.message) });
+        }
+      }
     },
   });
 

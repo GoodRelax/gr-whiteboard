@@ -11,6 +11,7 @@
 const { AppError } = require("./app-error");
 const { mergeElements, toItems, isElement, ANSWER_MARK } = require("./board-store");
 const { placeAnswer, clearOfItems, estimateSize } = require("./answer-placement");
+const { addFiles } = require("./board-files");
 
 // The font size that the page uses for Answers (page/app.js).
 const ANSWER_FONT_SIZE_PX = 20;
@@ -28,8 +29,12 @@ function isAnswerElement(element) {
 // elements: Map of id -> element (the Board). events: EventPort (emit).
 // clock: { setTimeout, clearTimeout }. onBoardChanged(changed): called with the Elements that changed the Board.
 // onAnswerWritten(elements): called with the Answer Elements that the Leader wrote.
+// files: Map of id -> image file (FR-081). onFilesAdded(files): called with the new files, to save them.
 // @purity non-pure
-function createBoardHub({ elements, events, clock, jobTimeoutMs, gapPx, indentPx = 0, onBoardChanged, onAnswerWritten = () => {} }) {
+function createBoardHub({
+  elements, events, clock, jobTimeoutMs, gapPx, indentPx = 0, onBoardChanged, onAnswerWritten = () => {},
+  files = new Map(), onFilesAdded = () => {},
+}) {
   // pageId -> { send(type, data), editingId }. A Map keeps the order in which pages joined.
   const pages = new Map();
   const jobs = [];
@@ -121,7 +126,7 @@ function createBoardHub({ elements, events, clock, jobTimeoutMs, gapPx, indentPx
   function addPage(pageId, send) {
     pages.set(pageId, { send, editingId: null });
     const isLeader = leaderId() === pageId;
-    send("hello", { pageId, leader: isLeader, signal, inbox, elements: [...elements.values()] });
+    send("hello", { pageId, leader: isLeader, signal, inbox, elements: [...elements.values()], files: [...files.values()] });
     events.emit({ event: "PageJoined", pageCount: pages.size });
     if (isLeader) pump();
   }
@@ -153,6 +158,18 @@ function createBoardHub({ elements, events, clock, jobTimeoutMs, gapPx, indentPx
       onBoardChanged(changed);
     }
     return changed.length;
+  }
+
+  // New image files from a page go to the other pages (FR-081). Returns { added, rejected }.
+  // @purity non-pure
+  function receiveFiles(pageId, list) {
+    const result = addFiles(files, list);
+    if (result.added.length > 0) {
+      broadcast("files", { files: result.added }, pageId);
+      onFilesAdded(result.added);
+    }
+    for (const bad of result.rejected) events.emit({ event: "FileRejected", id: bad.id, reason: bad.reason });
+    return { added: result.added.length, rejected: result.rejected };
   }
 
   // @purity semi-pure-b
@@ -235,6 +252,7 @@ function createBoardHub({ elements, events, clock, jobTimeoutMs, gapPx, indentPx
     addPage,
     removePage,
     receiveElements,
+    receiveFiles,
     editingIds,
     queueAnswer,
     requestShot,

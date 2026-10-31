@@ -9,7 +9,7 @@ const MOVE_MIN_PX = 3;
 const ANGLE_MIN_RAD = 0.01;
 const STYLE_FIELDS = Object.freeze([
   "strokeColor", "backgroundColor", "fillStyle", "strokeWidth", "strokeStyle", "roughness", "opacity",
-  "fontSize", "fontFamily", "textAlign",
+  "fontSize", "fontFamily", "textAlign", "fileId",
 ]);
 const KIND_ORDER = Object.freeze({ edited: 0, deletedText: 1, added: 2, changed: 3, deleted: 4 });
 const ANSWER_MARK = "answer";

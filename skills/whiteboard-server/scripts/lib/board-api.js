@@ -4,11 +4,12 @@
 //   GET  /                 the page (no Token needed: it holds no Board data)
 //   GET  /app.js           the page script
 //   GET  /api/stream       Server-Sent Events to one page (Token in the query, as EventSource has no headers)
-//                          events: hello, elements, role, job, signal, ping, bye
+//                          events: hello, elements, files, role, job, signal, inbox, ping, bye
 //   POST /api/elements     changed elements from a page
 //   POST /api/job          the result of a Job from the Leader page
 //   POST /api/send         the Person pressed Send (FR-072)
 //   POST /api/auto-send    the Person turned automatic sending on or off (FR-074)
+//   POST /api/files        new image files from a page (FR-081)
 
 const crypto = require("crypto");
 const fs = require("fs");
@@ -19,6 +20,8 @@ const { sendJson, readBody, parseJsonBody, sameSecret, sendError } = require("./
 const PAGE_ID_PATTERN = /^[A-Za-z0-9_-]{8,64}$/;
 const MAX_ELEMENTS_BYTES = 8 * 1024 * 1024;
 const MAX_JOB_BYTES = 32 * 1024 * 1024;
+// A few images at a time; each one is checked again in board-files.js.
+const MAX_FILES_BYTES = 40 * 1024 * 1024;
 const KEEP_ALIVE_MS = 20000;
 const PAGE_ORIGIN = "https://esm.sh";
 
@@ -148,6 +151,10 @@ function createBoardApi({ hub, inbox, token, pageDir, redact, clock }) {
         const body = await readPost(req, MAX_ELEMENTS_BYTES);
         const changed = hub.receiveElements(String(body.page || ""), body.elements, body.editingId);
         return sendJson(res, 200, { changed });
+      }
+      case "POST /api/files": {
+        const body = await readPost(req, MAX_FILES_BYTES);
+        return sendJson(res, 200, hub.receiveFiles(String(body.page || ""), body.files));
       }
       case "POST /api/job": {
         const body = await readPost(req, MAX_JOB_BYTES);

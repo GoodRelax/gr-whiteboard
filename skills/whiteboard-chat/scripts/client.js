@@ -30,7 +30,7 @@ const WAIT_LOOKBACK_MS = 5000;
 const BYTE_ORDER_MARK = new RegExp("^" + String.fromCharCode(0xfeff));
 const WATCH_EVENTS = new Set([
   "ServerReady", "MessagesSent", "MessageReceived", "MessageEdited", "DrawingAdded", "PageJoined", "PageLeft",
-  "AnswerFailed", "SaveFailed", "BoardWarning", "ServerStopped", "ServerFailed",
+  "AnswerFailed", "SaveFailed", "BoardWarning", "FileRejected", "ServerStopped", "ServerFailed",
 ]);
 
 // @purity pure
