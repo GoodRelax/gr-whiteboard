@@ -88,6 +88,32 @@ test("a mermaid Job gets twice jobTimeoutMs; a mermaid failure code gives 422 (F
   assert.equal(emitted.find((e) => e.event === "OperationFailed").error, "MermaidError");
 });
 
+// Fires every timer that is due when `elapsedMs` have passed since it was set.
+// @purity non-pure
+function advance(clock, elapsedMs) {
+  for (const [id, timer] of [...clock.timers]) {
+    if (timer.ms <= elapsedMs) {
+      clock.timers.delete(id);
+      timer.fn();
+    }
+  }
+}
+
+test("a first mermaid Job that needs 1.5 x jobTimeoutMs does not time out; a draw Job does (FR-096, SC-079)", async () => {
+  const { hub, clock } = setup((job) => ({ changed: [], result: { opId: job.opId } }));
+  const leader = fakePage();
+  hub.addPage("pageAAAA1", leader.send);
+  const mermaid = hub.queueOperation({ kind: "mermaid", source: "graph LR; A-->B", at: null }, () => 1);
+  const mermaidJob = leader.last("job").data;
+  advance(clock, 1500);
+  hub.finishJob("pageAAAA1", { jobId: mermaidJob.jobId, ok: true, elements: [] });
+  assert.equal((await mermaid.done).opId, 1);
+
+  const draw = hub.queueOperation({ kind: "draw", elements: [], at: null, boardTargets: [] }, () => 2);
+  advance(clock, 1500);
+  await assert.rejects(draw.done, (error) => error.code === "JobTimeout");
+});
+
 test("an edit Job carries its changes; a failed result handling ends the Job and refuses the page with 409 (FR-099, FR-106)", async () => {
   const { hub, emitted } = setup(() => {
     throw new AppError("SnapshotFailed", 500, "disk full");

@@ -415,6 +415,8 @@ function undoConflicts(changed, elements) {
 
 // Plans an `undo` (FR-103): each Element of the Operation gets its state from the Snapshot
 // (an added Element becomes deleted), with version = current version + 1.
+// An Element that comes back keeps its `updated` from the Snapshot, so old texts do not look
+// like the newest Message to the Answer placement (4.6); an added Element gets `updated` now.
 // `snapshot`: Map id -> Element before the Operation. Returns { restored, restoredCount }.
 // @purity pure
 function planUndo(changed, snapshot, elements, nowMs, nonce) {
@@ -423,9 +425,9 @@ function planUndo(changed, snapshot, elements, nowMs, nonce) {
     const before = snapshot.get(entry.id);
     const now = elements.get(entry.id);
     if (!now && !before) continue;
-    const base = before || { ...now, isDeleted: true };
     const version = (now ? now.version : before.version) + 1;
-    restored.push({ ...base, version, versionNonce: nonce(), updated: nowMs });
+    const base = before ? { ...before } : { ...now, isDeleted: true, updated: nowMs };
+    restored.push({ ...base, version, versionNonce: nonce() });
   }
   // Labels come back with their shape; count Items as delete counts them.
   const restoredCount = restored.filter((element) => !(element.type === "text" && element.containerId)).length;

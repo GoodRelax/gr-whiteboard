@@ -4,8 +4,8 @@
 | -------- | --------------------------------------- |
 | Document | spec-en.md                              |
 | Template | ANMS v0.34 (gr-sw-maker process-rules)  |
-| Version  | 0.5.0 (draft)                           |
-| Date     | 2026-10-31                              |
+| Version  | 0.5.1 (draft)                           |
+| Date     | 2026-11-01                              |
 | Status   | Draft. A person must review it.         |
 | License  | Apache-2.0                              |
 
@@ -235,8 +235,8 @@ Draw from Mermaid:
 | ID     | Requirement (EARS) | Check |
 | ------ | ------------------ | ----- |
 | FR-093 | When the Server receives `POST /v1/mermaid` with `source` of 1 to 20000 characters that is not blank, the Server shall add a `mermaid` Job and reply as FR-087 (also 503 `NoPage`). Other `source` values get 400 `InvalidSource`. | T |
-| FR-093a | If the first statement of `source` (statements end at a newline, `;`, `{`, or `}`; blank lines and `%%` comments do not count) does not start with `graph`, `flowchart`, `sequenceDiagram`, `classDiagram`, `stateDiagram`, `stateDiagram-v2`, `erDiagram`, or `pie`, or `source` contains `%%{` or `:::` (the short form that puts a class on a node), or a later statement starts with `classDef`, `class`, `cssClass`, `style`, `linkStyle`, or `click` (any letter case), then the Server shall reply 400 `InvalidSource` with the reason and add no Job. Reason: ruling R-022; `mermaid` 11.13.0 has open advisories in styles, classes, configuration, and other diagram types (A.3). Checked in Edge on 2026-10-31: Mermaid runs with its default `securityLevel` "strict" (neither the Page nor the package sets it), its sanitizer takes `<script>` and `<style>` out of labels, and the Content Security Policy (FR-048) blocks an `onerror` handler in a label; the label stays plain text in Excalidraw. | T |
-| FR-094 | When the Leader gets a `mermaid` Job, the Leader shall load `@excalidraw/mermaid-to-excalidraw` (NFR-009) once, at the first `mermaid` Job, call `parseMermaidToExcalidraw(source, {themeVariables: {fontSize: "20px"}, maxTextSize: 20000})`, make the Elements with `convertToExcalidrawElements` (new IDs), set `link` to null on every Element, move the drawing so that its top left corner is at the Origin, add the mark of FR-091, add the Elements to its Board, and send them to the Server with the Job result. If Mermaid cannot read the source, then the Job shall fail with `MermaidError` (422) and the first 300 characters of the Mermaid message. | T, D |
+| FR-093a | If the first statement of `source` (statements end at a newline, `;`, `{`, or `}`; blank lines and `%%` comments do not count) does not start with `graph`, `flowchart`, `sequenceDiagram`, `classDiagram`, `stateDiagram`, `stateDiagram-v2`, `erDiagram`, or `pie`, or `source` contains `%%{` or `:::` (the short form that puts a class on a node), or a later statement starts with `classDef`, `class`, `cssClass`, `style`, `linkStyle`, or `click` (any letter case), then the Server shall reply 400 `InvalidSource` with the reason and add no Job. Reason: ruling R-022; `mermaid` 11.13.0 has open advisories in styles, classes, configuration, and other diagram types (A.3). The Page sets `securityLevel` "strict" itself (FR-094), so a new default of Mermaid or of the package cannot loosen it. Checked in Edge on 2026-10-31: Mermaid runs with `securityLevel` "strict", its sanitizer takes `<script>` and `<style>` out of labels, and the Content Security Policy (FR-048) blocks an `onerror` handler in a label; the label stays plain text in Excalidraw. | T |
+| FR-094 | When the Leader gets a `mermaid` Job, the Leader shall load `@excalidraw/mermaid-to-excalidraw` (NFR-009) once, at the first `mermaid` Job, call `parseMermaidToExcalidraw(source, {securityLevel: "strict", themeVariables: {fontSize: "20px"}, maxTextSize: 20000})`, make the Elements with `convertToExcalidrawElements` (new IDs), set `link` to null on every Element, move the drawing so that its top left corner is at the Origin, add the mark of FR-091, add the Elements to its Board, and send them to the Server with the Job result. If Mermaid cannot read the source, then the Job shall fail with `MermaidError` (422) and the first 300 characters of the Mermaid message. | T, D |
 | FR-095 | If the package gives a picture (an SVG image) instead of shapes, then the Leader shall draw the SVG on a canvas, make a PNG image file of it (at most 2000 px on the long side), and place it as one image Element; the Server shall check the file as FR-083. If the browser cannot make the PNG, then the Job shall fail with `MermaidUnsupported` (422). Reason: FR-083 refuses SVG files. | D |
 | FR-096 | The Server shall give a `mermaid` Job twice `jobTimeoutMs` (30 s by default), because the first `mermaid` Job on a Page loads Mermaid (about 3 MB). FR-086 (one more try on another Page) applies as for other Jobs. | T |
 
@@ -255,7 +255,7 @@ Snapshots and undo:
 | ID     | Requirement (EARS) | Check |
 | ------ | ------------------ | ----- |
 | FR-102 | Before the Server applies an Operation to the Board, the Server shall write a Snapshot file `snapshots/<opId>.json` (4.5) with the whole Board as it is, and the list of Elements that the Operation changes with their new `version`. The Server shall keep the last `undoDepth` Operations (default 20) and remove older Snapshot files. | T |
-| FR-103 | When the Server receives `POST /v1/undo`, the Server shall take back the last Operation that is not yet undone: each Element that the Operation changed gets its state from the Snapshot (an Element that the Operation added becomes deleted), with `version` = current `version` + 1, a new `versionNonce`, and `updated` now. It shall send the Elements to every Page, remove that Operation and its Snapshot file, and reply 200 with `opId`, `kind`, and `restored`. With no Operation left, it shall reply 409 `NothingToUndo`. It needs no Page. | T |
+| FR-103 | When the Server receives `POST /v1/undo`, the Server shall take back the last Operation that is not yet undone: each Element that the Operation changed gets its state from the Snapshot (an Element that the Operation added becomes deleted), with `version` = current `version` + 1 and a new `versionNonce`. An Element that comes back keeps its `updated` from the Snapshot; an Element that the Operation added gets `updated` now. Reason: the Answer placement (4.6) takes the newest Message by `updated`; in the UAT of 0.5.0, old texts that came back with `updated` now looked newest, and the next Answer went to the top of the Board (UAT-10). It shall send the Elements to every Page, remove that Operation and its Snapshot file, and reply 200 with `opId`, `kind`, and `restored`. With no Operation left, it shall reply 409 `NothingToUndo`. It needs no Page. | T |
 | FR-104 | If an Element of the last Operation changed after the Operation (its `version` differs from the one in the Snapshot list), and the body has no `force: true`, then the Server shall reply 409 `UndoConflict` with those IDs and change nothing. With `force: true`, it shall undo all Elements of the Operation. Reason: a Person may have worked on Claude's drawing since; `undo` must not throw that work away without a check. | T |
 | FR-105 | When the Server starts, the Server shall read the Snapshot files, keep their Operations for `undo`, and give the next Operation the next `opId` (the largest `opId` + 1, counting the opIds of undone Operations, which `snapshots/last-op-id.json` keeps). The Server shall never give an `opId` twice. Reason: ruling R-023; an opId in the chat must name one Operation. A Snapshot file that cannot be read shall be renamed to `<name>.broken-<ms>`, with `BoardWarning`. | T |
 | FR-106 | If the Server cannot write a Snapshot file, then the Server shall not apply the Operation, shall end it with 500 `SnapshotFailed`, and shall send `OperationFailed`. Reason: no Operation without a way back. For a `draw`, `edit`, or `mermaid` Job, the Page that wrote the Elements takes them off again (as FR-086). | T |
@@ -850,6 +850,14 @@ Feature: Talk with Claude Code on a local whiteboard
       When a Person presses Send
       Then the Server sends no MessagesSent
 
+    Scenario: SC-074a DrawingAdded does not count Claude Items (traces: FR-091)
+      Given automatic sending is on
+      And a Person drew one rectangle, and the Server sent DrawingAdded with drawingCount 1
+      When the Agent draws a rectangle
+      Then the Server sends no DrawingAdded
+      When the Person draws a second rectangle
+      Then the Server sends DrawingAdded with drawingCount 2
+
     Scenario: SC-075 A Person moves Claude's shape (traces: FR-092, FR-075)
       Given the Agent drew the rectangle "web"
       When a Person drags "web" 100 px to the right and presses Send
@@ -955,6 +963,13 @@ Feature: Talk with Claude Code on a local whiteboard
       And undo replies 200 with kind "delete" and restored 25
       And the Send count does not change
 
+    Scenario: SC-087a The Answer after an undo goes below the newest Message (traces: FR-103, FR-030)
+      Given the Board has the Message "first" at the top and the newer Message "undo that" below it
+      And the Agent deleted both with all true
+      When the Agent posts /v1/undo
+      And the Agent posts /v1/say
+      Then the Answer goes right below "undo that"
+
     Scenario: SC-088 Undo a drawing after a Person changed it (traces: FR-104)
       Given the Agent drew "web"
       And a Person changed the color of "web" afterwards
@@ -999,6 +1014,52 @@ Feature: Talk with Claude Code on a local whiteboard
       Then the client posts {"elements": [...], "at": {"x": 200, "y": 300}} to /v1/draw
       When the Agent runs client.js draw --file broken.json
       Then the client prints InvalidJson and exits with code 1 without a request
+
+  Rule: Refusals, broken files, and client commands (0.5.1)
+
+    Scenario: SC-099 Delete refused (traces: FR-100)
+      When the Agent posts /v1/delete with ids ["e1", "x"] and "x" is not on the Board
+      Then delete replies 409 UnknownItem with ids ["x"]
+      And the Board does not change
+      Given a Person is typing in "e1"
+      When the Agent posts /v1/delete with ids ["e1"]
+      Then delete replies 409 ItemBusy
+      When the Agent posts /v1/delete with both ids and all true
+      Then delete replies 400 InvalidIds
+
+    Scenario: SC-100 Edit with no Page (traces: FR-097, FR-087)
+      Given no Page is open
+      When the Agent posts /v1/edit
+      Then edit replies 503 NoPage at once
+      And the queue stays empty
+
+    Scenario: SC-101 A bad place (traces: FR-088, 4.8)
+      When the Agent posts /v1/draw with at {"x": 1}
+      Then draw replies 400 InvalidAt
+
+    Scenario: SC-102 A broken Snapshot file (traces: FR-105)
+      Given snapshots/3.json is good and snapshots/4.json is not JSON
+      When the Server starts
+      Then the Server renames 4.json to 4.json.broken-<ms> and sends BoardWarning
+      And the Operation of 3.json stays ready for undo
+
+    Scenario: SC-103 The Snapshot fails for a Job (traces: FR-106)
+      Given the Server cannot write Snapshot files
+      When the Leader posts the result of an edit Job
+      Then the Server replies 409 SnapshotFailed to the Leader, and the Leader takes its Elements off again
+      And edit replies 500 SnapshotFailed
+      And the Server sends OperationFailed
+
+    Scenario: SC-104 The client commands (traces: FR-109)
+      When the Agent runs the client commands
+      Then the client posts these bodies:
+        | Command                        | Path        | Body                                  |
+        | draw --file F --at 200,300     | /v1/draw    | {"elements": [...], "at": {"x": 200, "y": 300}} |
+        | mermaid --file F, or standard input | /v1/mermaid | {"source": "..."} (one line break at the end removed) |
+        | edit --file F                  | /v1/edit    | {"changes": [...]}                    |
+        | delete ID ID                   | /v1/delete  | {"ids": ["ID", "ID"]}                 |
+        | delete --all --confirm         | /v1/delete  | {"all": true, "confirm": true}        |
+        | undo --force                   | /v1/undo    | {"force": true}                       |
 
   Rule: What the Skill tells the Agent (0.5.0; checked by inspection and in the UAT)
 
@@ -1309,7 +1370,7 @@ The client waits for the reply of `draw`, `edit`, and `mermaid` up to 65 s (two 
 | Integration test | `server.js` as a child process; `client.js wait` and `watch` | A fake Page (SSE and POST) and the Control API: sync, Messages, typing, Answers, Token, Origin, saving. | `node:test` | All pass |
 | Manual test      | The Page in real browsers | Two Pages: sync, Answers, Screenshot, Leader change, restart; LAN mode from a second computer. | Browser | Scenarios in 4.1 pass |
 | Inspection       | FR-050 to FR-064, FR-110 to FR-114, NFR-009, NFR-011, NFR-014 | A person reads both `SKILL.md` files, one full session log, `index.html`, and `package.json`. | Reading | No finding of High or higher |
-| Scenario check   | 4.1 (SC-070 to SC-098) against the tests | A test SUB maps each scenario to a test or a manual step. | Reading | Every scenario has a test or a UAT step |
+| Scenario check   | 4.1 (SC-070 to SC-104) against the tests | A test SUB maps each scenario to a test or a manual step. | Reading | Every scenario has a test or a UAT step |
 | User acceptance test | 5.1 | The owner and the BOSS, Sunday 2026-11-01 11:00-12:00 JST, PC (Edge) and iPad (Safari), LAN mode. | Browser, Claude Code | Every UAT scenario passes, or the owner accepts a listed gap |
 
 Tests do not depend on each other. They share no state. Their order does not matter. Unit tests do not wait for real time.
@@ -1317,6 +1378,8 @@ Tests do not depend on each other. They share no state. Their order does not mat
 Run: `npm test` in the repository root (Node.js 20 or later). No install is needed.
 
 Unit tests for 0.5.0 cover every rule of 4.11.1 to 4.11.4 (BoardOps), FR-099 filtering, FR-100 bindings, every cell of the 3.4.4 table (OperationLog with a fake file port and clock), and the Baseline update of FR-092. Integration tests use the fake Page: it answers `draw`, `edit`, and `mermaid` Jobs with prepared Elements, so the Server side runs without a browser.
+
+What the Leader Page itself does (`page/app.js`) has no automatic test, because the tests use a fake Page. The UAT (5.1) checks it: the blue default color of `draw` (FR-090, UAT-04), the bound arrows (FR-090, UAT-04), Mermaid shapes (FR-094, UAT-05), the PNG picture (FR-095, UAT-05a), the new label size and the arrows that follow in `edit` (FR-098, UAT-06), and the scroll to a new drawing (FR-107). `MermaidUnsupported` (FR-095) has no UAT step; a person checks it by reading `page/app.js`.
 
 ### 5.1 User acceptance test for 0.4.1 and 0.5.0
 
@@ -1462,6 +1525,7 @@ Gaps that the UAT does not cover: Firefox and macOS (NFR-008), and Mermaid types
 
 | Version | Date | Change |
 | ------- | ---- | ------ |
+| 0.5.1 | 2026-11-01 | Fixes from the UAT of 0.5.0 and the Gherkin check (task 97, ruling R-027, option a). `undo` keeps the `updated` of an Element that comes back (FR-103): the Answer after an undo went to the top of the Board instead of below the newest Message (UAT-10; new SC-087a). FR-093a and FR-094 now say that the Page sets `securityLevel` "strict" itself, as the code does (C1). New scenarios SC-074a (DrawingAdded does not count Claude Items, G1) and SC-099 to SC-104 for FRs without one (A3). New tests for SC-074a, SC-087 (the Send count after undo, G2), SC-079 (a first Mermaid Job of 1.5 x `jobTimeoutMs`, G6), SC-087a, and SC-104 (the request bodies of every client command, G7). 5 now says that the UAT checks what the Leader Page does (G5). |
 | 0.5.0 | 2026-10-31 | Claude draws, changes, and deletes Items (FR-087 to FR-114, 4.11, ADR-009 to ADR-011). New `client.js` commands `draw` (Skeleton JSON, arrows bind by ID), `mermaid` (`@excalidraw/mermaid-to-excalidraw` 2.2.2 with `mermaid` 11.13.0 from esm.sh; six diagram types, no styles, FR-093a), `edit`, `delete` (`--confirm` above 20 Items, also checked by the Server), and `undo` (a Snapshot of the whole Board before each Operation; the last 20 Operations). Claude Items carry `customData.whiteboardChat = "claude"` and go into the Baseline at once, so Send does not report them. `board` Items gain `byClaude`, colors, angle, and arrow ends. New setting `--undo-depth`, new data folder `snapshots/`, new Events and errors, NFR-013, NFR-014, UAT for 0.4.1 and 0.5.0 (5.1). Reason: in the LAN test the owner asked Claude to erase the Board and to draw a network diagram, and Claude could only write text. Rulings of 2026-10-31: R-013, R-014, R-015 (option b), R-016 (option a). Ruling R-022 (2026-10-31, option a): `mermaid` 11.13.0 instead of 11.17.2, because with 11.14.0 and later the package turns state, class, and ER diagrams into one picture (checked in Edge for 11.12.0 to 11.17.2). 11.13.0 lacks the fixes of nine advisories; each entry point is closed as follows: CVE-2026-41149 (HTML injection through `classDef` in state diagrams, fixed in 11.15.0): `classDef` refused (FR-093a). CVE-2026-41148 (CSS injection through `classDefs`, 11.15.0): `classDef` and every way to put a class on a node refused (`class`, `:::`, `cssClass`). CVE-2026-41159 (CSS injection through configuration, 11.15.0): `%%{` directives and front matter (`---`, not a diagram type) refused; the Page passes only fixed options (FR-094). CVE-2026-50159 (CSS injection on sibling elements, 11.16.1): `style`, `linkStyle`, `classDef`, `class`, `:::`, `cssClass`, and `%%{` refused. CVE-2026-71438 (prototype pollution through the configuration APIs, 11.16.1): `%%{` and front matter refused; fixed options only. CVE-2026-71437 (prototype pollution in architecture diagrams, 11.16.1), CVE-2026-41150 (infinite loop in gantt, 11.15.0), CVE-2026-71436 (infinite loop in XY charts, 11.16.1), CVE-2026-71439 (DoS in radar diagrams, 11.16.1): those types are not among the six (FR-093a). `click` is refused too, and the Page sets `link` to null (FR-094); the Content Security Policy stays as it is (FR-048). Rulings R-023 to R-025 (2026-11-01, option a each, after the Gherkin check): an undone opId is never given again (FR-105); the Page scrolls when any part of a Claude Item is outside the view (FR-107, SC-091a); the UAT checks a pie chart (UAT-05a). Later version: evaluate `@excalidraw/mermaid-to-excalidraw` 3.x with a fixed `mermaid` as the lasting fix (lowest priority, as the owner asked). |
 | 0.4.1 | 2026-10-31 | The Leader is the first Page on screen (FR-034, FR-085), and a Job that times out goes once to another Page (FR-086). Reason: in the LAN test, Edge froze the Leader in a hidden tab, and Answers timed out while the iPad page was awake. The owner chose this fix from four options (R-012). |
 | 0.4.0 | 2026-10-31 | Images on the Board (FR-080 to FR-084): the image tool is on; pages share image files through the Server, which checks and saves them. Reason (the owner, in the live test of 0.3.1): "I cannot paste images; I want to point at a part of the spec." |

@@ -6,6 +6,7 @@ const test = require("node:test");
 const assert = require("node:assert/strict");
 const ops = require("../../skills/whiteboard-server/scripts/lib/board-ops");
 const { toItems } = require("../../skills/whiteboard-server/scripts/lib/board-store");
+const { placeAnswer } = require("../../skills/whiteboard-server/scripts/lib/answer-placement");
 
 // @purity pure
 function el(id, extra = {}) {
@@ -241,10 +242,23 @@ test("planUndo restores the Snapshot states with a higher version; added Element
   assert.deepEqual(ops.undoConflicts(changed, now), []);
   const { restored, restoredCount } = ops.planUndo(changed, snapshot, now, 50, () => 1);
   const byId = new Map(restored.map((e) => [e.id, e]));
-  assert.deepEqual([byId.get("web").isDeleted, byId.get("web").version, byId.get("web").x, byId.get("web").updated], [false, 5, 10, 50]);
-  assert.deepEqual([byId.get("new1").isDeleted, byId.get("new1").version], [true, 2]);
+  assert.deepEqual([byId.get("web").isDeleted, byId.get("web").version, byId.get("web").x, byId.get("web").updated], [false, 5, 10, 1]);
+  assert.deepEqual([byId.get("new1").isDeleted, byId.get("new1").version, byId.get("new1").updated], [true, 2, 50]);
   assert.equal(restoredCount, 2);
   assert.deepEqual(ops.undoConflicts(changed, board([el("web", { version: 6 }), el("new1")])), ["web"]);
+});
+
+test("after undo of a deletion, the Answer goes below the newest Message, not an old one (FR-103, 4.6, UAT-10)", () => {
+  const before = board([
+    el("old", { type: "text", text: "first", x: 100, y: 100, height: 25, updated: 5 }),
+    el("last", { type: "text", text: "undo that", x: 400, y: 900, height: 25, updated: 9 }),
+  ]);
+  const plan = ops.planDelete(before, { ids: [], all: true, confirm: true }, new Set(), 50, () => 1);
+  const afterDelete = new Map([...before, ...plan.changed.map((e) => [e.id, e])]);
+  const changed = plan.changed.map((e) => ({ id: e.id, version: e.version }));
+  const { restored } = ops.planUndo(changed, before, afterDelete, 60, () => 2);
+  const afterUndo = toItems(new Map([...afterDelete, ...restored.map((e) => [e.id, e])]));
+  assert.deepEqual(placeAnswer(afterUndo, new Set(), 12, 170), { x: 230, y: 937 });
 });
 
 test("chooseOrigin: at, empty Board, else below the lowest Item at the Answer x (4.11.4, FR-089)", () => {

@@ -9,7 +9,7 @@ const fs = require("fs");
 const http = require("http");
 const os = require("os");
 const path = require("path");
-const { spawn, spawnSync } = require("child_process");
+const { execFile, spawn, spawnSync } = require("child_process");
 
 const SERVER = path.join(__dirname, "..", "..", "skills", "whiteboard-server", "scripts", "server.js");
 const CLIENT = path.join(__dirname, "..", "..", "skills", "whiteboard-chat", "scripts", "client.js");
@@ -173,7 +173,7 @@ test("draw, edit, mermaid, delete, and undo on the real Server (FR-087 to FR-109
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "wbc-ops-"));
   let server = await startServer(dataDir);
   try {
-    assert.equal(readLog(server.logPath).find((e) => e.event === "ServerReady").version, "0.5.0");
+    assert.equal(readLog(server.logPath).find((e) => e.event === "ServerReady").version, "0.5.1");
     const skeletons = [
       { id: "web", type: "rectangle", x: 0, y: 0, width: 160, height: 80, label: { text: "Web" } },
       { id: "db", type: "rectangle", x: 300, y: 0, width: 160, height: 80 },
@@ -321,6 +321,7 @@ test("draw, edit, mermaid, delete, and undo on the real Server (FR-087 to FR-109
     const back = await control("/v1/undo", {});
     assert.deepEqual([back.json.kind, back.json.restored], ["delete", 25]);
     assert.equal((await control("/v1/board")).json.items.length, 25);
+    assert.equal((await control("/v1/status")).json.unsent, 0, "undo does not change the Send count (FR-092, SC-087)");
     const undoOpId = (await control("/v1/status")).json.undoCount;
     assert.equal(undoOpId, 2, "draw and the first delete are left");
 
@@ -355,6 +356,85 @@ test("draw, edit, mermaid, delete, and undo on the real Server (FR-087 to FR-109
     await stopServer(server);
   } finally {
     server.child.kill();
+  }
+});
+
+test("DrawingAdded counts a Person's drawings, never Claude Items (FR-091, SC-074)", async () => {
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "wbc-ops-auto-"));
+  const server = await startServer(dataDir);
+  try {
+    const page = openPage(server.token, "pageAUTO0001");
+    await until(() => page.find("hello"), 5000, "hello");
+    assert.equal((await page.post("/api/auto-send", { on: true })).status, 200);
+    const added = () => readLog(server.logPath).filter((e) => e.event === "DrawingAdded");
+    await page.post("/api/elements", { elements: [el("pen1", { customData: undefined })], editingId: null });
+    await until(() => added().length === 1, 5000, "DrawingAdded for the Person's shape");
+
+    const drawing = control("/v1/draw", { elements: [{ id: "box", type: "rectangle", x: 0, y: 0 }] });
+    await answerJob(page, "draw", (job) => [el("box", { x: job.x, y: job.y, customData: { whiteboardChat: "claude" } })]);
+    assert.equal((await drawing).status, 200);
+    await delay(300);
+    assert.equal(added().length, 1, "Claude's box adds no DrawingAdded");
+
+    await page.post("/api/elements", { elements: [el("pen2", { x: 500, customData: undefined })], editingId: null });
+    await until(() => added().length === 2, 5000, "DrawingAdded for the second Person shape");
+    assert.equal(added()[1].drawingCount, 2, "the count has the two Person shapes only");
+    page.close();
+    await stopServer(server);
+  } finally {
+    server.child.kill();
+  }
+});
+
+test("client.js posts the request bodies of draw, mermaid, edit, delete, and undo (FR-109, SC-093, SC-104)", async () => {
+  const bodies = [];
+  const fake = http.createServer((req, res) => {
+    let raw = "";
+    req.on("data", (chunk) => { raw += chunk; });
+    req.on("end", () => {
+      bodies.push({ method: req.method, url: req.url, body: JSON.parse(raw) });
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify({ v: 1, opId: 1, ids: ["r1"], count: 1 }));
+    });
+  });
+  await new Promise((resolve) => fake.listen(0, "127.0.0.1", resolve));
+  try {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "wbc-ops-client-"));
+    const file = path.join(dir, "draw.json");
+    const skeletons = [{ id: "r1", type: "rectangle", x: 0, y: 0 }];
+    fs.writeFileSync(file, String.fromCharCode(0xfeff) + JSON.stringify(skeletons));
+    const run = (args, input) => new Promise((resolve) => {
+      const child = execFile(process.execPath, [CLIENT, ...args, "--port", String(fake.address().port)],
+        { encoding: "utf8", timeout: 20000 }, (error, stdout) => resolve({ code: error ? error.code : 0, stdout }));
+      child.stdin.end(input || "");
+    });
+    const mmd = path.join(dir, "diagram.mmd");
+    fs.writeFileSync(mmd, "graph LR\n  A --> B\n");
+    const edits = path.join(dir, "edit.json");
+    fs.writeFileSync(edits, JSON.stringify([{ id: "r1", dx: 10 }]));
+    for (const args of [
+      ["draw", "--file", file, "--at", "200,300"],
+      ["mermaid", "--file", mmd],
+      ["edit", "--file", edits],
+      ["delete", "r1", "r2"],
+      ["delete", "--all", "--confirm"],
+      ["undo", "--force"],
+    ]) {
+      const out = await run(args);
+      assert.equal(out.code, 0, `${args[0]}: ${out.stdout}`);
+    }
+    assert.equal((await run(["mermaid"], "pie\n  \"A\" : 1\n")).code, 0, "mermaid reads standard input");
+    assert.deepEqual(bodies.map((b) => [b.method, b.url, b.body]), [
+      ["POST", "/v1/draw", { elements: skeletons, at: { x: 200, y: 300 } }],
+      ["POST", "/v1/mermaid", { source: "graph LR\n  A --> B" }],
+      ["POST", "/v1/edit", { changes: [{ id: "r1", dx: 10 }] }],
+      ["POST", "/v1/delete", { ids: ["r1", "r2"] }],
+      ["POST", "/v1/delete", { all: true, confirm: true }],
+      ["POST", "/v1/undo", { force: true }],
+      ["POST", "/v1/mermaid", { source: "pie\n  \"A\" : 1" }],
+    ]);
+  } finally {
+    fake.close();
   }
 });
 
