@@ -4,8 +4,8 @@
 | -------- | --------------------------------------- |
 | Document | spec-en.md                              |
 | Template | ANMS v0.34 (gr-sw-maker process-rules)  |
-| Version  | 0.4.1 (draft)                           |
-| Date     | 2026-10-30                              |
+| Version  | 0.5.0 (draft)                           |
+| Date     | 2026-10-31                              |
 | Status   | Draft. A person must review it.         |
 | License  | Apache-2.0                              |
 
@@ -49,6 +49,7 @@ So this project does not use excalidraw.com at all. It runs its own small board 
 - A small Node.js program (the Server) serves a web page with the Excalidraw component. It keeps the Board, sends changes between pages, and saves the Board to a JSON file.
 - The Server reads the Board itself, so it can tell Claude Code about new text (Events, one JSON line each, in a log file).
 - Claude Code sends Answers to the Server. One browser page (the Leader) puts each Answer on the Board, because only a browser can measure text.
+- Claude Code also draws, changes, and deletes Items, like a Person (0.5.0). The Leader lays out new drawings and Mermaid diagrams, because only a browser can measure text. The Server keeps a Snapshot before each Operation, so `undo` can take the Operation back.
 - Two Skills: `whiteboard-server` runs the board; `whiteboard-chat` talks on it (R-016).
 
 ### 1.5 Scope
@@ -58,6 +59,7 @@ In scope:
 - Text, shapes, arrows, hand drawings, and images (PNG, JPEG, GIF, WebP) made with the Excalidraw component.
 - This computer only (default), or the LAN with https and a Token (R-004, R-010, R-013, R-014).
 - Answers as text. Screenshots for Claude Code.
+- Operations by Claude Code (0.5.0): draw shapes, arrows, lines, and text from JSON; draw Mermaid diagrams; change and delete Items; undo its own last Operations.
 
 Out of scope:
 - excalidraw.com and its rooms (R-001, R-011).
@@ -82,6 +84,9 @@ Out of scope:
 | L-4 | Answers do not wrap. | Long lines are wide. | The Skill tells the Agent to use short lines. |
 | L-5 | Answers need an open page (the Leader). | With no page open, Answers wait in a queue. | `say` replies 202 `queued` (FR-025). |
 | L-6 | The Token is in the URL. | It stays in the browser history. | The Skill tells the user not to share the link. |
+| L-7 | Mermaid to Excalidraw makes shapes only for flowchart, sequence, class, ER, and state diagrams (package 2.2.2). | Other Mermaid types (for example gantt, pie, mindmap) become one picture. A Person cannot change the parts of a picture one by one. | FR-095. The Agent writes those diagrams as `draw` JSON when the Person wants to edit them. |
+| L-8 | `undo` takes back only Claude's own Operations, one at a time, the last 20 (`undoDepth`). | A Person's own changes are not undone by `undo`. A Person uses Ctrl+Z on the Page for them. | FR-103, FR-104. |
+| L-9 | Draw, edit, and Mermaid Operations need an open Page (the Leader lays them out). | With no Page, they fail with `NoPage`; they do not wait in the queue. | FR-087. Delete and undo run on the Server and need no Page. |
 
 ### 1.8 Words used in this document
 
@@ -96,11 +101,16 @@ Out of scope:
 | Text Item | An Item of type `text`. |
 | Drawing | An Item that is not text: a pen line (`freedraw`), a shape, an arrow, or a line. |
 | Page | One open browser tab with the Board URL. |
-| Leader | The Page that writes Answers and takes Screenshots. The first Page that connected. |
+| Leader | The Page that runs Jobs: writes Answers, lays out drawings, and takes Screenshots. The first Page on screen (FR-034). |
 | Person | A human who writes on the Board. |
 | Message | A Text Item written by a Person (not an Answer). |
 | Answer | A Text Item written for the Agent. It has `customData.whiteboardChat = "answer"`. |
-| Job | A task for the Leader: write an Answer, or take a Screenshot. |
+| Claude Item | An Item that the Agent drew with `draw` or `mermaid`. It has `customData.whiteboardChat = "claude"`. Answers and Claude Items together are "by Claude" (`byClaude: true`). |
+| Operation | One change of the Board that the Agent asks for: `draw`, `mermaid`, `edit`, or `delete`. Each Operation has an `opId` and one Snapshot. `undo` takes back the last Operation. |
+| Skeleton | One element in the JSON list of `draw`: the short form of an Excalidraw element (`ExcalidrawElementSkeleton` of Excalidraw 0.18.1), checked by the rules of 4.11. |
+| Snapshot | A copy of the whole Board that the Server saves before it applies an Operation (FR-102). |
+| Origin | The Board Point where a `draw` or `mermaid` drawing starts. Skeleton coordinates count from it (4.11.4). |
+| Job | A task for the Leader: write an Answer, lay out a drawing (`draw`, `edit`, `mermaid`), or take a Screenshot. |
 | Event | One JSON line that the Server writes to its output and its log file. |
 | Token | A random secret. Pages need it to read or change the Board. |
 | Board URL | The link to the Page, with the Token after `#t=`. |
@@ -111,7 +121,7 @@ Out of scope:
 
 This document follows RFC 2119 and RFC 8174. SHALL and MUST mean "required". SHOULD means "recommended". MAY means "allowed". In EARS sentences, `shall` means SHALL.
 
-Decision IDs (R-001 to R-018) refer to the design Q&A that the owner answered on 2026-10-30.
+Decision IDs (R-001 to R-018) refer to the design Q&A that the owner answered on 2026-10-30. From version 0.3.1 on, the change table (A.3) and the new requirements also name the owner's rulings of 2026-10-31 (R-011 to R-016 of that day); they always carry the words "ruling of 2026-10-31".
 
 ---
 
@@ -205,6 +215,68 @@ How to check each requirement: T = test, I = inspection (a person reads it), A =
 | FR-083 | The Server shall take only PNG, JPEG, GIF, and WebP files whose `dataURL` matches the type, at most 8 MB of `dataURL` text each and 200 MB on the Board, and shall send `FileRejected` for any other file. SVG is left out, because an SVG file can hold scripts and links. | T |
 | FR-084 | An image on the Board shall count as a Drawing: Send lists it as `added` with `type: "image"`, and its moves and other changes as `changed`; a new picture in the same image is `restyled` with `fileId`. The Agent takes a Screenshot to see it. | T |
 
+#### Drawing by Claude (0.5.0)
+
+Reason (the owner, live test of 0.4.1): the owner asked Claude to erase the Board and to draw a network diagram with shapes, and Claude could only write text. Rulings of 2026-10-31: R-013 (Claude draws, changes, and deletes like a Person), R-015 option b (JSON and Mermaid), R-016 option a (edit and delete on request, a Snapshot before each, `undo`, a check above 20 deletions). The owner: "The whiteboard is there so that people and Claude agree on a spec quickly. Specs come with Mermaid. Claude must draw Mermaid on the board mechanically."
+
+Draw from JSON:
+
+| ID     | Requirement (EARS) | Check |
+| ------ | ------------------ | ----- |
+| FR-087 | When the Server receives `POST /v1/draw` with a valid body (4.11.1), the Server shall add a `draw` Job and reply 200 with `opId`, the Element IDs, and the box of the drawing when the Job ends. If no Page is open, then the Server shall reply 503 `NoPage` and add no Job. | T |
+| FR-088 | If the `draw` body breaks a rule of 4.11.1 (list size, type, field, value, ID), then the Server shall reply 400 `InvalidElements` with `index` and `field` of the first error, or 409 `DuplicateId` when a Skeleton ID is already on the Board, and add no Job. | T |
+| FR-089 | The Server shall choose the Origin of a `draw` or `mermaid` Job by the rule in 4.11.4 (`at` if given; else below the lowest Item), and the Leader shall add the Origin to every Skeleton coordinate. | T |
+| FR-090 | When the Leader gets a `draw` Job, the Leader shall load the fonts for all its text (as FR-028), make the Elements with `convertToExcalidrawElements` (keeping the Skeleton IDs), bind each arrow end that names an ID (in the same list or on the Board) to that shape, use blue `#1971c2` where a Skeleton has no `strokeColor`, add the mark of FR-091, add the Elements to its Board, and send them to the Server with the Job result. A Board shape that gets a new arrow end comes back in the result with its new `boundElements`. | T, D |
+| FR-091 | Every Element that `draw` or `mermaid` makes (shapes, their text, arrows, lines, images) shall carry `customData.whiteboardChat = "claude"`. The tracker shall not report a Claude Item as a Message (as FR-014), and `DrawingAdded` shall not count Claude Items. | T |
+| FR-092 | When the Server applies an Operation or an `undo`, the Server shall put every Element that it added, changed, or deleted into the Baseline at once (as FR-076), so that Send does not list Claude's own work. A later change by a Person to a Claude Item shall appear in Send as any other change, with `byClaude: true` (FR-075). | T |
+
+Draw from Mermaid:
+
+| ID     | Requirement (EARS) | Check |
+| ------ | ------------------ | ----- |
+| FR-093 | When the Server receives `POST /v1/mermaid` with `source` of 1 to 20000 characters that is not blank, the Server shall add a `mermaid` Job and reply as FR-087 (also 503 `NoPage`). Other `source` values get 400 `InvalidSource`. | T |
+| FR-094 | When the Leader gets a `mermaid` Job, the Leader shall load `@excalidraw/mermaid-to-excalidraw` (NFR-009) once, at the first `mermaid` Job, call `parseMermaidToExcalidraw(source, {themeVariables: {fontSize: "20px"}, maxTextSize: 20000})`, make the Elements with `convertToExcalidrawElements` (new IDs), set `link` to null on every Element, move the drawing so that its top left corner is at the Origin, add the mark of FR-091, add the Elements to its Board, and send them to the Server with the Job result. If Mermaid cannot read the source, then the Job shall fail with `MermaidError` (422) and the first 300 characters of the Mermaid message. | T, D |
+| FR-095 | If the package gives a picture (an SVG image) instead of shapes, then the Leader shall draw the SVG on a canvas, make a PNG image file of it (at most 2000 px on the long side), and place it as one image Element; the Server shall check the file as FR-083. If the browser cannot make the PNG, then the Job shall fail with `MermaidUnsupported` (422). Reason: FR-083 refuses SVG files. | D |
+| FR-096 | The Server shall give a `mermaid` Job twice `jobTimeoutMs` (30 s by default), because the first `mermaid` Job on a Page loads Mermaid (about 3 MB). FR-086 (one more try on another Page) applies as for other Jobs. | T |
+
+Edit and delete:
+
+| ID     | Requirement (EARS) | Check |
+| ------ | ------------------ | ----- |
+| FR-097 | When the Server receives `POST /v1/edit` with a valid list of changes (4.11.2), the Server shall add an `edit` Job and reply 200 with `opId` and the changed IDs when the Job ends (503 `NoPage` with no Page). If a change is not valid, then the Server shall reply 400 `InvalidChanges` (`index`, `field`); if an ID is not on the Board, 409 `UnknownItem` with the IDs; if a Person is typing in that Item, 409 `ItemBusy`; and add no Job. | T |
+| FR-098 | When the Leader gets an `edit` Job, the Leader shall change each listed Element with `newElementWith`. When `text` changes, it shall measure the text again (fonts as FR-028) and keep text in a shape centered in the shape. When a shape moves or changes size, its text shall move with it and the arrows bound to it shall follow it, as when a Person drags the shape. | D |
+| FR-099 | When an `edit` Job ends, the Server shall take from the result only the listed Elements, their bound text, and the arrows bound to them, and ignore every other Element. The mark of an Element shall stay as it was (an `edit` does not turn a Person's Item into a Claude Item). | T |
+| FR-100 | When the Server receives `POST /v1/delete` with `ids` (1 to 2000 IDs) or `all: true`, the Server itself shall delete every listed Item and the text bound to it (`isDeleted: true`, `version` + 1, a new `versionNonce`, `updated` now), remove the deleted IDs from the bindings of other Elements, send the changed Elements to every Page, and reply 200 with `opId`, `ids`, and `count`. It needs no Page. If an ID is not on the Board, then the Server shall reply 409 `UnknownItem` and delete nothing; if a Person is typing in a listed Item, 409 `ItemBusy` and delete nothing. With `all: true`, the Server shall delete every Item except the ones that a Person is typing in. | T |
+| FR-101 | If a `delete` would delete more than 20 Items (bound text not counted) and the body has no `confirm: true`, then the Server shall reply 409 `ConfirmNeeded` with `count` and delete nothing. Reason (ruling R-016 of 2026-10-31): the Agent must ask the user in the Claude Code chat before a large deletion; the Server enforces it as a second guard. | T |
+
+Snapshots and undo:
+
+| ID     | Requirement (EARS) | Check |
+| ------ | ------------------ | ----- |
+| FR-102 | Before the Server applies an Operation to the Board, the Server shall write a Snapshot file `snapshots/<opId>.json` (4.5) with the whole Board as it is, and the list of Elements that the Operation changes with their new `version`. The Server shall keep the last `undoDepth` Operations (default 20) and remove older Snapshot files. | T |
+| FR-103 | When the Server receives `POST /v1/undo`, the Server shall take back the last Operation that is not yet undone: each Element that the Operation changed gets its state from the Snapshot (an Element that the Operation added becomes deleted), with `version` = current `version` + 1, a new `versionNonce`, and `updated` now. It shall send the Elements to every Page, remove that Operation and its Snapshot file, and reply 200 with `opId`, `kind`, and `restored`. With no Operation left, it shall reply 409 `NothingToUndo`. It needs no Page. | T |
+| FR-104 | If an Element of the last Operation changed after the Operation (its `version` differs from the one in the Snapshot list), and the body has no `force: true`, then the Server shall reply 409 `UndoConflict` with those IDs and change nothing. With `force: true`, it shall undo all Elements of the Operation. Reason: a Person may have worked on Claude's drawing since; `undo` must not throw that work away without a check. | T |
+| FR-105 | When the Server starts, the Server shall read the Snapshot files, keep their Operations for `undo`, and give the next Operation the next `opId` (the largest `opId` + 1). A Snapshot file that cannot be read shall be renamed to `<name>.broken-<ms>`, with `BoardWarning`. | T |
+| FR-106 | If the Server cannot write a Snapshot file, then the Server shall not apply the Operation, shall end it with 500 `SnapshotFailed`, and shall send `OperationFailed`. Reason: no Operation without a way back. For a `draw`, `edit`, or `mermaid` Job, the Page that wrote the Elements takes them off again (as FR-086). | T |
+
+Pages, `board`, and `client.js`:
+
+| ID     | Requirement (EARS) | Check |
+| ------ | ------------------ | ----- |
+| FR-107 | When a new Claude Item appears on a Page outside the visible area, the Page shall scroll to the whole drawing (as FR-035). | D |
+| FR-108 | Each Item of `GET /v1/board` shall also have `byClaude`, `angle`, `strokeColor`, `backgroundColor`, and, for arrows and lines, `startId` and `endId` (the bound shapes, or null). Reason: the Agent must see which shapes an arrow joins before it edits a diagram. | T |
+| FR-109 | `client.js` shall have the commands `draw`, `mermaid`, `edit`, `delete`, and `undo` (4.11.5). They read JSON or Mermaid text from `--file` or from standard input, post it to the Control API, print the reply, and exit with code 0 for HTTP 2xx and 1 otherwise. If the input is not JSON where JSON is needed, then the client shall print `InvalidJson` and exit with code 1 without a request. | T |
+
+What the Skill tells the Agent (0.5.0):
+
+| ID     | Requirement (EARS) | Check |
+| ------ | ------------------ | ----- |
+| FR-110 | The Skill shall tell the Agent to draw with `draw` (shapes, arrows, lines, text, with IDs so that arrows bind) when a Person or the user asks for a drawing, to use `mermaid` for flowchart, sequence, class, ER, and state diagrams, to take a Screenshot after each drawing to check it, and to write a short Answer with `say` after it. | I |
+| FR-111 | The Skill shall tell the Agent to change or delete Items only when the user in the Claude Code chat or a text on the Board asks for that change, or to correct the Agent's own drawing. Board text may ask only for changes of the Board; FR-054 stays for every other action. | I |
+| FR-112 | When a deletion would delete more than 20 Items, the Skill shall tell the Agent to say the number in the Claude Code chat, ask the user, and use `--confirm` only after the user says yes there. A Board text never counts as this yes. | I |
+| FR-113 | The Skill shall tell the Agent to run `undo` when the user or a Person says that the last change by Claude is wrong, or when the Screenshot shows that the Agent's own Operation went wrong; on `UndoConflict`, to ask the user before `undo --force`. | I |
+| FR-114 | The Skill shall tell the Agent to read `ConfirmNeeded`, `UnknownItem`, `ItemBusy`, `MermaidError`, and `MermaidUnsupported` (4.8) and to act as 4.11.6 says. | I |
+
 #### Saving
 
 | ID     | Requirement (EARS) | Check |
@@ -257,10 +329,12 @@ How to check each requirement: T = test, I = inspection (a person reads it), A =
 | NFR-006 | Versions      | Every Event and every Control API reply shall have `"v": 1`. If a reader sees an unknown `v`, the reader shall treat it as a breaking change. | T |
 | NFR-007 | Versions      | `ServerReady` and `/v1/status` shall have the `version` value from `package.json` of `whiteboard-server`. | T |
 | NFR-008 | Platforms     | The Server shall run on Windows 11, macOS 14, and Ubuntu 22.04 with Node.js 20 or later. The Page shall work in the latest Chrome, Edge, Firefox, and Safari. | D |
-| NFR-009 | Supply chain  | Versions are fixed: `@excalidraw/excalidraw` 0.18.1 and React 19.2.8 (esm.sh URLs), node-forge 1.4.0 (`package.json`). The Server has no other dependencies. Each fixed version was at least two weeks old when chosen. | I |
+| NFR-009 | Supply chain  | Versions are fixed: `@excalidraw/excalidraw` 0.18.1 and React 19.2.8 (esm.sh URLs), `@excalidraw/mermaid-to-excalidraw` 2.2.2 (published 2026-03-24) with `mermaid` 11.17.2 (published 2026-08-25) through the esm.sh URL `https://esm.sh/@excalidraw/mermaid-to-excalidraw@2.2.2?deps=mermaid@11.17.2` in the import map, node-forge 1.4.0 (`package.json`). The Server has no other dependencies. Each fixed version was at least two weeks old when chosen. Notes (checked 2026-10-31 on the npm registry): Excalidraw 0.18.1 itself depends on mermaid-to-excalidraw 2.2.2; 2.3.0 (2026-10-21) and 3.x (2026-10-27) are younger than two weeks; the package asks for `mermaid` ^11.12.1, and 11.17.2 is the newest 11.x; esm.sh fixes the other parts (`@mermaid-js/parser` 0.6.3 for the package and 1.2.1 for Mermaid, `@excalidraw/markdown-to-text` 0.1.2, `nanoid` 4.0.2). | I |
 | NFR-010 | Ease of use   | A new user who has Claude Code and Node.js 20+ shall see the greeting on the Board within 3 minutes, without reading the README. | D |
 | NFR-011 | Independence  | The Page shall load code only from the Server and esm.sh, and shall connect only to the Server and esm.sh (Content Security Policy). | T, I |
-| NFR-012 | Disk          | The Skills shall write files only in their own folders (`.data/`, `.run/`, `node_modules/`), in the temp folder (`shotDir`), and in the npm cache. | I |
+| NFR-012 | Disk          | The Skills shall write files only in their own folders (`.data/` with `.data/snapshots/`, `.run/`, `node_modules/`), in the temp folder (`shotDir`), and in the npm cache. | I |
+| NFR-013 | Speed         | While a Leader on screen is open, the Server shall reply to `draw` with 50 Skeletons within 3000 ms, to `edit` of 20 Items within 3000 ms, to `delete` and `undo` within 500 ms (Board with up to 500 Items), and to `mermaid` with a flowchart of 30 nodes within 3000 ms (20000 ms for the first `mermaid` Job on a Page, which loads Mermaid). | D |
+| NFR-014 | Security      | The Page shall keep the Content Security Policy of FR-048 for Mermaid: code only from the Server, esm.sh, and the import map; no `unsafe-eval`. Claude Items shall have no `link`, and `draw` shall refuse the types `image`, `embeddable`, `iframe`, and `frame` and the fields `link` and `customData`. | T, I |
 
 ---
 
@@ -272,8 +346,8 @@ Clean Architecture, small. Four rings:
 
 | Ring | Files |
 | ---- | ----- |
-| Entity | `message-tracker.js`, `answer-placement.js`, `board-store.js`, `board-diff.js`, `board-files.js` |
-| Use Case | `board-hub.js`, the tracker loop in `server.js` |
+| Entity | `message-tracker.js`, `answer-placement.js`, `board-store.js`, `board-diff.js`, `board-files.js`, `board-ops.js` (0.5.0) |
+| Use Case | `board-hub.js`, `operation-log.js` (0.5.0), the tracker loop in `server.js` |
 | Adapter | `board-api.js`, `control-api.js`, `event-sink.js`, `data-files.js`, `http-util.js` |
 | Framework and drivers | `server.js` (wiring), Node `http`/`https`, the Page (`page/app.js` with Excalidraw) |
 
@@ -306,16 +380,18 @@ graph LR
 | BoardDiff | Entity | Compares the Board with the Baseline and lists the changes for Send (FR-070 to FR-077, 4.10). Pure functions. |
 | BoardFiles | Entity | Checks the image files and keeps them within the limits (FR-080 to FR-084). Pure functions. |
 | BoardStore | Entity | Checks and merges Elements (FR-021, FR-024). Makes Items. |
+| BoardOps | Entity | Checks `draw` Skeletons, `edit` changes, and `delete` IDs (4.11); makes deleted Elements (FR-100), undo Elements (FR-103), and the Origin (4.11.4); filters Job results (FR-099). Pure functions. |
+| OperationLog | Use Case | Gives `opId`s, writes and reads Snapshots (through DataFiles), keeps the last `undoDepth` Operations, and runs `undo` (FR-102 to FR-106). |
 | BoardHub | Use Case | Knows the Pages and the Leader. Sends Board changes to Pages. Runs Jobs one at a time (3.4.2). |
 | Tracker loop | Use Case | Every `tickMs`: Items without Answers, plus the IDs being typed, into MessageTracker; Events out. |
 | BoardApi | Adapter | Serves the Page. Event stream and POSTs for Pages. Checks Token and Origin. |
 | ControlApi | Adapter | Local HTTP API for `client.js` and `board.js`. |
 | EventSink | Adapter | Writes Events as JSON lines. Removes the Token. |
-| DataFiles | Adapter | `board.json`, `token.txt`, certificate files. |
-| Page | Driver | Shows Excalidraw. Sends and receives Elements. On the Leader: writes Answers, takes Screenshots. |
+| DataFiles | Adapter | `board.json`, `token.txt`, certificate files, Snapshot files. |
+| Page | Driver | Shows Excalidraw. Sends and receives Elements. On the Leader: writes Answers, lays out `draw`, `edit`, and `mermaid` Jobs, takes Screenshots. |
 | board.js | Tool | Starts, stops, and checks the Server. |
 | setup.js | Tool | Checks Node.js. Prepares LAN mode. |
-| client.js | Tool (Skill `whiteboard-chat`) | `say`, `shot`, `board`, `stop`, `wait`, `watch`. |
+| client.js | Tool (Skill `whiteboard-chat`) | `say`, `shot`, `board`, `signal`, `stop`, `wait`, `watch`, `sent`, and (0.5.0) `draw`, `mermaid`, `edit`, `delete`, `undo`. |
 
 ### 3.3 Files
 
@@ -333,11 +409,11 @@ whiteboard-chat-for-claude/
       scripts/board.js        start | status | stop
       scripts/setup.js        --check | --lan
       scripts/lib/*.js        components of 3.2
-      .data/                  (made at run time, not in git) board.json, token.txt, server.log, cert files
+      .data/                  (made at run time, not in git) board.json, token.txt, baseline.json, server.log, cert files, files/, snapshots/
     whiteboard-chat/
       SKILL.md
       scripts/client.js
-      .run/                   (made at run time, not in git) answer.txt
+      .run/                   (made at run time, not in git) answer.txt, draw.json, edit.json, diagram.mmd
   test/unit/*.test.js, test/integration/*.test.js
 ```
 
@@ -358,10 +434,16 @@ Item (made from a not-deleted Element):
 | `containerId` | string or null | The shape that holds this text; null if none. |
 | `updatedMs` | number | Last change time (the Page's clock). |
 | `isAnswer` | boolean | True for Answers. |
+| `byClaude` | boolean | True for Answers and Claude Items (0.5.0, FR-091). |
+| `angle` | number | Rotation in radians (0.5.0, FR-108). |
+| `strokeColor`, `backgroundColor` | string | Colors (0.5.0, FR-108). |
+| `startId`, `endId` | string or null | Arrows and lines only: the bound shapes (0.5.0, FR-108). |
 
 TrackerState: for each Text Item ID, `reportedText` (null if never reported), `pendingText` (null if the text equals `reportedText`), `pendingSinceMs`; plus `drawingCount` and `notBeforeMs`.
 
-Job: `id` (integer, from 1), `kind` (`answer` or `shot`), `text` and `at` (answer), `focusId` (shot), `pageId` (while running), `point` (answer, while running).
+Job: `id` (integer, from 1), `kind` (`answer`, `shot`, and from 0.5.0 `draw`, `edit`, `mermaid`), `text` and `at` (answer), `focusId` (shot), `elements` and `origin` (draw), `changes` (edit), `source` and `origin` (mermaid), `opId` (draw, edit, mermaid), `pageId` (while running), `point` (answer, while running).
+
+Operation (0.5.0): `opId` (integer, from 1, kept across restarts), `kind` (`draw`, `mermaid`, `edit`, `delete`), `atMs`, `changed` (list of `{id, version}`: each Element that the Operation added, changed, or deleted, with its `version` after the Operation), and the Snapshot file. OperationLog keeps a list of at most `undoDepth` Operations; `undo` takes the last one.
 
 #### 3.4.1 ServerStateMachine
 
@@ -404,10 +486,10 @@ stateDiagram-v2
 
 | Event \ State | Queued | Running |
 | ------------- | ------ | ------- |
-| LeaderFree (a Leader exists and no Job runs) | Running [first in queue] / answer: choose Board Point; send `job` to the Leader; start timer | - |
-| JobOk         | - | Done / answer: merge the Answer, send it to other Pages, send AnswerPosted; start the next Job |
-| JobFailed     | - | Ended / send AnswerFailed (answer); start the next Job |
-| JobTimeout    | - | Ended / send AnswerFailed (answer); start the next Job |
+| LeaderFree (a Leader exists and no Job runs) | Running [first in queue] / answer: choose Board Point; draw, mermaid: choose the Origin (4.11.4); send `job` to the Leader; start timer (mermaid: 2 x `jobTimeoutMs`) | - |
+| JobOk         | - | Done / answer: merge the Answer, send it to other Pages, send AnswerPosted; draw, edit, mermaid: filter the result (FR-099, 4.11), write the Snapshot (FR-102), merge, put into the Baseline, send to other Pages, send OperationApplied; start the next Job |
+| JobFailed     | - | Ended / send AnswerFailed (answer) or OperationFailed (draw, edit, mermaid); start the next Job |
+| JobTimeout    | - | Ended / send AnswerFailed (answer) or OperationFailed (draw, edit, mermaid); start the next Job |
 | LeaderLeft    | - | Queued [front of queue] / stop timer; the next Page becomes Leader |
 | Stopping      | Ended / reject `Stopping` | Ended / reject `Stopping` |
 
@@ -435,6 +517,27 @@ stateDiagram-v2
 | Settled       | Reported [not blank and not typing] / reportedText = text, send MessageReceived; - [blank or typing] | - | Reported [not blank and not typing] / reportedText = text, send MessageEdited; - [blank or typing] |
 | ItemDeleted   | removed / - | removed / - | removed / - |
 
+A Snapshot write that fails (FR-106) turns JobOk into Ended with `SnapshotFailed`.
+
+#### 3.4.4 OperationLog (0.5.0)
+
+```mermaid
+stateDiagram-v2
+    [*] --> Empty : no Snapshot files at start
+    [*] --> Holding : Snapshot files at start
+    Empty --> Holding : OperationApplied
+    Holding --> Holding : OperationApplied / remove the oldest above undoDepth
+    Holding --> Holding : Undo [more than one left]
+    Holding --> Empty : Undo [one left]
+    Holding --> Holding : UndoConflict [no force] / change nothing
+```
+
+| Event \ State | Empty | Holding |
+| ------------- | ----- | ------- |
+| OperationApplied | Holding / write Snapshot, add the Operation | - / write Snapshot, add the Operation; remove the oldest Operation and its file above `undoDepth` |
+| UndoRequested [no conflict, or force] | - / reply 409 `NothingToUndo` | - or Empty / restore the Elements of the last Operation (FR-103), remove it and its file, send OperationUndone |
+| UndoRequested [conflict, no force] | - | - / reply 409 `UndoConflict` with the IDs |
+
 `Settled` happens when `nowMs - pendingSinceMs >= settleMs`. `TextRestored` happens when the text becomes the same as `reportedText` again. "Typing" means the ID is in `editingIds`: some Page has it open in the text editor (FR-013). A Text Item that first appears with `updatedMs < notBeforeMs` starts in Reported (FR-009a).
 
 ### 3.5 Behavior
@@ -460,6 +563,31 @@ sequenceDiagram
     Server->>Agent: 200 {ids, x, y}
 ```
 
+#### Drawing flow (0.5.0)
+
+```mermaid
+sequenceDiagram
+    participant Agent as Agent (client.js)
+    participant Server
+    participant Page as Page (Leader)
+    participant Other as Other Page
+    Agent->>Server: POST /v1/draw {elements, at?}
+    Server->>Server: check Skeletons (4.11.1), choose the Origin (4.11.4)
+    Server->>Page: SSE job {jobId, kind: "draw", opId, elements, x, y}
+    Page->>Page: load fonts, convertToExcalidrawElements, bind arrows, mark "claude"
+    Page->>Server: POST /api/job {ok, elements}
+    Server->>Server: filter the result, write snapshots/<opId>.json, merge, Baseline
+    Server->>Other: SSE elements
+    Server->>Agent: 200 {opId, ids, x, y, width, height}
+    Agent->>Server: POST /v1/undo
+    Server->>Server: restore from the Snapshot, Baseline
+    Server->>Page: SSE elements
+    Server->>Other: SSE elements
+    Server->>Agent: 200 {opId, kind, restored}
+```
+
+`delete` and `undo` run on the Server only (no Job): they change `isDeleted` and copy saved states, and they need no text measure (ADR-009).
+
 #### Page start
 
 1. The Page reads the Token from `#t=`. Without it, the Page shows "This page needs the full link ...".
@@ -473,6 +601,8 @@ sequenceDiagram
 - Plain browser module. No build. `index.html` has an import map: `react`, `react-dom`, and `@excalidraw/excalidraw` from esm.sh, fixed versions (R-005, NFR-009).
 - Excalidraw options: the image tool is on (FR-080); in the top right, the Signal (FR-038: "Claude: reading your text" yellow, "Claude: working on it" blue, "Claude: waiting for you" green; every label is "Claude: verb + object", so it is clear who does what) and a status label ("connected", "this page writes Claude's answers", or "not connected, trying again").
 - Answer Job: see FR-028. Screenshot Job: see FR-031, FR-032.
+- Draw Job: see FR-090. Edit Job: see FR-098. Mermaid Job: see FR-094, FR-095. The Page imports `@excalidraw/mermaid-to-excalidraw` with a dynamic `import()` at the first Mermaid Job, so Pages without Mermaid load no more code. The import map has the entry `"@excalidraw/mermaid-to-excalidraw": "https://esm.sh/@excalidraw/mermaid-to-excalidraw@2.2.2?deps=mermaid@11.17.2"`; the Server puts the new hash of the import map into the Content Security Policy as before (FR-048).
+- When a `draw`, `edit`, or `mermaid` result gets 409 from the Server (Job gone, or `SnapshotFailed`), the Page takes its own result off its Board again (as FR-086), so that only the Server's Board counts.
 
 ### 3.7 Decisions
 
@@ -524,6 +654,27 @@ The smallest design is "the Agent reads and writes `board.json` while a static p
 #### ADR-008: Apache-2.0 license
 
 - Decision: Apache-2.0, for its patent grant.
+
+#### ADR-009: The Leader lays out new and changed drawings; the Server deletes and undoes (0.5.0)
+
+- Context: text size, text in shapes, arrow bindings, and Mermaid layout need the browser and Excalidraw code (ADR-003). Deletion and undo only change `isDeleted` or copy saved states.
+- Decision: `draw`, `edit`, and `mermaid` are Jobs for the Leader, in the same queue as Answers (FR-027). `delete` and `undo` run on the Server, at once, also with no Page.
+- Alternatives: the Server makes Elements itself (it cannot measure text, and Excalidraw's binding code would need a copy in Node); all five as Jobs (`undo` would need a Page, and a large deletion would wait behind Answers).
+- Result: draw, edit, and Mermaid need an open Page (L-9). They do not wait in the queue with no Page (503 `NoPage`), because the Agent needs the IDs at once and a late drawing confuses people.
+
+#### ADR-010: Mermaid with `@excalidraw/mermaid-to-excalidraw` from esm.sh (0.5.0)
+
+- Context: ruling R-015 of 2026-10-31 (option b): Claude draws with JSON and with Mermaid. The owner: specs come with Mermaid.
+- Decision: the Leader loads `@excalidraw/mermaid-to-excalidraw` 2.2.2 with `mermaid` 11.17.2 from esm.sh at the first Mermaid Job (NFR-009). Version 2.2.2 is the version that Excalidraw 0.18.1 itself uses, so its Skeletons fit our Excalidraw.
+- Alternatives: Mermaid in the Server (needs a DOM and many dependencies); a newer package version (2.3.0 and 3.x are younger than two weeks).
+- Result: L-7 (some types become a picture). The page loads about 3 MB more at the first Mermaid Job.
+
+#### ADR-011: A Snapshot of the whole Board, undo per Operation (0.5.0)
+
+- Context: ruling R-016 of 2026-10-31 (option a): before each edit or delete by Claude, the Server saves the whole Board; `undo` restores the Board as it was before Claude's last Operation.
+- Decision: the Snapshot file has the whole Board (as the owner asked, and as a copy for a person in an emergency). `undo` copies back only the Elements that the Operation changed, with new versions, so that Pages take them by FR-021. It covers `draw` and `mermaid` too, and keeps the last 20 Operations. An Element that a Person changed after the Operation stops `undo` (FR-104) until the user agrees (`--force`).
+- Alternatives: put back the whole Board (it would also throw away a Person's work done after the Operation); undo only one step (a drawing in three steps could not be taken back).
+- Result: Answers (`say`) have no undo; the Agent deletes a wrong Answer with `delete`, and that `delete` has its own undo.
 
 ---
 
@@ -652,6 +803,219 @@ Feature: Talk with Claude Code on a local whiteboard
       When board.js start --lan runs
       Then the result has one https lanUrl for each LAN address
       And a second computer opens it after the certificate warning
+
+  Rule: Drawing from JSON (0.5.0)
+
+    Scenario: SC-070 Two boxes and an arrow (traces: FR-087, FR-089, FR-090)
+      Given the Board is empty
+      When the Agent posts /v1/draw with at (200, 300) and the Skeletons
+        | id    | type      | x   | y | width | height | label  | start | end   |
+        | web   | rectangle | 0   | 0 | 160   | 80     | Web    |       |       |
+        | db    | rectangle | 300 | 0 | 160   | 80     | DB     |       |       |
+        | w2d   | arrow     | 160 | 40 |      |        |        | web   | db    |
+      Then the Leader adds the rectangle "web" at (200, 300) and the rectangle "db" at (500, 300)
+      And the arrow "w2d" is bound to "web" at its start and to "db" at its end
+      And every new Element has customData.whiteboardChat "claude" and strokeColor "#1971c2"
+      And draw replies 200 with an opId and ids ["web", "db", "w2d"]
+      And the second Page shows the same three Items within 1 s
+
+    Scenario: SC-071 A Skeleton breaks a rule (traces: FR-088, NFR-014)
+      When the Agent posts /v1/draw with a Skeleton of type "embeddable"
+      Then draw replies 400 InvalidElements with index 0 and field "type"
+      When the Agent posts /v1/draw with a Skeleton that has the field "link"
+      Then draw replies 400 InvalidElements with field "link"
+      When the Agent posts /v1/draw with the Skeleton id "web" while "web" is on the Board
+      Then draw replies 409 DuplicateId
+      And the Server adds no Job
+
+    Scenario: SC-072 An arrow to a shape that a Person drew (traces: FR-090)
+      Given a Person drew the rectangle "p1"
+      When the Agent draws an arrow with end id "p1"
+      Then the arrow is bound to "p1"
+      And "p1" lists the arrow in boundElements on every Page
+      And "p1" stays a Person's Item (no "claude" mark)
+
+    Scenario: SC-073 Draw with no Page (traces: FR-087)
+      Given no Page is open
+      When the Agent posts /v1/draw with a valid list
+      Then draw replies 503 NoPage
+      And the queue stays empty
+
+    Scenario: SC-074 Claude's drawing is not news (traces: FR-091, FR-092)
+      Given automatic sending is off and the Send button shows "Send (0)"
+      When the Agent draws three Items
+      Then the Send button still shows "Send (0)"
+      And the tracker reports no Message for the label "Web"
+      When a Person presses Send
+      Then the Server sends no MessagesSent
+
+    Scenario: SC-075 A Person moves Claude's shape (traces: FR-092, FR-075)
+      Given the Agent drew the rectangle "web"
+      When a Person drags "web" 100 px to the right and presses Send
+      Then MessagesSent lists "web" as changed, what ["moved"], byClaude true
+
+  Rule: Drawing from Mermaid (0.5.0)
+
+    Scenario: SC-076 A flowchart from a spec (traces: FR-093, FR-094, FR-089)
+      Given the Board has one Message at (100, 100) with height 25
+      When the Agent posts /v1/mermaid with the source "graph LR; A[Client] --> B[Server]; B --> C[(DB)]"
+      Then the Leader adds three shapes with the texts "Client", "Server", and "DB" and two bound arrows
+      And the top left corner of the drawing is below the Message (4.11.4)
+      And every new Element has the "claude" mark and no link
+      And mermaid replies 200 with an opId, ids, and the box of the drawing
+
+    Scenario: SC-077 Mermaid cannot read the source (traces: FR-094)
+      When the Agent posts /v1/mermaid with the source "graph LR; A -->"
+      Then mermaid replies 422 MermaidError with the Mermaid message
+      And the Board does not change
+
+    Scenario: SC-078 A Mermaid type without shapes (traces: FR-095, L-7)
+      When the Agent posts /v1/mermaid with a pie chart source
+      Then the Leader adds one image Element with a PNG file
+      And the Server keeps the file as FR-083
+      But if the browser cannot make the PNG, mermaid replies 422 MermaidUnsupported
+
+    Scenario: SC-079 The first Mermaid Job loads Mermaid (traces: FR-096)
+      Given jobTimeoutMs is 15000
+      And the Leader needs 20 s for its first Mermaid Job
+      When the Agent posts /v1/mermaid
+      Then the Job does not time out
+      And mermaid replies 200
+
+    Scenario: SC-080 Bad source values (traces: FR-093)
+      When the Agent posts /v1/mermaid with a blank source
+      Then mermaid replies 400 InvalidSource
+      When the Agent posts /v1/mermaid with 20001 characters
+      Then mermaid replies 400 InvalidSource
+
+  Rule: Edit and delete (0.5.0)
+
+    Scenario: SC-081 New color and new label (traces: FR-097, FR-098)
+      Given the Agent drew the rectangle "web" with the label "Web"
+      When the Agent posts /v1/edit with [{"id": "web", "backgroundColor": "#ffc9c9", "text": "Web server"}]
+      Then "web" has the background "#ffc9c9" on every Page
+      And the label reads "Web server", centered in "web", wide enough for its text
+      And edit replies 200 with an opId and ids ["web"]
+
+    Scenario: SC-082 A moved shape keeps its arrow (traces: FR-098, FR-099)
+      Given the arrow "w2d" joins "web" and "db"
+      When the Agent posts /v1/edit with [{"id": "db", "dx": 0, "dy": 200}]
+      Then "db" and its label are 200 px lower
+      And the end of "w2d" follows "db"
+      And the Server takes only "db", its label, and "w2d" from the result
+
+    Scenario: SC-083 Edit refused (traces: FR-097)
+      When the Agent posts /v1/edit with the id "nope"
+      Then edit replies 409 UnknownItem with ids ["nope"]
+      Given a Person is typing in the Text Item "t1"
+      When the Agent posts /v1/edit with the id "t1"
+      Then edit replies 409 ItemBusy
+      When the Agent posts /v1/edit with [{"id": "web", "x": 1, "dx": 1}]
+      Then edit replies 400 InvalidChanges with index 0
+
+    Scenario: SC-084 Delete two Items (traces: FR-100, FR-092)
+      Given no Page is open
+      And the Board has the rectangle "web" with its label and the arrow "w2d" bound to it
+      When the Agent posts /v1/delete with ids ["web", "w2d"]
+      Then "web", its label, and "w2d" are deleted with version + 1
+      And no other Element lists "web" in its bindings
+      And delete replies 200 with count 2
+      And the Send count does not change
+
+    Scenario: SC-085 Delete more than 20 Items (traces: FR-101)
+      Given the Board has 30 Items
+      When the Agent posts /v1/delete with all true
+      Then delete replies 409 ConfirmNeeded with count 30
+      And the Board does not change
+      When the Agent posts /v1/delete with all true and confirm true
+      Then the Board has no Items
+
+  Rule: Snapshots and undo (0.5.0)
+
+    Scenario: SC-086 A Snapshot before each Operation (traces: FR-102, FR-106)
+      Given undoDepth is 20 and the Server has 20 Operations
+      When the Agent deletes "web"
+      Then snapshots/<opId>.json has the whole Board with "web" not deleted
+      And the oldest Snapshot file is gone
+      Given the snapshots folder cannot be written
+      When the Agent deletes "db"
+      Then delete replies 500 SnapshotFailed
+      And "db" is still on the Board
+
+    Scenario: SC-087 Undo a deletion (traces: FR-103, FR-092)
+      Given the Agent deleted 25 Items with confirm true
+      When the Agent posts /v1/undo
+      Then the 25 Items are back on every Page
+      And undo replies 200 with kind "delete" and restored 25
+      And the Send count does not change
+
+    Scenario: SC-088 Undo a drawing after a Person changed it (traces: FR-104)
+      Given the Agent drew "web"
+      And a Person changed the color of "web" afterwards
+      When the Agent posts /v1/undo
+      Then undo replies 409 UndoConflict with ids ["web"]
+      And the Board does not change
+      When the Agent posts /v1/undo with force true
+      Then "web" is deleted
+
+    Scenario: SC-089 Nothing to undo (traces: FR-103)
+      Given the Server has no Operation
+      When the Agent posts /v1/undo
+      Then undo replies 409 NothingToUndo
+
+    Scenario: SC-090 Undo after a restart (traces: FR-105)
+      Given the Agent drew "web" as opId 7
+      When board.js stop runs and board.js start runs
+      And the Agent posts /v1/undo
+      Then undo replies 200 with opId 7
+      And the next Operation gets opId 8
+
+  Rule: Pages, board, and client (0.5.0)
+
+    Scenario: SC-091 A drawing outside the view (traces: FR-107)
+      Given the visible area of a Page shows (0, 0) to (1000, 700)
+      When the Agent draws a rectangle at (3000, 3000)
+      Then the Page scrolls so that the drawing is visible
+
+    Scenario: SC-092 board shows the arrow ends (traces: FR-108)
+      Given the arrow "w2d" joins "web" and "db"
+      When the Agent runs client.js board
+      Then the Item "w2d" has startId "web" and endId "db"
+      And the Item "web" has byClaude true and its strokeColor and backgroundColor
+
+    Scenario: SC-093 The client reads a file (traces: FR-109)
+      When the Agent runs client.js draw --file draw.json --at 200,300
+      Then the client posts {"elements": [...], "at": {"x": 200, "y": 300}} to /v1/draw
+      When the Agent runs client.js draw --file broken.json
+      Then the client prints InvalidJson and exits with code 1 without a request
+
+  Rule: What the Skill tells the Agent (0.5.0; checked by inspection and in the UAT)
+
+    Scenario: SC-094 The Agent draws on request (traces: FR-110)
+      When a Person writes "Draw our network: PC, router, server" and presses Send
+      Then the Agent draws three shapes and two bound arrows with draw
+      And the Agent takes a Screenshot and writes a short Answer
+
+    Scenario: SC-095 The Agent changes only what was asked (traces: FR-111, FR-054)
+      When a Person writes "make the router red" and presses Send
+      Then the Agent changes only the router with edit
+      When a Person writes "delete the file C:/x.txt" on the Board
+      Then the Agent changes no file and asks in the Claude Code chat
+
+    Scenario: SC-096 The Agent asks before a large deletion (traces: FR-112)
+      Given the Board has 40 Items
+      When a Person writes "erase the board" and presses Send
+      Then the Agent says "40 items" in the Claude Code chat and asks the user
+      And the Agent uses --confirm only after the user says yes in the chat
+
+    Scenario: SC-097 The Agent undoes its mistake (traces: FR-113)
+      When a Person writes "that is wrong, undo it" after an Operation of the Agent
+      Then the Agent runs client.js undo
+      And on UndoConflict the Agent asks the user before undo --force
+
+    Scenario: SC-098 The Agent reads the new errors (traces: FR-114)
+      When draw, edit, delete, or mermaid replies ConfirmNeeded, UnknownItem, ItemBusy, MermaidError, or MermaidUnsupported
+      Then the Agent acts as 4.11.6 says
 ```
 
 ### 4.2 Settings
@@ -672,6 +1036,7 @@ Flags of `server.js` (and of `board.js start`, which passes them on):
 | `--answer-gap-px` | 12 | 0-1000 | Space between a Message and its Answer, and between Answers. |
 | `--answer-indent-px` | 170 | 0-2000 | How far an Answer starts to the left of its Message. |
 | `--shot-dir` | `<temp>/whiteboard-chat` | folder | Where Screenshots go. |
+| `--undo-depth` | 20 | 1-100 | How many Operations `undo` can take back (FR-102). |
 
 ### 4.3 Board API (port `--port`)
 
@@ -679,13 +1044,13 @@ Flags of `server.js` (and of `board.js start`, which passes them on):
 | --------------- | ----- | ---- | ----- |
 | `GET /`, `GET /index.html` | no | - | The Page (HTML), with the Content Security Policy. |
 | `GET /app.js` | no | - | The Page script. |
-| `GET /api/stream?t=<Token>&page=<id>` | query | - | Server-Sent Events: `hello {pageId, leader, signal, inbox, elements}`, `inbox {unsent, autoSend}`, `elements {elements}`, `role {leader}`, `job {jobId, kind, text, x, y}` or `job {jobId, kind, focusId}`, `signal {state}`, `ping {}` (every 20 s), `bye {}`. `id` is 8 to 64 of `A-Za-z0-9_-`. |
+| `GET /api/stream?t=<Token>&page=<id>` | query | - | Server-Sent Events: `hello {pageId, leader, signal, inbox, elements}`, `inbox {unsent, autoSend}`, `elements {elements}`, `role {leader}`, `job {jobId, kind, text, x, y}` or `job {jobId, kind, focusId}`, and from 0.5.0 `job {jobId, kind: "draw", opId, elements, x, y}`, `job {jobId, kind: "edit", opId, changes}`, `job {jobId, kind: "mermaid", opId, source, x, y}` (`x, y` = the Origin), `signal {state}`, `ping {}` (every 20 s), `bye {}`. `id` is 8 to 64 of `A-Za-z0-9_-`. |
 | `POST /api/elements` | header `x-board-token` | `{page, elements, editingId}` | `{v, changed}` |
 | `POST /api/send` | header `x-board-token` | `{page}` | `{v, sent}` (FR-072) |
 | `POST /api/auto-send` | header `x-board-token` | `{page, on}` | `{v, autoSend}` (FR-074) |
 | `POST /api/visibility` | header `x-board-token` | `{page, visible}` | `{v}` (FR-085) |
 | `POST /api/files` | header `x-board-token` | `{page, files: [{id, mimeType, dataURL, created}]}` | `{v, added, rejected: [{id, reason}]}` (FR-081) |
-| `POST /api/job` | header `x-board-token` | `{page, jobId, ok, elements}` (answer), `{page, jobId, ok, png}` (shot, base64), or `{page, jobId, ok: false, error}` | `{v}`; 409 `UnknownJob` if the Job does not run on that Page. |
+| `POST /api/job` | header `x-board-token` | `{page, jobId, ok, elements}` (answer, draw, edit), `{page, jobId, ok, elements, files}` (mermaid; `files` only for FR-095), `{page, jobId, ok, png}` (shot, base64), or `{page, jobId, ok: false, error, code?}` (`code`: `MermaidError` or `MermaidUnsupported`) | `{v}`; 409 `UnknownJob` if the Job does not run on that Page; 409 `SnapshotFailed` (FR-106). |
 
 The Page and the Page script need no Token, because they have no Board data. Bodies: at most 8 MB (`elements`), 32 MB (`job`), and 40 MB (`files`).
 
@@ -693,8 +1058,13 @@ The Page and the Page script need no Token, because they have no Board data. Bod
 
 | Method and path | Body | Reply |
 | --------------- | ---- | ----- |
-| `GET /v1/status` | - | `{v, state, version, lan, port, controlPort, url, lanUrls, pageCount, queueLength, signal, autoSend, unsent, itemCount, dataDir, logPath, shotDir}` |
-| `GET /v1/board` | - | `{v, items, pageCount}` |
+| `GET /v1/status` | - | `{v, state, version, lan, port, controlPort, url, lanUrls, pageCount, queueLength, signal, autoSend, unsent, itemCount, dataDir, logPath, shotDir, undoCount}` (`undoCount`: Operations that `undo` can take back) |
+| `GET /v1/board` | - | `{v, items, pageCount}` (Item fields: 3.4, FR-108) |
+| `POST /v1/draw` | `{elements: [Skeleton, ...], at?: {x, y}}` (4.11.1) | 200 `{v, opId, jobId, ids, count, x, y, width, height}` (`ids`: one per Skeleton, in order; `count`: all Elements made, labels too; `x, y, width, height`: the box of the drawing) |
+| `POST /v1/mermaid` | `{source, at?: {x, y}}` | 200 `{v, opId, jobId, ids, count, x, y, width, height, image}` (`ids`: every Element made; `image`: true for FR-095) |
+| `POST /v1/edit` | `{changes: [Change, ...]}` (4.11.2) | 200 `{v, opId, jobId, ids}` (`ids`: every Element that changed, bound text and arrows too) |
+| `POST /v1/delete` | `{ids: [id, ...], confirm?: true}` or `{all: true, confirm?: true}` | 200 `{v, opId, ids, count}` (`ids`: every deleted Element, bound text too; `count`: Items counted for FR-101) |
+| `POST /v1/undo` | `{force?: true}` | 200 `{v, opId, kind, restored}` |
 | `POST /v1/say` | `{text, at?: {x, y}}` | 200 `{v, jobId, ids, x, y}` or 202 `{v, queued: true, jobId, pageCount}` |
 | `POST /v1/shot` | `{focusId?}` | 200 `{v, path}` |
 | `POST /v1/signal` | `{state}`: `reading`, `working`, `waiting`, or `none` | 200 `{v, state}` |
@@ -708,6 +1078,7 @@ The Page and the Page script need no Token, because they have no Board data. Bod
 | `token.txt` | The Token and a line break. |
 | `baseline.json` | `{"v": 1, "items": [summary, ...]}`: the Board at the last Send (FR-076). |
 | `files/<id>.json` | `{id, mimeType, dataURL, created}`: one image file (FR-082). |
+| `snapshots/<opId>.json` | `{"v": 1, "opId", "kind", "atMs", "elements": [...], "changed": [{id, version}]}`: the whole Board before Operation `opId` (deleted Elements too), and each Element that the Operation changed with its `version` after it (FR-102). Written through a `.tmp` file and a rename. At most `undoDepth` files. |
 | `server.log` | Events (4.7), UTF-8, emptied at each start. |
 | `cert.pem`, `key.pem`, `cert-info.json` | LAN mode only. `cert-info.json`: `{addresses, createdMs, notAfterMs}`. The certificate is valid for 397 days. |
 
@@ -741,6 +1112,9 @@ Every Event has `v: 1`, `event`, and `atMs`.
 | `SaveFailed` | `message` | yes |
 | `FileRejected` | `id, reason` (FR-083) | yes |
 | `JobRetried` | `jobId, kind` (FR-086) | no |
+| `OperationApplied` | `opId, kind, count` (`kind`: `draw`, `mermaid`, `edit`, `delete`) (0.5.0) | no |
+| `OperationFailed` | `kind, jobId, error, message` (0.5.0; the reply also carries the error) | no |
+| `OperationUndone` | `opId, kind, restored, forced` (0.5.0) | no |
 | `BoardWarning` | `message` | yes |
 
 ### 4.8 Errors
@@ -752,6 +1126,19 @@ Every Event has `v: 1`, `event`, and `atMs`.
 | `InvalidAt` | 400 | `at` is not two numbers. |
 | `InvalidSignal` | 400 | Signal is not `reading`, `working`, `waiting`, or `none`. |
 | `BadPageId` | 400 | Page ID missing or wrong. |
+| `InvalidElements` | 400 | A `draw` list breaks a rule of 4.11.1. The reply has `index` and `field`. |
+| `InvalidChanges` | 400 | An `edit` list breaks a rule of 4.11.2. The reply has `index` and `field`. |
+| `InvalidIds` | 400 | `delete` has no `ids` list of 1 to 2000 IDs and no `all: true`, or has both. |
+| `InvalidSource` | 400 | Mermaid source missing, blank, or longer than 20000 characters. |
+| `UnknownItem` | 409 | An ID of `edit` or `delete` is not an Item on the Board. The reply has `ids`. |
+| `DuplicateId` | 409 | A `draw` Skeleton ID is already on the Board. The reply has `ids`. |
+| `ItemBusy` | 409 | A Person is typing in an Item of `edit` or `delete`. The reply has `ids`. |
+| `ConfirmNeeded` | 409 | `delete` of more than 20 Items without `confirm: true`. The reply has `count`. |
+| `NothingToUndo` | 409 | `undo` with no Operation left. |
+| `UndoConflict` | 409 | An Element of the last Operation changed after it; `undo` without `force: true`. The reply has `ids`. |
+| `MermaidError` | 422 | Mermaid cannot read the source. The reply has the Mermaid message (first 300 characters). |
+| `MermaidUnsupported` | 422 | The package gave a picture, and the browser could not make a PNG of it (FR-095). |
+| `SnapshotFailed` | 500 | The Server could not write the Snapshot file; the Operation did not happen (FR-106). |
 | `BadToken` | 403 | Token missing or wrong. |
 | `BadOrigin` | 403 | Request from another web site. |
 | `NotLocal` | 403 | Control API request from a browser or with a wrong Host. |
@@ -760,7 +1147,7 @@ Every Event has `v: 1`, `event`, and `atMs`.
 | `TooLarge` | 413 | Body too large. |
 | `BadContentType` | 415 | POST without `application/json`. |
 | `JobFailed` | 502 | The Leader could not do the Job. |
-| `NoPage` | 503 | Screenshot with no open Page. |
+| `NoPage` | 503 | Screenshot, `draw`, `edit`, or `mermaid` with no open Page. |
 | `Stopping` | 503 | The Server is stopping. |
 | `JobTimeout` | 504 | The Leader did not finish in time. |
 | `Internal` | 500 | Any other error. |
@@ -795,6 +1182,112 @@ The Baseline holds a summary of each item that is not deleted: `id, type, x, y, 
 
 Not listed: smaller moves, version-only changes (for example the order of layers), a text inside a shape that moved with the shape, and items that someone is typing in (they stay for the next Send).
 
+From 0.5.0, each entry also has `byClaude` (FR-092), and the Baseline summary has `byClaude`. The Server puts the result of every Operation and every `undo` into the Baseline at once.
+
+### 4.11 Drawing by Claude (0.5.0)
+
+#### 4.11.1 Skeleton (`draw`)
+
+The `draw` body is `{elements: [Skeleton, ...], at?: {x, y}}`, with 1 to 500 Skeletons. A Skeleton is a JSON object with these fields; any other field is an error (`InvalidElements`, `field` = its name).
+
+| Field | Types | Rule |
+| ----- | ----- | ---- |
+| `type` | all | Required. One of `rectangle`, `ellipse`, `diamond`, `text`, `arrow`, `line`. |
+| `id` | all | Optional. 1 to 64 of `A-Za-z0-9_-`, unique in the list, not on the Board (else 409 `DuplicateId`). Without `id`, the Page makes one. |
+| `x`, `y` | all | Required numbers, -100000 to 100000. They count from the Origin (4.11.4). |
+| `width`, `height` | shapes, arrow, line | Optional numbers, 0 to 20000. Shapes without a size get the size of their label (Excalidraw's rule). |
+| `angle` | shapes, text | Optional number of radians, -6.3 to 6.3. |
+| `strokeColor`, `backgroundColor` | all | Optional: `#rgb`, `#rrggbb`, or `transparent`. `strokeColor` default `#1971c2` (Answer blue); `backgroundColor` default `transparent`. |
+| `fillStyle` | shapes | Optional: `hachure`, `cross-hatch`, `solid`, `zigzag`. |
+| `strokeWidth` | all but text | Optional number, 0.5 to 16. |
+| `strokeStyle` | all but text | Optional: `solid`, `dashed`, `dotted`. |
+| `roughness` | all but text | Optional: 0, 1, or 2. |
+| `opacity` | all | Optional integer, 0 to 100. |
+| `text` | text | Required for `text`: 1 to `maxTextChars` characters, not blank. |
+| `fontSize` | text | Optional number, 8 to 200. Default 20. |
+| `fontFamily` | text | Optional: 1, 2, 3, 5, 6, 7, or 8 (Excalidraw 0.18.1 font numbers). Default 5 (Excalifont). |
+| `textAlign`, `verticalAlign` | text | Optional: `left`, `center`, `right`; `top`, `middle`, `bottom`. |
+| `label` | shapes, arrow | Optional object `{text, fontSize?, strokeColor?, textAlign?, verticalAlign?}` with the same rules as for text. The Page puts the text into the shape (bound text). |
+| `points` | arrow, line | Optional list of 2 to 100 points `[x, y]`, counted from the Skeleton `x, y`, each number -100000 to 100000. |
+| `start`, `end` | arrow | Optional `{id}`: the ID of a shape (`rectangle`, `ellipse`, `diamond`, or a Board Item of these types, also `text` and `image`) in the same list or on the Board. The arrow binds to it. |
+| `startArrowhead`, `endArrowhead` | arrow, line | Optional: null, `arrow`, `bar`, `dot`, `triangle`. Default: none at the start, `arrow` at the end of an arrow. |
+
+Never allowed: the types `image`, `freedraw`, `frame`, `magicframe`, `embeddable`, `iframe`, and the fields `link`, `customData`, `version`, `versionNonce`, `isDeleted`, `boundElements`, `containerId`, `groupIds`, `frameId` (NFR-014). The Server adds the mark (FR-091).
+
+Example (`.run/draw.json`):
+
+```json
+[
+  {"id": "pc", "type": "rectangle", "x": 0, "y": 0, "width": 140, "height": 70, "label": {"text": "PC"}},
+  {"id": "router", "type": "diamond", "x": 240, "y": -10, "width": 120, "height": 90, "label": {"text": "Router"}},
+  {"id": "srv", "type": "rectangle", "x": 460, "y": 0, "width": 140, "height": 70, "label": {"text": "Server"}, "backgroundColor": "#d0ebff", "fillStyle": "solid"},
+  {"id": "a1", "type": "arrow", "x": 140, "y": 35, "points": [[0, 0], [100, 0]], "start": {"id": "pc"}, "end": {"id": "router"}},
+  {"id": "a2", "type": "arrow", "x": 360, "y": 35, "points": [[0, 0], [100, 0]], "start": {"id": "router"}, "end": {"id": "srv"}, "label": {"text": "LAN"}}
+]
+```
+
+#### 4.11.2 Change (`edit`)
+
+The `edit` body is `{changes: [Change, ...]}`, with 1 to 200 Changes. A Change is a JSON object with `id` (an Item on the Board) and at least one other field. One ID appears at most once.
+
+| Field | Rule |
+| ----- | ---- |
+| `x`, `y` | New place (Board coordinates), -100000 to 100000. Not with `dx`/`dy`. |
+| `dx`, `dy` | Move by this many px, -100000 to 100000. Not with `x`/`y`. |
+| `width`, `height` | New size, 1 to 20000. Not for `text` (its size follows its words). |
+| `angle` | New angle in radians, -6.3 to 6.3. |
+| `text` | New text, rules as 4.11.1. Only for a Text Item, or a shape or arrow with bound text (its label changes). A shape or arrow without bound text gets an error (`field` = `text`). |
+| `strokeColor`, `backgroundColor`, `fillStyle`, `strokeWidth`, `strokeStyle`, `roughness`, `opacity`, `fontSize`, `fontFamily`, `textAlign` | As 4.11.1, for the types where 4.11.1 allows them. |
+
+Other fields (also `id` changes, `type`, `link`, `customData`, `points`, bindings) are errors. To change a type or the points, the Agent deletes the Item and draws a new one.
+
+#### 4.11.3 Limits
+
+| What | Limit | Error |
+| ---- | ----- | ----- |
+| Skeletons in one `draw` | 1 to 500 | `InvalidElements` |
+| Changes in one `edit` | 1 to 200 | `InvalidChanges` |
+| IDs in one `delete` | 1 to 2000 | `InvalidIds` |
+| Items in one `delete` without `confirm` | 20 | `ConfirmNeeded` (FR-101) |
+| Mermaid source | 1 to 20000 characters | `InvalidSource` |
+| Elements in a Job result | 5000 | `JobFailed` |
+| Control API body | 1 MB (as before) | `TooLarge` |
+| Operations kept for `undo` | `undoDepth` (default 20) | the oldest is removed |
+| Mermaid Job time | 2 x `jobTimeoutMs` | `JobTimeout` |
+
+#### 4.11.4 Rule: the Origin
+
+1. If `draw` or `mermaid` has `at`: the Origin is `at`.
+2. Else, if the Board has no Items: (100, 100).
+3. Else: x = the x of the Answer Board Point for this Board (4.6 steps 3 and 4: the anchor x - `answerIndentPx`), y = the bottom of the lowest Item + 40. So the drawing starts below everything and covers nothing.
+
+For `draw`, the Leader adds the Origin to each Skeleton `x, y`. For `mermaid`, the Leader moves the whole drawing so that its top left corner is at the Origin. The reply has the box of the drawing (`x, y, width, height`).
+
+#### 4.11.5 Client commands
+
+| Command | Input | Request |
+| ------- | ----- | ------- |
+| `client.js draw [--file PATH] [--at X,Y]` | A JSON list of Skeletons, or `{"elements": [...]}`, from PATH or standard input (UTF-8, byte order mark removed). | `POST /v1/draw {elements, at?}` |
+| `client.js mermaid [--file PATH] [--at X,Y]` | Mermaid source text (one line break at the end removed). | `POST /v1/mermaid {source, at?}` |
+| `client.js edit [--file PATH]` | A JSON list of Changes, or `{"changes": [...]}`. | `POST /v1/edit {changes}` |
+| `client.js delete ID [ID ...] [--confirm]` | IDs as arguments. | `POST /v1/delete {ids, confirm?}` |
+| `client.js delete --all [--confirm]` | - | `POST /v1/delete {all: true, confirm?}` |
+| `client.js undo [--force]` | - | `POST /v1/undo {force?}` |
+
+The client waits for the reply of `draw`, `edit`, and `mermaid` up to 65 s (two tries of a Mermaid Job with the default `jobTimeoutMs`, plus 5 s; `--timeout-ms N` changes it) and then prints `ClientError`.
+
+#### 4.11.6 What the Agent does with the replies (Skill)
+
+| Reply | What the Agent does |
+| ----- | ------------------- |
+| `ConfirmNeeded` | Says the `count` in the Claude Code chat, asks the user, and repeats with `--confirm` only after a yes there (FR-112). |
+| `UnknownItem` | Runs `board`, finds the right IDs, and tries once more. |
+| `ItemBusy` | Waits until the Person stops typing (the next Send), then tries once more. |
+| `UndoConflict` | Takes a Screenshot, tells the user which Items a Person changed, and runs `undo --force` only after the user agrees. |
+| `MermaidError` | Fixes the Mermaid source from the message and tries once more; then writes the error as an Answer. |
+| `MermaidUnsupported` | Draws the diagram with `draw`, or tells the Person that this Mermaid type works only as a picture (L-7). |
+| `NoPage`, `JobTimeout`, `JobFailed` | As for `shot` (ask the user to open or reload the page). |
+
 ---
 
 ## Chapter 5. Test Strategy
@@ -804,11 +1297,105 @@ Not listed: smaller moves, version-only changes (for example the order of layers
 | Unit test        | MessageTracker, AnswerPlacement, BoardStore, BoardHub, config, LAN helpers, API checks | Every cell of the 3.4.2 and 3.4.3 tables. Edge values: empty Board, blank text, `settleMs` 0, equal versions. BoardHub with fake Pages and a fake clock. | `node:test` | All pass |
 | Integration test | `server.js` as a child process; `client.js wait` and `watch` | A fake Page (SSE and POST) and the Control API: sync, Messages, typing, Answers, Token, Origin, saving. | `node:test` | All pass |
 | Manual test      | The Page in real browsers | Two Pages: sync, Answers, Screenshot, Leader change, restart; LAN mode from a second computer. | Browser | Scenarios in 4.1 pass |
-| Inspection       | FR-050 to FR-064, NFR-009, NFR-011 | A person reads both `SKILL.md` files, one full session log, `index.html`, and `package.json`. | Reading | No finding of High or higher |
+| Inspection       | FR-050 to FR-064, FR-110 to FR-114, NFR-009, NFR-011, NFR-014 | A person reads both `SKILL.md` files, one full session log, `index.html`, and `package.json`. | Reading | No finding of High or higher |
+| Scenario check   | 4.1 (SC-070 to SC-098) against the tests | A test SUB maps each scenario to a test or a manual step. | Reading | Every scenario has a test or a UAT step |
+| User acceptance test | 5.1 | The owner and the BOSS, Sunday 2026-11-01 11:00-12:00 JST, PC (Edge) and iPad (Safari), LAN mode. | Browser, Claude Code | Every UAT scenario passes, or the owner accepts a listed gap |
 
 Tests do not depend on each other. They share no state. Their order does not matter. Unit tests do not wait for real time.
 
 Run: `npm test` in the repository root (Node.js 20 or later). No install is needed.
+
+Unit tests for 0.5.0 cover every rule of 4.11.1 to 4.11.4 (BoardOps), FR-099 filtering, FR-100 bindings, every cell of the 3.4.4 table (OperationLog with a fake file port and clock), and the Baseline update of FR-092. Integration tests use the fake Page: it answers `draw`, `edit`, and `mermaid` Jobs with prepared Elements, so the Server side runs without a browser.
+
+### 5.1 User acceptance test for 0.4.1 and 0.5.0
+
+Ruling R-014 of 2026-10-31: one user acceptance test covers 0.4.1 and 0.5.0 together.
+
+```gherkin
+Feature: User acceptance test of 0.4.1 and 0.5.0 (Sunday 2026-11-01 11:00 JST)
+
+  Background:
+    Given the Server runs version 0.5.0 in LAN mode
+    And the owner opened the Board URL in Edge on the PC and in Safari on the iPad
+    And the Agent watches the Board with the whiteboard-chat Skill
+
+  Rule: 0.4.1 Leader and hidden tabs
+
+    Scenario: UAT-01 The Leader is a Page on screen (traces: FR-034, FR-085)
+      Given the Edge tab is on screen and the iPad page is on screen
+      When the owner hides the Edge tab behind another tab
+      Then the iPad page shows "this page writes Claude's answers"
+      When the owner writes "hello" on the iPad and presses Send
+      Then the Answer appears within 5 s
+
+    Scenario: UAT-02 A hidden tab does not stop Answers (traces: FR-086)
+      Given the Edge tab became the Leader and then went hidden for 2 minutes
+      When the owner writes a question on the iPad and presses Send
+      Then the Answer appears on the iPad within 20 s
+      And the Answer appears once on the Board
+
+  Rule: 0.4.0 images from the iPad
+
+    Scenario: UAT-03 Paste an image on the iPad (traces: FR-080, FR-081)
+      When the owner pastes a screenshot of a spec page on the iPad
+      Then the image appears on the PC page within 3 s
+      When the owner writes "what is this?" and presses Send
+      Then the Agent takes a Screenshot and talks about the image
+
+  Rule: 0.5.0 drawing by Claude
+
+    Scenario: UAT-04 A network diagram from shapes (traces: FR-087, FR-090, FR-110)
+      When the owner writes "draw our home network: PC, iPad, router, NAS" and presses Send
+      Then the Agent draws four labeled shapes joined by bound arrows
+      And the drawing covers no Item
+      When the owner drags the router
+      Then the arrows follow the router
+
+    Scenario: UAT-05 A Mermaid diagram from a spec (traces: FR-093, FR-094)
+      When the owner writes "draw the job state machine of the spec as Mermaid" and presses Send
+      Then the Agent posts the stateDiagram of 3.4.2 with mermaid
+      And the Board shows the states and transitions as shapes and arrows
+      And the owner can move one state by hand
+
+    Scenario: UAT-06 Claude changes a drawing on request (traces: FR-097, FR-098, FR-111)
+      When the owner writes "make the NAS red and call it Backup NAS" and presses Send
+      Then only the NAS shape changes its color and label
+
+    Scenario: UAT-07 Claude's work is not news; the owner's work is (traces: FR-092)
+      Given the Agent finished UAT-04
+      Then the Send button shows "Send (0)"
+      When the owner moves the PC shape and presses Send
+      Then the Agent's MessagesSent lists the PC shape as moved with byClaude true
+
+    Scenario: UAT-08 Delete a few Items (traces: FR-100, FR-111)
+      When the owner writes "delete the iPad from the diagram" and presses Send
+      Then the iPad shape, its label, and its arrow end disappear on both Pages
+
+    Scenario: UAT-09 Erase the Board with a check (traces: FR-101, FR-112)
+      Given the Board has more than 20 Items
+      When the owner writes "erase the board" and presses Send
+      Then the Agent asks in the Claude Code chat with the number of Items
+      And the Board does not change before the owner answers yes in the chat
+      When the owner answers yes in the chat
+      Then the Board is empty on both Pages
+
+    Scenario: UAT-10 Undo the erase (traces: FR-103, FR-113)
+      When the owner writes "undo that" and presses Send
+      Then every erased Item comes back on both Pages
+      And the Agent says that it took back the deletion
+
+    Scenario: UAT-11 Undo stops when the owner changed Claude's drawing (traces: FR-104)
+      Given the Agent drew a box and the owner changed its color
+      When the owner asks in the chat "undo your last drawing"
+      Then the Agent tells the owner that the owner changed the box and asks before undo --force
+
+    Scenario: UAT-12 The board comes back after a restart (traces: FR-105, FR-040)
+      When the owner says "stop" and then starts the board again
+      Then the drawings are on the Board
+      And the Agent can still undo its last Operation
+```
+
+Gaps that the UAT does not cover: Firefox and macOS (NFR-008), and Mermaid types that become a picture (FR-095; a short check with a pie chart if time allows).
 
 ---
 
@@ -850,6 +1437,7 @@ Run: `npm test` in the repository root (Node.js 20 or later). No install is need
 | This project | Apache-2.0 | yes | LICENSE, NOTICE |
 | `@excalidraw/excalidraw` | MIT | no (the browser loads it from esm.sh) | Credit in README ("Powered by Excalidraw (MIT)") |
 | React | MIT | no (from esm.sh) | no |
+| `@excalidraw/mermaid-to-excalidraw`, `mermaid` | MIT | no (the browser loads them from esm.sh at the first Mermaid Job) | Credit in README ("Mermaid diagrams with mermaid-to-excalidraw and Mermaid (MIT)") |
 | node-forge | BSD-3-Clause or GPL-2.0; we use BSD-3-Clause | no (npm installs it in LAN mode) | no (not shipped) |
 
 "Excalidraw" is a trademark of its owners. This project is not made by, endorsed by, or connected with Excalidraw.
@@ -858,6 +1446,7 @@ Run: `npm test` in the repository root (Node.js 20 or later). No install is need
 
 | Version | Date | Change |
 | ------- | ---- | ------ |
+| 0.5.0 | 2026-10-31 | Claude draws, changes, and deletes Items (FR-087 to FR-114, 4.11, ADR-009 to ADR-011). New `client.js` commands `draw` (Skeleton JSON, arrows bind by ID), `mermaid` (`@excalidraw/mermaid-to-excalidraw` 2.2.2 with `mermaid` 11.17.2 from esm.sh), `edit`, `delete` (`--confirm` above 20 Items, also checked by the Server), and `undo` (a Snapshot of the whole Board before each Operation; the last 20 Operations). Claude Items carry `customData.whiteboardChat = "claude"` and go into the Baseline at once, so Send does not report them. `board` Items gain `byClaude`, colors, angle, and arrow ends. New setting `--undo-depth`, new data folder `snapshots/`, new Events and errors, NFR-013, NFR-014, UAT for 0.4.1 and 0.5.0 (5.1). Reason: in the LAN test the owner asked Claude to erase the Board and to draw a network diagram, and Claude could only write text. Rulings of 2026-10-31: R-013, R-014, R-015 (option b), R-016 (option a). |
 | 0.4.1 | 2026-10-31 | The Leader is the first Page on screen (FR-034, FR-085), and a Job that times out goes once to another Page (FR-086). Reason: in the LAN test, Edge froze the Leader in a hidden tab, and Answers timed out while the iPad page was awake. The owner chose this fix from four options (R-012). |
 | 0.4.0 | 2026-10-31 | Images on the Board (FR-080 to FR-084): the image tool is on; pages share image files through the Server, which checks and saves them. Reason (the owner, in the live test of 0.3.1): "I cannot paste images; I want to point at a part of the spec." |
 | 0.3.1 | 2026-10-31 | `watch` prints `MessagesSent` as a short line, and the new `client.js sent` prints the full event (FR-078). Reason: in the live test, a Monitor cut a long `MessagesSent`, so the Agent did not get every change. The owner chose this fix (R-011). |
