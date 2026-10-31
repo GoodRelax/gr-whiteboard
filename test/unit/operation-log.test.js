@@ -11,10 +11,18 @@ const { createOperationLog } = require("../../skills/whiteboard-server/scripts/l
 const { createSnapshotStore } = require("../../skills/whiteboard-server/scripts/lib/data-files");
 
 // @purity non-pure
-function fakeStore(initial = [], { failWrite = false } = {}) {
+function fakeStore(initial = [], { failWrite = false, lastOpId = 0 } = {}) {
   const files = new Map(initial.map((data) => [data.opId, data]));
   return {
     files,
+    lastOpId,
+    readLastOpId() {
+      return this.lastOpId;
+    },
+    writeLastOpId(opId) {
+      if (failWrite) throw new Error("disk full");
+      this.lastOpId = opId;
+    },
     write(opId, data) {
       if (failWrite) throw new Error("disk full");
       files.set(opId, JSON.parse(JSON.stringify(data)));
@@ -135,6 +143,15 @@ test("at start, Snapshot files come back and the next opId is the largest + 1 (F
   assert.equal(log.reserveOpId(), 8);
 });
 
+test("an undone opId is not given again after a restart (R-023, SC-090)", () => {
+  const files = [5, 6].map((opId) => ({ v: 1, opId, kind: "draw", atMs: opId, elements: [], changed: [] }));
+  const store = fakeStore(files, { lastOpId: 7 });
+  const log = createOperationLog({ store, undoDepth: 20 });
+  log.load();
+  assert.equal(log.reserveOpId(), 8, "opId 7 was undone; its file is gone, but its number stays used");
+  assert.equal(store.lastOpId, 8);
+});
+
 test("the Snapshot store writes files, renames a broken one, and reports it (FR-102, FR-105)", () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "wbc-snap-"));
   const store = createSnapshotStore(path.join(dir, "snapshots"), () => 1234);
@@ -148,4 +165,8 @@ test("the Snapshot store writes files, renames a broken one, and reports it (FR-
   assert.equal(store.read(3).kind, "edit");
   store.remove(3);
   assert.equal(fs.existsSync(path.join(dir, "snapshots", "3.json")), false);
+  assert.equal(store.readLastOpId(), 0, "no file yet");
+  store.writeLastOpId(9);
+  assert.equal(store.readLastOpId(), 9);
+  assert.deepEqual(store.readAll().snapshots, [], "the last-opId file is not a Snapshot");
 });

@@ -106,6 +106,7 @@ function saveFile(filesDir, file) {
 }
 
 const SNAPSHOT_NAME = /^([1-9][0-9]{0,15})\.json$/;
+const LAST_OP_ID_NAME = "last-op-id.json";
 
 // The Snapshot file port of OperationLog (FR-102, FR-105). `nowMs()` names broken files.
 // @purity non-pure
@@ -124,6 +125,17 @@ function createSnapshotStore(snapshotsDir, nowMs) {
     // @purity non-pure
     remove(opId) {
       fs.rmSync(fileOf(opId), { force: true });
+    },
+    // The last opId given out, so that an undone opId is not given again after a restart (R-023).
+    // @purity semi-pure-b
+    readLastOpId() {
+      const data = readJsonOrNull(path.join(snapshotsDir, LAST_OP_ID_NAME));
+      return data && Number.isInteger(data.opId) && data.opId > 0 ? data.opId : 0;
+    },
+    // @purity non-pure
+    writeLastOpId(opId) {
+      fs.mkdirSync(snapshotsDir, { recursive: true });
+      writeFileAtomic(path.join(snapshotsDir, LAST_OP_ID_NAME), JSON.stringify({ opId }));
     },
     // A file that cannot be read is renamed to <name>.broken-<ms> (FR-105).
     // @purity non-pure

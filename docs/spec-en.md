@@ -257,14 +257,14 @@ Snapshots and undo:
 | FR-102 | Before the Server applies an Operation to the Board, the Server shall write a Snapshot file `snapshots/<opId>.json` (4.5) with the whole Board as it is, and the list of Elements that the Operation changes with their new `version`. The Server shall keep the last `undoDepth` Operations (default 20) and remove older Snapshot files. | T |
 | FR-103 | When the Server receives `POST /v1/undo`, the Server shall take back the last Operation that is not yet undone: each Element that the Operation changed gets its state from the Snapshot (an Element that the Operation added becomes deleted), with `version` = current `version` + 1, a new `versionNonce`, and `updated` now. It shall send the Elements to every Page, remove that Operation and its Snapshot file, and reply 200 with `opId`, `kind`, and `restored`. With no Operation left, it shall reply 409 `NothingToUndo`. It needs no Page. | T |
 | FR-104 | If an Element of the last Operation changed after the Operation (its `version` differs from the one in the Snapshot list), and the body has no `force: true`, then the Server shall reply 409 `UndoConflict` with those IDs and change nothing. With `force: true`, it shall undo all Elements of the Operation. Reason: a Person may have worked on Claude's drawing since; `undo` must not throw that work away without a check. | T |
-| FR-105 | When the Server starts, the Server shall read the Snapshot files, keep their Operations for `undo`, and give the next Operation the next `opId` (the largest `opId` + 1). A Snapshot file that cannot be read shall be renamed to `<name>.broken-<ms>`, with `BoardWarning`. | T |
+| FR-105 | When the Server starts, the Server shall read the Snapshot files, keep their Operations for `undo`, and give the next Operation the next `opId` (the largest `opId` + 1, counting the opIds of undone Operations, which `snapshots/last-op-id.json` keeps). The Server shall never give an `opId` twice. Reason: ruling R-023; an opId in the chat must name one Operation. A Snapshot file that cannot be read shall be renamed to `<name>.broken-<ms>`, with `BoardWarning`. | T |
 | FR-106 | If the Server cannot write a Snapshot file, then the Server shall not apply the Operation, shall end it with 500 `SnapshotFailed`, and shall send `OperationFailed`. Reason: no Operation without a way back. For a `draw`, `edit`, or `mermaid` Job, the Page that wrote the Elements takes them off again (as FR-086). | T |
 
 Pages, `board`, and `client.js`:
 
 | ID     | Requirement (EARS) | Check |
 | ------ | ------------------ | ----- |
-| FR-107 | When a new Claude Item appears on a Page outside the visible area, the Page shall scroll to the whole drawing (as FR-035). | D |
+| FR-107 | When any part of a new Claude Item lies outside the visible area of a Page, the Page shall scroll to the whole drawing (as FR-035). Reason: ruling R-024. | D |
 | FR-108 | Each Item of `GET /v1/board` shall also have `byClaude`, `angle`, `strokeColor`, `backgroundColor`, and, for arrows and lines, `startId` and `endId` (the bound shapes, or null). Reason: the Agent must see which shapes an arrow joins before it edits a diagram. | T |
 | FR-109 | `client.js` shall have the commands `draw`, `mermaid`, `edit`, `delete`, and `undo` (4.11.5). They read JSON or Mermaid text from `--file` or from standard input, post it to the Control API, print the reply, and exit with code 0 for HTTP 2xx and 1 otherwise. If the input is not JSON where JSON is needed, then the client shall print `InvalidJson` and exit with code 1 without a request. | T |
 
@@ -983,6 +983,11 @@ Feature: Talk with Claude Code on a local whiteboard
       When the Agent draws a rectangle at (3000, 3000)
       Then the Page scrolls so that the drawing is visible
 
+    Scenario: SC-091a A drawing partly outside the view (traces: FR-107)
+      Given the visible area of a Page shows (0, 0) to (1000, 700)
+      When the Agent draws a rectangle from (900, 300) to (1200, 400)
+      Then the Page scrolls so that the whole drawing is visible
+
     Scenario: SC-092 board shows the arrow ends (traces: FR-108)
       Given the arrow "w2d" joins "web" and "db"
       When the Agent runs client.js board
@@ -1363,6 +1368,11 @@ Feature: User acceptance test of 0.4.1 and 0.5.0 (Sunday 2026-11-01 11:00 JST)
       And the Board shows the states and transitions as shapes and arrows
       And the owner can move one state by hand
 
+    Scenario: UAT-05a A pie chart becomes one picture (traces: FR-095, R-025)
+      When the owner writes "draw a pie chart of three parts as Mermaid" and presses Send
+      Then the Agent posts a pie source with mermaid
+      And the Board shows the pie chart as one image
+
     Scenario: UAT-06 Claude changes a drawing on request (traces: FR-097, FR-098, FR-111)
       When the owner writes "make the NAS red and call it Backup NAS" and presses Send
       Then only the NAS shape changes its color and label
@@ -1401,7 +1411,7 @@ Feature: User acceptance test of 0.4.1 and 0.5.0 (Sunday 2026-11-01 11:00 JST)
       And the Agent can still undo its last Operation
 ```
 
-Gaps that the UAT does not cover: Firefox and macOS (NFR-008), and Mermaid types that become a picture (FR-095; a short check with a pie chart if time allows).
+Gaps that the UAT does not cover: Firefox and macOS (NFR-008), and Mermaid types that become a picture other than pie (FR-095).
 
 ---
 
@@ -1452,7 +1462,7 @@ Gaps that the UAT does not cover: Firefox and macOS (NFR-008), and Mermaid types
 
 | Version | Date | Change |
 | ------- | ---- | ------ |
-| 0.5.0 | 2026-10-31 | Claude draws, changes, and deletes Items (FR-087 to FR-114, 4.11, ADR-009 to ADR-011). New `client.js` commands `draw` (Skeleton JSON, arrows bind by ID), `mermaid` (`@excalidraw/mermaid-to-excalidraw` 2.2.2 with `mermaid` 11.13.0 from esm.sh; six diagram types, no styles, FR-093a), `edit`, `delete` (`--confirm` above 20 Items, also checked by the Server), and `undo` (a Snapshot of the whole Board before each Operation; the last 20 Operations). Claude Items carry `customData.whiteboardChat = "claude"` and go into the Baseline at once, so Send does not report them. `board` Items gain `byClaude`, colors, angle, and arrow ends. New setting `--undo-depth`, new data folder `snapshots/`, new Events and errors, NFR-013, NFR-014, UAT for 0.4.1 and 0.5.0 (5.1). Reason: in the LAN test the owner asked Claude to erase the Board and to draw a network diagram, and Claude could only write text. Rulings of 2026-10-31: R-013, R-014, R-015 (option b), R-016 (option a). Ruling R-022 (2026-10-31, option a): `mermaid` 11.13.0 instead of 11.17.2, because with 11.14.0 and later the package turns state, class, and ER diagrams into one picture (checked in Edge for 11.12.0 to 11.17.2). 11.13.0 lacks the fixes of nine advisories; each entry point is closed as follows: CVE-2026-41149 (HTML injection through `classDef` in state diagrams, fixed in 11.15.0): `classDef` refused (FR-093a). CVE-2026-41148 (CSS injection through `classDefs`, 11.15.0): `classDef` and every way to put a class on a node refused (`class`, `:::`, `cssClass`). CVE-2026-41159 (CSS injection through configuration, 11.15.0): `%%{` directives and front matter (`---`, not a diagram type) refused; the Page passes only fixed options (FR-094). CVE-2026-50159 (CSS injection on sibling elements, 11.16.1): `style`, `linkStyle`, `classDef`, `class`, `:::`, `cssClass`, and `%%{` refused. CVE-2026-71438 (prototype pollution through the configuration APIs, 11.16.1): `%%{` and front matter refused; fixed options only. CVE-2026-71437 (prototype pollution in architecture diagrams, 11.16.1), CVE-2026-41150 (infinite loop in gantt, 11.15.0), CVE-2026-71436 (infinite loop in XY charts, 11.16.1), CVE-2026-71439 (DoS in radar diagrams, 11.16.1): those types are not among the six (FR-093a). `click` is refused too, and the Page sets `link` to null (FR-094); the Content Security Policy stays as it is (FR-048). Later version: evaluate `@excalidraw/mermaid-to-excalidraw` 3.x with a fixed `mermaid` as the lasting fix (lowest priority, as the owner asked). |
+| 0.5.0 | 2026-10-31 | Claude draws, changes, and deletes Items (FR-087 to FR-114, 4.11, ADR-009 to ADR-011). New `client.js` commands `draw` (Skeleton JSON, arrows bind by ID), `mermaid` (`@excalidraw/mermaid-to-excalidraw` 2.2.2 with `mermaid` 11.13.0 from esm.sh; six diagram types, no styles, FR-093a), `edit`, `delete` (`--confirm` above 20 Items, also checked by the Server), and `undo` (a Snapshot of the whole Board before each Operation; the last 20 Operations). Claude Items carry `customData.whiteboardChat = "claude"` and go into the Baseline at once, so Send does not report them. `board` Items gain `byClaude`, colors, angle, and arrow ends. New setting `--undo-depth`, new data folder `snapshots/`, new Events and errors, NFR-013, NFR-014, UAT for 0.4.1 and 0.5.0 (5.1). Reason: in the LAN test the owner asked Claude to erase the Board and to draw a network diagram, and Claude could only write text. Rulings of 2026-10-31: R-013, R-014, R-015 (option b), R-016 (option a). Ruling R-022 (2026-10-31, option a): `mermaid` 11.13.0 instead of 11.17.2, because with 11.14.0 and later the package turns state, class, and ER diagrams into one picture (checked in Edge for 11.12.0 to 11.17.2). 11.13.0 lacks the fixes of nine advisories; each entry point is closed as follows: CVE-2026-41149 (HTML injection through `classDef` in state diagrams, fixed in 11.15.0): `classDef` refused (FR-093a). CVE-2026-41148 (CSS injection through `classDefs`, 11.15.0): `classDef` and every way to put a class on a node refused (`class`, `:::`, `cssClass`). CVE-2026-41159 (CSS injection through configuration, 11.15.0): `%%{` directives and front matter (`---`, not a diagram type) refused; the Page passes only fixed options (FR-094). CVE-2026-50159 (CSS injection on sibling elements, 11.16.1): `style`, `linkStyle`, `classDef`, `class`, `:::`, `cssClass`, and `%%{` refused. CVE-2026-71438 (prototype pollution through the configuration APIs, 11.16.1): `%%{` and front matter refused; fixed options only. CVE-2026-71437 (prototype pollution in architecture diagrams, 11.16.1), CVE-2026-41150 (infinite loop in gantt, 11.15.0), CVE-2026-71436 (infinite loop in XY charts, 11.16.1), CVE-2026-71439 (DoS in radar diagrams, 11.16.1): those types are not among the six (FR-093a). `click` is refused too, and the Page sets `link` to null (FR-094); the Content Security Policy stays as it is (FR-048). Rulings R-023 to R-025 (2026-11-01, option a each, after the Gherkin check): an undone opId is never given again (FR-105); the Page scrolls when any part of a Claude Item is outside the view (FR-107, SC-091a); the UAT checks a pie chart (UAT-05a). Later version: evaluate `@excalidraw/mermaid-to-excalidraw` 3.x with a fixed `mermaid` as the lasting fix (lowest priority, as the owner asked). |
 | 0.4.1 | 2026-10-31 | The Leader is the first Page on screen (FR-034, FR-085), and a Job that times out goes once to another Page (FR-086). Reason: in the LAN test, Edge froze the Leader in a hidden tab, and Answers timed out while the iPad page was awake. The owner chose this fix from four options (R-012). |
 | 0.4.0 | 2026-10-31 | Images on the Board (FR-080 to FR-084): the image tool is on; pages share image files through the Server, which checks and saves them. Reason (the owner, in the live test of 0.3.1): "I cannot paste images; I want to point at a part of the spec." |
 | 0.3.1 | 2026-10-31 | `watch` prints `MessagesSent` as a short line, and the new `client.js sent` prints the full event (FR-078). Reason: in the live test, a Monitor cut a long `MessagesSent`, so the Agent did not get every change. The owner chose this fix (R-011). |

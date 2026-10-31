@@ -7,6 +7,8 @@
 //   store.read(opId) -> data  throws when the file cannot be read
 //   store.remove(opId)
 //   store.readAll() -> { snapshots: [data], warnings: [text] }   broken files are kept aside by the store
+//   store.readLastOpId() -> n    the last opId given out, 0 when unknown
+//   store.writeLastOpId(n)       throws when the file cannot be written
 
 const { AppError } = require("./app-error");
 const { planUndo, undoConflicts } = require("./board-ops");
@@ -30,6 +32,8 @@ function createOperationLog({ store, undoDepth }) {
       operations.push(Object.freeze({ opId: data.opId, kind: String(data.kind), atMs: Number(data.atMs) || 0, changed: data.changed }));
       nextOpId = Math.max(nextOpId, data.opId + 1);
     }
+    // An undone Operation leaves no Snapshot file, so its opId is kept apart and never given again (R-023).
+    nextOpId = Math.max(nextOpId, store.readLastOpId() + 1);
     trim();
     return warnings;
   }
@@ -50,6 +54,11 @@ function createOperationLog({ store, undoDepth }) {
   function reserveOpId() {
     const opId = nextOpId;
     nextOpId += 1;
+    try {
+      store.writeLastOpId(opId);
+    } catch (error) {
+      // The Snapshot write of this Operation fails too (FR-106); a lost number only risks reuse after a restart.
+    }
     return opId;
   }
 

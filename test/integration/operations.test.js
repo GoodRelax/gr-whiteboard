@@ -324,14 +324,14 @@ test("draw, edit, mermaid, delete, and undo on the real Server (FR-087 to FR-109
     const undoOpId = (await control("/v1/status")).json.undoCount;
     assert.equal(undoOpId, 2, "draw and the first delete are left");
 
-    // SC-090: undo after a restart; the next Operation gets the next opId.
+    // SC-090: undo after a restart; the next Operation gets a new opId, never an undone one (R-023).
     await stopServer(server);
     server = await startServer(dataDir);
     assert.equal((await control("/v1/status")).json.undoCount, 2);
     const afterRestart = await control("/v1/undo", {});
     assert.deepEqual([afterRestart.json.kind, afterRestart.json.opId], ["delete", 6]);
     const next = await control("/v1/delete", { ids: ["p0"] });
-    assert.equal(next.json.opId, 7, "the largest Snapshot file left is 6 (FR-105)");
+    assert.equal(next.json.opId, 8, "opId 7 (the undone erase) is not given again (R-023)");
 
     // SC-093: the client reads a file; broken JSON makes no request.
     const okFile = path.join(dataDir, "draw.json");

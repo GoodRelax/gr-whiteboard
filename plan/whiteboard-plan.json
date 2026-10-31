@@ -12,9 +12,9 @@
       "manager": null,
       "author": null,
       "creationDate": "2026-10-31T04:40:00",
-      "revision": 49,
+      "revision": 52,
       "startDate": "2026-10-29T22:44:00",
-      "statusDate": "2026-11-01T06:11:00",
+      "statusDate": "2026-11-01T06:21:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 94,
+      "uidHighWaterMark": 97,
       "importSequence": 0,
       "outlineBase": 1,
       "carry": {},
@@ -1673,19 +1673,19 @@
         "uid": 82,
         "parentTaskUid": null,
         "wbsOrder": 48,
-        "name": "🌑 0.5.0（R-013・高い優先度）: Claude が図とテキストの編集・削除をする（人間ができる描画操作を Claude もできるように） 段 4 Gherkin の場面の確認（テストの SUB）",
-        "start": "2026-10-31T23:55:00",
-        "finish": "2026-11-01T00:55:00",
+        "name": "🌕 0.5.0（R-013・高い優先度）: Claude が図とテキストの編集・削除をする（人間ができる描画操作を Claude もできるように） 段 4 Gherkin の場面の確認（テストの SUB）",
+        "start": "2026-11-01T06:18:00",
+        "finish": "2026-11-01T07:18:00",
         "milestone": false,
         "deadline": null,
-        "notes": "担当: テストの SUB（Sonnet 5.5・medium）。見積もり 1 時間。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "notes": "【済み】06:21。SC-070〜SC-098 の 29 件を照合し、指摘は 9 件（食い違い 1、試験の不足 5、曖昧 3）。試験 106 件はすべて通った。オーナーの裁定が要る 3 件は CGQA の「0.5.0: Gherkin の確かめ」の章へ。残り 6 件は UAT の後に BOSS が直す。\n【始めた】06:18。担当: SUB wb-050-gherkin（session local_d25bdbc5-e2e8-456c-ae07-8f0f2b15b966、Sonnet 5.5・medium、モデル表どおり）。約 1 時間の見込み。日時を 06:18〜07:18 に引き直した（予定の終わり 00:55 から約 6 時間 20 分の遅れ）。UAT（11:00）の前に収まる。\n担当: テストの SUB（Sonnet 5.5・medium）。見積もり 1 時間。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-11-01T06:18:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-01T06:21:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -1739,6 +1739,14 @@
         "dependencies": [
           {
             "predecessorUid": 82,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 96,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -2041,19 +2049,19 @@
         "uid": 93,
         "parentTaskUid": null,
         "wbsOrder": 59,
-        "name": "🌖 ㉓ 裁定: オーナーが 0.5.0 を a（commit とインストール）/ b（commit だけ）/ c（待つ）から決める",
+        "name": "🌕 ㉓ 裁定: オーナーが 0.5.0 を a（commit とインストール）/ b（commit だけ）/ c（待つ）から決める",
         "start": "2026-11-01T06:11:00",
         "finish": "2026-11-01T06:41:00",
         "milestone": false,
         "deadline": null,
-        "notes": "【オーナーの返事待ち】BOSS が a・b・c をオーナーに聞く。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "notes": "【済み】オーナーが a（commit とインストール）を選んだ。BOSS が commit a5b85fb（0.5.0）を作った。プライバシーの点検: 名前・パス 0、メール 0、秘密 0。試験 106 件すべて通った。26 ファイルをスキルのフォルダに入れ、cmp の差 0。ボードは 0.5.0 として LAN で動いている。実績の終わりは BOSS の知らせが届いた時刻。\n【オーナーの返事待ち】BOSS が a・b・c をオーナーに聞く。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
         "calendarUid": null,
         "actualStart": "2026-11-01T06:11:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-01T06:13:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -2073,14 +2081,46 @@
         "uid": 94,
         "parentTaskUid": null,
         "wbsOrder": 60,
-        "name": "🌖 ㉔ 裁定: オーナーが 0.5.0 の Gherkin 確かめ SUB（段 4）を始める OK を出す",
+        "name": "🌕 ㉔ 裁定: オーナーが 0.5.0 の Gherkin 確かめ SUB（段 4）を始める OK を出す",
         "start": "2026-11-01T06:11:00",
         "finish": "2026-11-01T06:41:00",
         "milestone": false,
         "deadline": null,
-        "notes": "【オーナーの返事待ち】BOSS の知らせ: 段 4 の SUB は、オーナーの OK が要る。OK が出たら BOSS が始めた時刻を知らせ、PMO がタスク 82 の日時を引き直す。それまで 82 の日時はそのまま。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "notes": "【済み】オーナーが段 4 の SUB を始める OK を出した。実績の終わりは SUB を始めた 06:18。\n【オーナーの返事待ち】BOSS の知らせ: 段 4 の SUB は、オーナーの OK が要る。OK が出たら BOSS が始めた時刻を知らせ、PMO がタスク 82 の日時を引き直す。それまで 82 の日時はそのまま。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
         "calendarUid": null,
         "actualStart": "2026-11-01T06:11:00",
+        "stop": null,
+        "actualFinish": "2026-11-01T06:18:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 81,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 95,
+        "parentTaskUid": null,
+        "wbsOrder": 61,
+        "name": "🌖 ㉕ 裁定: オーナーが 0.5.0（a5b85fb）を push する OK を出す",
+        "start": "2026-11-01T06:13:00",
+        "finish": "2026-11-01T06:43:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【オーナーの返事待ち】push はまだしていない。BOSS がオーナーに別に聞く。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-11-01T06:13:00",
         "stop": null,
         "actualFinish": null,
         "resume": null,
@@ -2090,7 +2130,71 @@
         "fadeOutDays": null,
         "dependencies": [
           {
-            "predecessorUid": 81,
+            "predecessorUid": 93,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 96,
+        "parentTaskUid": null,
+        "wbsOrder": 62,
+        "name": "🌖 ㉖ オーナーが CGQA の問 1〜3 に答える（0.5.0 の Gherkin の確かめ）",
+        "start": "2026-11-01T06:21:00",
+        "finish": "2026-11-01T10:30:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【オーナーの返事待ち】期限は UAT（11:00）の前。BOSS の依頼で足した。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-11-01T06:21:00",
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 82,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 97,
+        "parentTaskUid": null,
+        "wbsOrder": 63,
+        "name": "🌑 0.5.0 の仕様書の書き漏れ 6 件と足りない試験を直す（UAT の後）",
+        "start": "2026-11-01T12:00:00",
+        "finish": "2026-11-01T14:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "担当: BOSS。優先度は中。Gherkin の確かめの指摘のうち、オーナーの裁定が要らない 6 件（仕様書の書き漏れと、足りない試験）。UAT の後に直す。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 83,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -2471,6 +2575,18 @@
       {
         "taskUid": 94,
         "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 95,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 96,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 97,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
       }
     ],
     "taskVisuals": [
@@ -2961,6 +3077,30 @@
         "fillColor": null,
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 95,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 96,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 97,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -2989,7 +3129,7 @@
       {
         "id": "7c0e0000-0000-4000-8000-0000000000c2",
         "leaderShapeKind": "calloutBox",
-        "text": "★オーナーがすること（優先順）\n① 長い通知の件は、直すと決まった（R-011）。0.3.1 で直した\n② 公開した（R-010）。旧リポジトリも消した（R-003）\n③ ボードをいつも通り使い、切れたらバッジの写しを送る（不具合 2 の確認）\n④ 記事の書き直しを頼む（最後の記事とまとめて。日は未定）\nW1 を満たした（10:51）: 0.3.1 は main にある\nW2 11-02（月）18:00: 不具合 2 の確認を終える\n⑩ 0.4.0 で、実際のボードに画像を貼ってみる\n⑬ 0.5.0（図とテキストの編集・削除）の GQA の問 2〜4 に答える（土 18:00 から）\n⑭ 0.5.0 の実地の試験（日 11:00 から）\n⑮ 0.4.1 の入れ直しを OK する\n⑯ 0.4.1 を push する\n⑰ 0.4.1 を PC と iPad で試す（PC のタブを裏にする）\n⑱ Hyper-V の新しい仮想マシンで新規インストールを試す\n⑲ 0.5.0 の仕様 SUB を始める OK を出す\n⑳ GQA の問 5〜8 に答える\n㉑ 0.5.0 の実装 SUB を始める OK を出す\n㉒ CGQA 問 1: Mermaid の版の裁定（今夜 22:00 の目安）\n㉓ 0.5.0 を commit・インストールするか決める（a/b/c）\n㉔ 段 4 の SUB を始める OK を出す",
+        "text": "★オーナーがすること（優先順）\n① 長い通知の件は、直すと決まった（R-011）。0.3.1 で直した\n② 公開した（R-010）。旧リポジトリも消した（R-003）\n③ ボードをいつも通り使い、切れたらバッジの写しを送る（不具合 2 の確認）\n④ 記事の書き直しを頼む（最後の記事とまとめて。日は未定）\nW1 を満たした（10:51）: 0.3.1 は main にある\nW2 11-02（月）18:00: 不具合 2 の確認を終える\n⑩ 0.4.0 で、実際のボードに画像を貼ってみる\n⑬ 0.5.0（図とテキストの編集・削除）の GQA の問 2〜4 に答える（土 18:00 から）\n⑭ 0.5.0 の実地の試験（日 11:00 から）\n⑮ 0.4.1 の入れ直しを OK する\n⑯ 0.4.1 を push する\n⑰ 0.4.1 を PC と iPad で試す（PC のタブを裏にする）\n⑱ Hyper-V の新しい仮想マシンで新規インストールを試す\n⑲ 0.5.0 の仕様 SUB を始める OK を出す\n⑳ GQA の問 5〜8 に答える\n㉑ 0.5.0 の実装 SUB を始める OK を出す\n㉒ CGQA 問 1: Mermaid の版の裁定（今夜 22:00 の目安）\n㉓ 0.5.0 を commit・インストールするか決める（a/b/c）\n㉔ 段 4 の SUB を始める OK を出す\n㉕ 0.5.0 を push する OK を出す\n㉖ CGQA の問 1〜3 に答える（UAT の前）",
         "anchorDate": "2026-10-31T09:00:00",
         "anchorTaskGroupId": "7c0e0000-0000-4000-8000-000000000001",
         "anchorBandFraction": null,
@@ -3295,10 +3435,10 @@
     "zoomY": 1
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-10-31T21:11:51Z",
+    "scheduleUpdatedAt": "2026-10-31T21:21:57Z",
     "lastEditedBy": "pmo-claude",
     "settingsUpdatedAt": "2026-10-30T19:40:00Z",
-    "fileSavedAt": "2026-10-31T21:11:51Z"
+    "fileSavedAt": "2026-10-31T21:21:57Z"
   },
   "changeLog": [
     {
@@ -3588,6 +3728,24 @@
       "editedBy": "pmo-claude",
       "explanation": "BOSS note: stage 4 SUB needs the owner's OK; owner task 94 added and made a predecessor of task 82; 82 dates unchanged.",
       "changedAt": "2026-10-31T21:11:51Z"
+    },
+    {
+      "ordinal": 48,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 93 done (owner chose a; commit a5b85fb 0.5.0, privacy 0/0/0, 106 tests, installed); owner task 95 added (push OK).",
+      "changedAt": "2026-10-31T21:13:31Z"
+    },
+    {
+      "ordinal": 49,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 94 done (owner OK); task 82 started 06:18 (SUB wb-050-gherkin, Sonnet 5.5 medium), re-timed to 06:18-07:18.",
+      "changedAt": "2026-10-31T21:18:49Z"
+    },
+    {
+      "ordinal": 50,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 82 done 06:21 (29 scenarios checked, 9 findings); owner task 96 (answer CGQA Q1-3, before UAT) added and made a predecessor of 83; task 97 (fix 6 findings after UAT) added.",
+      "changedAt": "2026-10-31T21:21:57Z"
     }
   ]
 }
