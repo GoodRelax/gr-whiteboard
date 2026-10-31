@@ -6,6 +6,7 @@
 //   baseline.json  the Board at the last Send, as summaries (FR-076)
 //   cert.pem, key.pem, cert-info.json   the self-signed certificate for LAN mode (FR-047)
 //   files/<id>.json   one image file of the Board (FR-082)
+//   snapshots/<opId>.json   the whole Board before Operation opId (FR-102)
 
 const crypto = require("crypto");
 const fs = require("fs");
@@ -25,6 +26,7 @@ function dataPaths(dataDir) {
     key: path.join(dataDir, "key.pem"),
     certInfo: path.join(dataDir, "cert-info.json"),
     files: path.join(dataDir, "files"),
+    snapshots: path.join(dataDir, "snapshots"),
   });
 }
 
@@ -103,4 +105,59 @@ function saveFile(filesDir, file) {
   writeFileAtomic(path.join(filesDir, `${file.id}.json`), JSON.stringify(file));
 }
 
-module.exports = { dataPaths, writeFileAtomic, loadBoard, saveBoard, loadOrCreateToken, readJsonOrNull, loadFiles, saveFile };
+const SNAPSHOT_NAME = /^([1-9][0-9]{0,15})\.json$/;
+
+// The Snapshot file port of OperationLog (FR-102, FR-105). `nowMs()` names broken files.
+// @purity non-pure
+function createSnapshotStore(snapshotsDir, nowMs) {
+  const fileOf = (opId) => path.join(snapshotsDir, `${opId}.json`);
+  return Object.freeze({
+    // @purity non-pure
+    write(opId, data) {
+      fs.mkdirSync(snapshotsDir, { recursive: true });
+      writeFileAtomic(fileOf(opId), JSON.stringify(data));
+    },
+    // @purity semi-pure-b
+    read(opId) {
+      return JSON.parse(fs.readFileSync(fileOf(opId), "utf8"));
+    },
+    // @purity non-pure
+    remove(opId) {
+      fs.rmSync(fileOf(opId), { force: true });
+    },
+    // A file that cannot be read is renamed to <name>.broken-<ms> (FR-105).
+    // @purity non-pure
+    readAll() {
+      let names = [];
+      try {
+        names = fs.readdirSync(snapshotsDir).filter((name) => SNAPSHOT_NAME.test(name));
+      } catch (error) {
+        return { snapshots: [], warnings: [] };
+      }
+      const snapshots = [];
+      const warnings = [];
+      for (const name of names) {
+        const filePath = path.join(snapshotsDir, name);
+        try {
+          const data = JSON.parse(fs.readFileSync(filePath, "utf8"));
+          const opId = Number(SNAPSHOT_NAME.exec(name)[1]);
+          if (!data || data.opId !== opId || !Array.isArray(data.elements) || !Array.isArray(data.changed)) {
+            throw new Error("not a snapshot");
+          }
+          snapshots.push(data);
+        } catch (error) {
+          const keptAs = `${filePath}.broken-${nowMs()}`;
+          try {
+            fs.renameSync(filePath, keptAs);
+          } catch (renameError) {
+            // Leave it; it is read again at the next start.
+          }
+          warnings.push(`snapshot ${name} could not be read (${error.message}); kept as ${path.basename(keptAs)}`);
+        }
+      }
+      return { snapshots, warnings };
+    },
+  });
+}
+
+module.exports = { createSnapshotStore, dataPaths, writeFileAtomic, loadBoard, saveBoard, loadOrCreateToken, readJsonOrNull, loadFiles, saveFile };

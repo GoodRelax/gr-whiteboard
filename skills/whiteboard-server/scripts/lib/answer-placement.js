@@ -40,11 +40,19 @@ function clearOfItems(point, items, gapPx, size = { width: 0, height: 0 }) {
 // @purity pure
 function placeAnswer(items, ownIds, gapPx, indentPx = 0, size = { width: 0, height: 0 }) {
   if (items.length === 0) return Object.freeze({ x: 0, y: 0 });
+  const start = anchorPoint(items, ownIds, gapPx, indentPx);
+  return clearOfItems(start, items, gapPx, size);
+}
+
+// Steps 3 and 4 of spec 4.6: the newest Message, else the newest other Item, else the newest own Item;
+// the point right below it, `indentPx` to the left (no indent below an own Item). `items` is not empty.
+// @purity pure
+function anchorPoint(items, ownIds, gapPx, indentPx = 0) {
   const others = items.filter((item) => !ownIds.has(item.id));
   const messages = others.filter((item) => item.type === "text");
   const anchor = newest(messages.length > 0 ? messages : others.length > 0 ? others : items);
   const shift = ownIds.has(anchor.id) ? 0 : indentPx;
-  return clearOfItems({ x: anchor.x - shift, y: anchor.y + anchor.height + gapPx }, items, gapPx, size);
+  return Object.freeze({ x: anchor.x - shift, y: anchor.y + anchor.height + gapPx });
 }
 
 // A rough size of an Answer before the page measures it: about 0.55 em per character, 1.25 em per line.
@@ -55,4 +63,4 @@ function estimateSize(text, fontSizePx) {
   return Object.freeze({ width: Math.ceil(longest * fontSizePx * 0.55), height: Math.ceil(lines.length * fontSizePx * 1.25) });
 }
 
-module.exports = { placeAnswer, clearOfItems, estimateSize };
+module.exports = { placeAnswer, anchorPoint, clearOfItems, estimateSize };

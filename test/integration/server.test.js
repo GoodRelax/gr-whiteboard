@@ -11,7 +11,9 @@ const path = require("path");
 const { spawn } = require("child_process");
 
 const SERVER = path.join(__dirname, "..", "..", "skills", "whiteboard-server", "scripts", "server.js");
-const BASE_PORT = 40000 + Math.floor(Math.random() * 20000);
+// Below the dynamic port range (49152 and up on Windows and macOS, 32768 and up on Linux): Windows reserves
+// blocks there (netsh int ipv4 show excludedportrange), and listening on them fails with EACCES.
+const BASE_PORT = 20000 + Math.floor(Math.random() * 9000);
 const PORT = BASE_PORT;
 const CONTROL_PORT = BASE_PORT + 1;
 
@@ -84,6 +86,14 @@ function openPage(token, pageId) {
   };
 }
 
+// Waits for ServerReady; stops at once with the reason when the Server sends ServerFailed.
+// @purity non-pure
+async function untilReady(logPath) {
+  const event = await until(() => readLog(logPath).find((e) => e.event === "ServerReady" || e.event === "ServerFailed"), 10000, "ServerReady");
+  if (event.event === "ServerFailed") throw new Error(`the Server did not start: ${event.reason} ${event.message}`);
+  return event;
+}
+
 // @purity non-pure
 function readLog(logPath) {
   try {
@@ -110,7 +120,7 @@ test("page sync, Message events, Answers, safety checks, and saving", async () =
   ], { stdio: "ignore" });
   const exited = new Promise((resolve) => child.on("exit", resolve));
   try {
-    await until(() => readLog(logPath).find((e) => e.event === "ServerReady"), 10000, "ServerReady");
+    await untilReady(logPath);
     const token = fs.readFileSync(path.join(dataDir, "token.txt"), "utf8").trim();
     assert.ok(!fs.readFileSync(logPath, "utf8").includes(token), "the log must not contain the Token");
 
@@ -203,7 +213,7 @@ async function startServer(dataDir, logPath) {
     SERVER, "--data", dataDir, "--port", String(PORT), "--control-port", String(CONTROL_PORT), "--save-ms", "100",
   ], { stdio: "ignore" });
   const exited = new Promise((resolve) => child.on("exit", resolve));
-  await until(() => readLog(logPath).find((e) => e.event === "ServerReady"), 10000, "ServerReady");
+  await untilReady(logPath);
   return { child, exited };
 }
 

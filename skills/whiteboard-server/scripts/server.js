@@ -6,6 +6,7 @@
 // and takes Answers on a local HTTP API.
 // Start it with board.js (it runs this file in the background). See docs/spec-en.md.
 
+const crypto = require("crypto");
 const fs = require("fs");
 const http = require("http");
 const https = require("https");
@@ -17,13 +18,17 @@ const { createEventSink, redact } = require("./lib/event-sink");
 const { createTrackerState, trackMessages } = require("./lib/message-tracker");
 const { summarize, summarizeBoard, diffBoards, countOf, toSentEvent } = require("./lib/board-diff");
 const { toItems, pruneDeleted } = require("./lib/board-store");
+const {
+  checkDraw, checkMermaid, checkEdit, checkDeleteBody, planDelete, changedList, boxOf, filterDrawResult, filterEditResult,
+} = require("./lib/board-ops");
+const { createOperationLog } = require("./lib/operation-log");
 const { createBoardHub } = require("./lib/board-hub");
 const { createBoardApi } = require("./lib/board-api");
 const { createControlApi } = require("./lib/control-api");
 const {
-  dataPaths, loadBoard, saveBoard, loadOrCreateToken, writeFileAtomic, readJsonOrNull, loadFiles, saveFile,
+  dataPaths, loadBoard, saveBoard, loadOrCreateToken, writeFileAtomic, readJsonOrNull, loadFiles, saveFile, createSnapshotStore,
 } = require("./lib/data-files");
-const { addFiles } = require("./lib/board-files");
+const { addFiles, checkFile } = require("./lib/board-files");
 const { lanAddresses, boardUrls } = require("./lib/lan");
 const { AppError } = require("./lib/app-error");
 
@@ -38,6 +43,12 @@ const SAY_WAIT_MS = 8000;
 const PNG_BASE64_HEAD = "iVBORw0KGgo";
 const STARTED_AT_MS = Date.now();
 const EXIT_CODE = Object.freeze({ ok: 0, InvalidConfig: 2, CertMissing: 3, PortInUse: 4, Internal: 6 });
+
+// A random versionNonce, as Excalidraw makes them (FR-021).
+// @purity non-pure
+function newNonce() {
+  return crypto.randomInt(1, 2 ** 31 - 1);
+}
 
 // @purity semi-pure-b
 function readCert(paths) {
@@ -110,6 +121,16 @@ async function main() {
     ? new Map(savedBaseline.items.map((item) => [item.id, item]))
     : summarizeBoard(elements.values());
 
+  // Claude's own work goes into the Baseline at once, so Send does not list it (FR-076, FR-092).
+  // @purity non-pure
+  function takeIntoBaseline(list) {
+    for (const element of list) {
+      if (element.isDeleted) baseline.delete(element.id);
+      else baseline.set(element.id, summarize(element));
+    }
+    saveBaseline();
+  }
+
   // @purity non-pure
   function saveBaseline() {
     try {
@@ -132,10 +153,8 @@ async function main() {
       }
     },
     // Claude's own Answers are not news for Claude.
-    onAnswerWritten: (written) => {
-      for (const element of written) baseline.set(element.id, summarize(element));
-      saveBaseline();
-    },
+    onAnswerWritten: takeIntoBaseline,
+    applyOperation: (job, reply) => applyJobResult(job, reply),
     files,
     onFilesAdded: (added) => {
       for (const file of added) {
@@ -148,8 +167,135 @@ async function main() {
     },
   });
 
+  // Snapshots and undo (FR-102 to FR-106).
+  const operationLog = createOperationLog({ store: createSnapshotStore(paths.snapshots, Date.now), undoDepth: config.undoDepth });
+  for (const warning of operationLog.load()) events.emit({ event: "BoardWarning", message: warning });
+
+  // Writes the Snapshot, then merges `list` into the Board and the Baseline (FR-092, FR-102).
+  // Returns the Elements that changed the Board. Throws SnapshotFailed and changes nothing (FR-106).
+  // @purity non-pure
+  function applyOperationElements(opId, kind, list, viaHub) {
+    const fresh = list.filter((element) => {
+      const current = elements.get(element.id);
+      return !current || element.version > current.version
+        || (element.version === current.version && element.versionNonce < current.versionNonce);
+    });
+    if (fresh.length === 0) return [];
+    operationLog.record({ opId, kind, atMs: Date.now(), boardBefore: [...elements.values()], changed: changedList(fresh) });
+    const changed = viaHub ? hub.applyServerChanges(fresh) : mergeInto(fresh);
+    takeIntoBaseline(changed);
+    return changed;
+  }
+
+  // For Job results: the hub sends them to the other pages itself.
+  // @purity non-pure
+  function mergeInto(list) {
+    const changed = [];
+    for (const element of list) {
+      elements.set(element.id, element);
+      changed.push(element);
+    }
+    return changed;
+  }
+
+  // The result of a draw, edit, or mermaid Job (FR-090, FR-094, FR-095, FR-099).
+  // @purity non-pure
+  function applyJobResult(job, reply) {
+    if (job.kind === "edit") {
+      const list = filterEditResult(reply.elements, elements, job.changes.map((change) => change.id));
+      const changed = applyOperationElements(job.opId, job.kind, list, false);
+      return { changed, result: { opId: changed.length > 0 ? job.opId : null, ids: changed.map((element) => element.id) } };
+    }
+    const { added, targets } = filterDrawResult(reply.elements, elements, job.boardTargets || [], job.kind === "mermaid");
+    const image = added.some((element) => element.type === "image");
+    if (job.kind === "mermaid") checkJobFiles(added, reply.files);
+    const changed = applyOperationElements(job.opId, job.kind, [...added, ...targets], false);
+    const box = boxOf(added);
+    const addedIds = added.map((element) => element.id);
+    let ids = addedIds;
+    if (job.kind === "draw") {
+      // One ID per Skeleton, in order (4.4); the page tells the IDs of Skeletons without an id.
+      const fromPage = Array.isArray(reply.ids) && reply.ids.length === job.elements.length ? reply.ids : null;
+      ids = job.elements.map((skeleton, index) => skeleton.id || (fromPage ? String(fromPage[index]) : null));
+    }
+    const result = { opId: changed.length > 0 ? job.opId : null, ids, count: added.length, ...box };
+    if (job.kind === "mermaid") result.image = image;
+    return { changed, result };
+  }
+
+  // An image from a Mermaid picture must pass the image check (FR-083, FR-095).
+  // @purity non-pure
+  function checkJobFiles(added, list) {
+    const needed = added.filter((element) => element.type === "image").map((element) => element.fileId);
+    for (const fileId of needed) {
+      if (files.has(fileId)) continue;
+      const file = (Array.isArray(list) ? list : []).find((candidate) => candidate && candidate.id === fileId);
+      const checked = checkFile(file);
+      if (!checked.file) {
+        events.emit({ event: "FileRejected", id: String(fileId).slice(0, 128), reason: checked.reason || "missing" });
+        throw new AppError("JobFailed", 502, `the image of the diagram was refused: ${checked.reason || "missing"}`);
+      }
+    }
+  }
+
+  // @purity non-pure
+  async function runOperation(job) {
+    const { done } = hub.queueOperation(job, operationLog.reserveOpId);
+    return done;
+  }
+
+  // @purity non-pure
+  function draw(body) {
+    const checked = checkDraw(body, elements, config.maxTextChars);
+    return runOperation({ kind: "draw", elements: checked.skeletons, at: checked.at, boardTargets: checked.boardTargets });
+  }
+
+  // @purity non-pure
+  function mermaid(body) {
+    const checked = checkMermaid(body);
+    return runOperation({ kind: "mermaid", source: checked.source, at: checked.at });
+  }
+
+  // @purity non-pure
+  function edit(body) {
+    const changes = checkEdit(body, elements, hub.editingIds(), config.maxTextChars);
+    return runOperation({ kind: "edit", changes });
+  }
+
+  // delete runs on the Server, with no Page (FR-100, FR-101).
+  // @purity non-pure
+  function deleteItems(body) {
+    const request = checkDeleteBody(body);
+    const plan = planDelete(elements, request, hub.editingIds(), Date.now(), newNonce);
+    if (plan.changed.length === 0) return { opId: null, ids: [], count: 0 };
+    const opId = operationLog.reserveOpId();
+    try {
+      applyOperationElements(opId, "delete", plan.changed, true);
+    } catch (error) {
+      events.emit({ event: "OperationFailed", kind: "delete", jobId: null, error: error.code || "Internal", message: String(error && error.message) });
+      throw error;
+    }
+    events.emit({ event: "OperationApplied", opId, kind: "delete", count: plan.count });
+    return { opId, ids: plan.ids, count: plan.count };
+  }
+
+  // undo runs on the Server, with no Page (FR-103, FR-104).
+  // @purity non-pure
+  function undo(body) {
+    const force = Boolean(body && body.force === true);
+    const plan = operationLog.planLastUndo(elements, force, Date.now(), newNonce);
+    const changed = hub.applyServerChanges(plan.restored);
+    takeIntoBaseline(changed);
+    operationLog.forget(plan.operation.opId, plan.rebase);
+    events.emit({
+      event: "OperationUndone", opId: plan.operation.opId, kind: plan.operation.kind, restored: plan.restoredCount, forced: plan.forced,
+    });
+    return { opId: plan.operation.opId, kind: plan.operation.kind, restored: plan.restoredCount };
+  }
+
+  // Answers and Claude Items are never Messages, and Claude Items are not new Drawings (FR-014, FR-091).
   // @purity semi-pure-b
-  const messageItems = () => toItems(elements).filter((item) => !item.isAnswer);
+  const messageItems = () => toItems(elements).filter((item) => !item.byClaude);
   let trackerState = createTrackerState(messageItems(), STARTED_AT_MS - OLD_TEXT_MARGIN_MS);
   // By default, nothing goes to the Agent until the Person presses Send; then the Agent gets every change
   // since the last Send (FR-070). With autoSend on, each Message goes when it is Settled, as before (FR-074).
@@ -282,6 +428,7 @@ async function main() {
       dataDir: config.dataDir,
       logPath: config.logPath,
       shotDir: config.shotDir,
+      undoCount: operationLog.count(),
     };
   }
 
@@ -293,6 +440,11 @@ async function main() {
       shot: takeShot,
       signal: (state) => hub.setSignal(state),
       stop,
+      draw,
+      mermaid,
+      edit,
+      delete: deleteItems,
+      undo,
     },
     maxTextChars: config.maxTextChars,
     sayWaitMs: SAY_WAIT_MS,

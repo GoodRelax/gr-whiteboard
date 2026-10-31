@@ -45,6 +45,7 @@ test("toItems leaves out deleted elements and marks Answers (FR-014)", () => {
   assert.deepEqual(items.map((i) => [i.id, i.isAnswer]), [["a", false], ["c", true], ["d", false]]);
   assert.deepEqual(items[0], {
     id: "a", type: "text", x: 1, y: 2, width: 3, height: 4, text: "t", containerId: null, updatedMs: 10, isAnswer: false,
+    byClaude: false, angle: 0, strokeColor: null, backgroundColor: null,
   });
   assert.equal(items[2].text, null);
   assert.equal(items[2].containerId, "box");

@@ -14,6 +14,7 @@ const INTEGER_SETTINGS = Object.freeze([
   { name: "maxTextChars", flag: "--max-text-chars", defaultValue: 2000, min: 1, max: 20000 },
   { name: "answerGapPx", flag: "--answer-gap-px", defaultValue: 12, min: 0, max: 1000 },
   { name: "answerIndentPx", flag: "--answer-indent-px", defaultValue: 170, min: 0, max: 2000 },
+  { name: "undoDepth", flag: "--undo-depth", defaultValue: 20, min: 1, max: 100 },
 ]);
 
 // Flags that take no value.

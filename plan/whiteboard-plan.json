@@ -12,9 +12,9 @@
       "manager": null,
       "author": null,
       "creationDate": "2026-10-31T04:40:00",
-      "revision": 15,
+      "revision": 49,
       "startDate": "2026-10-29T22:44:00",
-      "statusDate": "2026-10-31T10:51:00",
+      "statusDate": "2026-11-01T06:11:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 67,
+      "uidHighWaterMark": 94,
       "importSequence": 0,
       "outlineBase": 1,
       "carry": {},
@@ -149,7 +149,7 @@
         "uid": 1,
         "parentTaskUid": null,
         "wbsOrder": 0,
-        "name": "excalidraw-room-chat の作成（Playwright で excalidraw.com のルームに入るスキル）",
+        "name": "🌕 excalidraw-room-chat の作成（Playwright で excalidraw.com のルームに入るスキル）",
         "start": "2026-10-29T22:44:00",
         "finish": "2026-10-29T23:58:00",
         "milestone": false,
@@ -172,7 +172,7 @@
         "uid": 2,
         "parentTaskUid": null,
         "wbsOrder": 1,
-        "name": "旧リポジトリ GoodRelax/excalidraw-room-chat を公開（79ccca5）",
+        "name": "🌕 旧リポジトリ GoodRelax/excalidraw-room-chat を公開（79ccca5）",
         "start": "2026-10-29T23:58:00",
         "finish": "2026-10-29T23:58:00",
         "milestone": true,
@@ -204,7 +204,7 @@
         "uid": 3,
         "parentTaskUid": null,
         "wbsOrder": 2,
-        "name": "記事の下書き（Zenn・dev.to、旧方式）",
+        "name": "🌕 記事の下書き（Zenn・dev.to、旧方式）",
         "start": "2026-10-29T22:44:00",
         "finish": "2026-10-29T23:03:00",
         "milestone": false,
@@ -227,7 +227,7 @@
         "uid": 4,
         "parentTaskUid": null,
         "wbsOrder": 3,
-        "name": "Excalidraw の利用規約の調べ",
+        "name": "🌕 Excalidraw の利用規約の調べ",
         "start": "2026-10-29T23:58:00",
         "finish": "2026-10-30T00:19:00",
         "milestone": false,
@@ -259,12 +259,12 @@
         "uid": 5,
         "parentTaskUid": null,
         "wbsOrder": 4,
-        "name": "作り直しの方針の Q&A（R-001〜R-018、6 回で閉じた）",
+        "name": "🌕 作り直しの方針の Q&A（R-001〜R-018、6 回で閉じた）",
         "start": "2026-10-30T00:27:00",
         "finish": "2026-10-30T01:24:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーの裁定 R-001〜R-018: 構成 B（Excalidraw の npm 部品 + 小さな Node サーバー）、名前 whiteboard-chat-for-claude、旧リポジトリは新しい方の後に削除（オーナーが行う）、LAN は合言葉つき URL と https（自己署名、node-forge）、スキルは 2 つに分ける、など。シートは Excalidraw\\qa\\rebuild-b-qa.md。時刻はシートの最初と最後の版の時刻。",
+        "notes": "オーナーの裁定 R-001〜R-018: 構成 B（Excalidraw の npm 部品 + 小さな Node サーバー）、名前 whiteboard-chat-for-claude、旧リポジトリは新しい方の後に削除（オーナーが行う）、LAN は合言葉つき URL と https（自己署名、node-forge）、スキルは 2 つに分ける、など。シートは Excalidraw\\qa\\old\\rebuild-b-qa_20261031_1118.md。時刻はシートの最初と最後の版の時刻。",
         "calendarUid": null,
         "actualStart": "2026-10-30T00:27:00",
         "stop": null,
@@ -291,7 +291,7 @@
         "uid": 6,
         "parentTaskUid": null,
         "wbsOrder": 5,
-        "name": "whiteboard-chat-for-claude 0.1.0 の作成（whiteboard-server と whiteboard-chat）",
+        "name": "🌕 whiteboard-chat-for-claude 0.1.0 の作成（whiteboard-server と whiteboard-chat）",
         "start": "2026-10-30T01:24:00",
         "finish": "2026-10-30T05:05:00",
         "milestone": false,
@@ -323,7 +323,7 @@
         "uid": 7,
         "parentTaskUid": null,
         "wbsOrder": 6,
-        "name": "0.1.0 をコミット（8fd68f2、ローカルだけ）",
+        "name": "🌕 0.1.0 をコミット（8fd68f2、ローカルだけ）",
         "start": "2026-10-30T05:05:00",
         "finish": "2026-10-30T05:05:00",
         "milestone": true,
@@ -355,7 +355,7 @@
         "uid": 8,
         "parentTaskUid": null,
         "wbsOrder": 7,
-        "name": "実地の試験 1〜6（オーナーと: 答え・青い字・2 つのタブ・代表の引き継ぎ・絵の読み取り・止めて再起動）",
+        "name": "🌕 実地の試験 1〜6（オーナーと: 答え・青い字・2 つのタブ・代表の引き継ぎ・絵の読み取り・止めて再起動）",
         "start": "2026-10-30T05:18:00",
         "finish": "2026-10-30T06:16:00",
         "milestone": false,
@@ -387,7 +387,7 @@
         "uid": 9,
         "parentTaskUid": null,
         "wbsOrder": 8,
-        "name": "0.2.0: 不具合 1 の直し・不具合 2 の守り・合図",
+        "name": "🌕 0.2.0: 不具合 1 の直し・不具合 2 の守り・合図",
         "start": "2026-10-30T05:40:00",
         "finish": "2026-10-30T06:16:00",
         "milestone": false,
@@ -419,7 +419,7 @@
         "uid": 10,
         "parentTaskUid": null,
         "wbsOrder": 9,
-        "name": "0.3.0: チャット風の置き方・Send ボタンと Ctrl+Shift+Enter・図形を図として数える",
+        "name": "🌕 0.3.0: チャット風の置き方・Send ボタンと Ctrl+Shift+Enter・図形を図として数える",
         "start": "2026-10-30T06:16:00",
         "finish": "2026-10-30T07:20:00",
         "milestone": false,
@@ -451,7 +451,7 @@
         "uid": 11,
         "parentTaskUid": null,
         "wbsOrder": 10,
-        "name": "変更の一覧（B: 前の Send からのすべての変更を伝える）の実装",
+        "name": "🌕 変更の一覧（B: 前の Send からのすべての変更を伝える）の実装",
         "start": "2026-10-30T07:20:00",
         "finish": "2026-10-30T07:49:00",
         "milestone": false,
@@ -483,7 +483,7 @@
         "uid": 12,
         "parentTaskUid": null,
         "wbsOrder": 11,
-        "name": "0.2.0〜0.3.0 をコミット（d852d79、ローカルだけ・テスト 64 件合格）",
+        "name": "🌕 0.2.0〜0.3.0 をコミット（d852d79、ローカルだけ・テスト 64 件合格）",
         "start": "2026-10-31T03:12:00",
         "finish": "2026-10-31T03:12:00",
         "milestone": true,
@@ -515,7 +515,7 @@
         "uid": 13,
         "parentTaskUid": null,
         "wbsOrder": 12,
-        "name": "変更の一覧（B）の実地の試験",
+        "name": "🌕 変更の一覧（B）の実地の試験",
         "start": "2026-10-31T04:03:00",
         "finish": "2026-10-31T04:11:00",
         "milestone": false,
@@ -547,12 +547,12 @@
         "uid": 20,
         "parentTaskUid": null,
         "wbsOrder": 13,
-        "name": "① 裁定: 長い MessagesSent の通知が途中で切れる件を直すか",
+        "name": "🌕 ① 裁定: 長い MessagesSent の通知が途中で切れる件を直すか",
         "start": "2026-10-31T09:00:00",
         "finish": "2026-10-31T09:30:00",
         "milestone": false,
         "deadline": null,
-        "notes": "【済み】オーナーは GQA long-events-qa.md で a（直す）を選んだ（R-011、10:15 頃）。GQA は閉じた。\nオーナーは GQA Excalidraw\\qa\\long-events-qa.md で答える。それまでタスク 30・31 は残す。\n【オーナーの返事待ち】長い MessagesSent が Monitor の通知で「...(truncated)」と切れる。直し方の案は、watch は短い要約を出し、全文を読むコマンドを足し、SKILL.md に書く。開発役（Playwright アクセステスト）が「直せ」を待っている。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "notes": "【済み】オーナーは GQA long-events-qa_20261031_1118.md で a（直す）を選んだ（R-011、10:15 頃）。GQA は閉じた。\nオーナーは GQA Excalidraw\\qa\\old\\long-events-qa_20261031_1118.md で答える。それまでタスク 30・31 は残す。\n【オーナーの返事待ち】長い MessagesSent が Monitor の通知で「...(truncated)」と切れる。直し方の案は、watch は短い要約を出し、全文を読むコマンドを足し、SKILL.md に書く。開発役（Playwright アクセステスト）が「直せ」を待っている。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
         "calendarUid": null,
         "actualStart": "2026-10-31T10:15:00",
         "stop": null,
@@ -579,7 +579,7 @@
         "uid": 21,
         "parentTaskUid": null,
         "wbsOrder": 14,
-        "name": "② 裁定: 新しいリポジトリを GitHub に作って公開（push）するか",
+        "name": "🌕 ② 裁定: 新しいリポジトリを GitHub に作って公開（push）するか",
         "start": "2026-10-31T07:42:00",
         "finish": "2026-10-31T07:42:00",
         "milestone": false,
@@ -611,7 +611,7 @@
         "uid": 22,
         "parentTaskUid": null,
         "wbsOrder": 15,
-        "name": "③ ホワイトボードをいつも通り使い、つながりが切れたらバッジの画面の写しを送る",
+        "name": "🌑 ③ ホワイトボードをいつも通り使い、つながりが切れたらバッジの画面の写しを送る",
         "start": "2026-10-31T09:00:00",
         "finish": "2026-11-02T18:00:00",
         "milestone": false,
@@ -643,12 +643,12 @@
         "uid": 30,
         "parentTaskUid": null,
         "wbsOrder": 16,
-        "name": "長い通知の直し（watch の要約・全文を読むコマンド・SKILL.md）",
+        "name": "🌕 長い通知の直し（watch の要約・全文を読むコマンド・SKILL.md）",
         "start": "2026-10-31T09:30:00",
         "finish": "2026-10-31T12:30:00",
         "milestone": false,
         "deadline": null,
-        "notes": "【済み】BOSS が直して commit した: ae07b78（版 0.3.1、FR-078）。push はオーナーが行う（タスク 64）。\n【始めた】BOSS が自分で直す（SUB は作らない）。実績の開始は BOSS の知らせが届いた時刻。\n①の裁定が「直す」のときだけ行う。直さないなら、このタスクは消す。開発役が行い、テストを足す。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "notes": "【表から外れた理由】どちらも小さく、BOSS が既に文脈を持っていたので、SUB に引き継ぐより合計のトークンが少なかった。Gherkin の場面を別の SUB が確かめる段は、まだ通していない。\n【担当のモデル】BOSS が自分でした（Opus 5.5・high）（BOSS の知らせ、2026-10-31）。\n【済み】BOSS が直して commit した: ae07b78（版 0.3.1、FR-078）。push はオーナーが行う（タスク 64）。\n【始めた】BOSS が自分で直す（SUB は作らない）。実績の開始は BOSS の知らせが届いた時刻。\n①の裁定が「直す」のときだけ行う。直さないなら、このタスクは消す。開発役が行い、テストを足す。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
         "calendarUid": null,
         "actualStart": "2026-10-31T10:15:00",
         "stop": null,
@@ -675,12 +675,12 @@
         "uid": 31,
         "parentTaskUid": null,
         "wbsOrder": 17,
-        "name": "長い通知の直しの実地の試験",
+        "name": "🌕 長い通知の直しの実地の試験",
         "start": "2026-10-31T12:30:00",
         "finish": "2026-10-31T13:30:00",
         "milestone": false,
         "deadline": null,
-        "notes": "【済み】BOSS が試験を終えた。テストは 66 件すべて通った（新しい試験 2 件を含む）。実績の時刻は BOSS の知らせが届いた時刻。\n試験役がオーナーと、長い文と多くの変更を一度に Send して、要約と全文の読み出しを確かめる。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "notes": "【表から外れた理由】どちらも小さく、BOSS が既に文脈を持っていたので、SUB に引き継ぐより合計のトークンが少なかった。Gherkin の場面を別の SUB が確かめる段は、まだ通していない。\n【担当のモデル】BOSS が自分でした（Opus 5.5・high）。試験役の SUB は Opus 5.5 で動いた（BOSS の知らせ、2026-10-31）。\n実地でも確かめた（BOSS とオーナー、11:07 頃）: Send 1 回で変化 22 件と文 1 つの知らせが届き、Monitor の 1 行は短く、sent が全文 3159 文字を出して 22 件すべてを読めた。\n【済み】BOSS が試験を終えた。テストは 66 件すべて通った（新しい試験 2 件を含む）。実績の時刻は BOSS の知らせが届いた時刻。\n試験役がオーナーと、長い文と多くの変更を一度に Send して、要約と全文の読み出しを確かめる。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
         "calendarUid": null,
         "actualStart": "2026-10-31T10:18:00",
         "stop": null,
@@ -707,7 +707,7 @@
         "uid": 32,
         "parentTaskUid": null,
         "wbsOrder": 18,
-        "name": "不具合 2 が直ったかを確かめる（ページのストリームが切れたまま、つながり直さない）",
+        "name": "🌑 不具合 2 が直ったかを確かめる（ページのストリームが切れたまま、つながり直さない）",
         "start": "2026-10-31T09:00:00",
         "finish": "2026-11-02T18:00:00",
         "milestone": false,
@@ -739,7 +739,7 @@
         "uid": 40,
         "parentTaskUid": null,
         "wbsOrder": 19,
-        "name": "公開前の個人情報の点検（whiteboard-chat-for-claude）",
+        "name": "🌕 公開前の個人情報の点検（whiteboard-chat-for-claude）",
         "start": "2026-10-31T07:42:00",
         "finish": "2026-10-31T07:42:00",
         "milestone": false,
@@ -771,7 +771,7 @@
         "uid": 41,
         "parentTaskUid": null,
         "wbsOrder": 20,
-        "name": "GitHub に GoodRelax/whiteboard-chat-for-claude を作り、main を push（オーナー）",
+        "name": "🌕 GitHub に GoodRelax/whiteboard-chat-for-claude を作り、main を push（オーナー）",
         "start": "2026-10-31T09:00:00",
         "finish": "2026-10-31T09:30:00",
         "milestone": false,
@@ -803,7 +803,7 @@
         "uid": 42,
         "parentTaskUid": null,
         "wbsOrder": 21,
-        "name": "旧リポジトリ GoodRelax/excalidraw-room-chat の削除（オーナー、R-003）",
+        "name": "🌕 旧リポジトリ GoodRelax/excalidraw-room-chat の削除（オーナー、R-003）",
         "start": "2026-10-31T09:30:00",
         "finish": "2026-10-31T10:00:00",
         "milestone": false,
@@ -835,7 +835,7 @@
         "uid": 43,
         "parentTaskUid": null,
         "wbsOrder": 22,
-        "name": "公開した（whiteboard-chat-for-claude）",
+        "name": "🌕 公開した（whiteboard-chat-for-claude）",
         "start": "2026-10-31T10:00:00",
         "finish": "2026-10-31T10:00:00",
         "milestone": true,
@@ -867,7 +867,7 @@
         "uid": 50,
         "parentTaskUid": null,
         "wbsOrder": 23,
-        "name": "記事の書き直し（Zenn・dev.to、新方式で）",
+        "name": "🌑 記事の書き直し（Zenn・dev.to、新方式で）",
         "start": "2026-11-08T09:30:00",
         "finish": "2026-11-08T15:30:00",
         "milestone": false,
@@ -907,7 +907,7 @@
         "uid": 51,
         "parentTaskUid": null,
         "wbsOrder": 24,
-        "name": "記事の確かめ（オーナー）",
+        "name": "🌑 記事の確かめ（オーナー）",
         "start": "2026-11-08T15:30:00",
         "finish": "2026-11-08T17:30:00",
         "milestone": false,
@@ -939,7 +939,7 @@
         "uid": 52,
         "parentTaskUid": null,
         "wbsOrder": 25,
-        "name": "記事の公開（オーナー）",
+        "name": "🌑 記事の公開（オーナー）",
         "start": "2026-11-08T18:00:00",
         "finish": "2026-11-08T18:00:00",
         "milestone": true,
@@ -971,7 +971,7 @@
         "uid": 60,
         "parentTaskUid": null,
         "wbsOrder": 26,
-        "name": "部品を esm.sh からでなく、サーバーから配る（R-005 の見直し・L-1）（あとで・未定）",
+        "name": "🌑 部品を esm.sh からでなく、サーバーから配る（R-005 の見直し・L-1）（あとで・未定）",
         "start": "2026-11-06T09:00:00",
         "finish": "2026-11-06T12:00:00",
         "milestone": false,
@@ -1003,7 +1003,7 @@
         "uid": 61,
         "parentTaskUid": null,
         "wbsOrder": 27,
-        "name": "ほかの OS とブラウザでの確認（NFR-008: macOS・Ubuntu・Firefox・Safari）（あとで・未定）",
+        "name": "🌑 ほかの OS とブラウザでの確認（NFR-008: macOS・Ubuntu・Firefox・Safari）（あとで・未定）",
         "start": "2026-11-06T09:00:00",
         "finish": "2026-11-06T12:00:00",
         "milestone": false,
@@ -1035,24 +1035,24 @@
         "uid": 62,
         "parentTaskUid": null,
         "wbsOrder": 28,
-        "name": "LAN モードの実地の試験（別の PC から https・合言葉つき URL）（あとで・未定）",
-        "start": "2026-11-06T09:00:00",
-        "finish": "2026-11-06T12:00:00",
+        "name": "🌕 LAN モードの実地の試験（オーナーの PC と iPad から https・合言葉つき URL）",
+        "start": "2026-10-31T12:10:00",
+        "finish": "2026-10-31T13:39:00",
         "milestone": false,
         "deadline": null,
-        "notes": "単体のテストはある（config-lan）。実地の試験の記録には無い。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "notes": "実地の確認（13:12 頃）: iPad から書いた文が届き、Claude の答えが iPad にも出た。\n【済み】13:05 頃に通った。原因はルーターではなく Windows ファイアウォール（Node.js を通す決まりがパブリック用だけ）。オーナーがプライベートを許し、iPad から PC のボードにつながり、文と Send が届いた。\n【始めた】12:25 頃。BOSS が node-forge を入れ、証明書を作り、ボードを LAN モードで起動した。PC のページはつながった。iPad はつながらない。オーナーは、ルーターが端末どうしの通信を止めていると見ている。担当: BOSS（Opus 5.5・high）。\n前倒し（BOSSBOSS の問い合わせ、2026-10-31）: 10-31（土）12:10〜12:50。12:50 までに始められなければ、10-31（土）18:30〜19:30 に置く。前提は、オーナーが node-forge を入れる OK を出すこと（タスク 74）。試験は、オーナーの PC と iPad で行う（別の PC ではなく iPad）。GRSMD の時間帯（土 13:00〜18:00、日 08:00〜11:00）は避ける。\n単体のテストはある（config-lan）。実地の試験の記録には無い。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-10-31T12:25:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-10-31T13:05:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
           {
-            "predecessorUid": 43,
+            "predecessorUid": 74,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -1067,7 +1067,7 @@
         "uid": 63,
         "parentTaskUid": null,
         "wbsOrder": 29,
-        "name": "④ 裁定: オーナーが記事の書き直しを頼む",
+        "name": "🌑 ④ 裁定: オーナーが記事の書き直しを頼む",
         "start": "2026-11-08T09:00:00",
         "finish": "2026-11-08T09:30:00",
         "milestone": false,
@@ -1099,7 +1099,7 @@
         "uid": 64,
         "parentTaskUid": null,
         "wbsOrder": 30,
-        "name": "⑤ オーナーが 0.3.1（ae07b78）を GitHub に push する",
+        "name": "🌕 ⑤ オーナーが 0.3.1（ae07b78）を GitHub に push する",
         "start": "2026-10-31T10:18:00",
         "finish": "2026-10-31T12:00:00",
         "milestone": false,
@@ -1131,7 +1131,7 @@
         "uid": 65,
         "parentTaskUid": null,
         "wbsOrder": 31,
-        "name": "⑥ 裁定: オーナーが 0.3.1 の Claude デスクトップへの入れ直しを OK する",
+        "name": "🌕 ⑥ 裁定: オーナーが 0.3.1 の Claude デスクトップへの入れ直しを OK する",
         "start": "2026-10-31T10:18:00",
         "finish": "2026-10-31T12:00:00",
         "milestone": false,
@@ -1163,7 +1163,7 @@
         "uid": 66,
         "parentTaskUid": null,
         "wbsOrder": 32,
-        "name": "W1 10-31（土）12:00: 0.3.1 を push し、入れ直しを OK する（目標: 11-01 午前までに main に入れる）",
+        "name": "🌕 W1 10-31（土）12:00: 0.3.1 を push し、入れ直しを OK する（目標: 11-01 午前までに main に入れる）",
         "start": "2026-10-31T12:00:00",
         "finish": "2026-10-31T12:00:00",
         "milestone": true,
@@ -1203,7 +1203,7 @@
         "uid": 67,
         "parentTaskUid": null,
         "wbsOrder": 33,
-        "name": "W2 11-02（月）18:00: 不具合 2 が直ったかを確かめ終える",
+        "name": "🌑 W2 11-02（月）18:00: 不具合 2 が直ったかを確かめ終える",
         "start": "2026-11-02T18:00:00",
         "finish": "2026-11-02T18:00:00",
         "milestone": true,
@@ -1229,6 +1229,868 @@
           },
           {
             "predecessorUid": 32,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 68,
+        "parentTaskUid": null,
+        "wbsOrder": 34,
+        "name": "🌕 ⑦ 裁定: オーナーが 0.4.0 として、ボードへの画像の貼り付けを作るか決める",
+        "start": "2026-10-31T11:08:00",
+        "finish": "2026-10-31T13:08:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】オーナーは「Yes, build 0.4.0」と答えた（11:10 頃）。BOSS の知らせは、このタスクを 66 と書いたが、番号は 68。\n【オーナーの返事待ち】オーナーは仕様書の写しをボードに貼って話したい。今の仕様は画像を範囲の外にしている（画像の道具は off）。BOSS がオーナーに聞いている。「作る」なら、PMO は 0.4.0 の作り・試験・push のタスクを足す。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T11:08:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T11:10:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 69,
+        "parentTaskUid": null,
+        "wbsOrder": 35,
+        "name": "🌕 0.4.0: ボードへの画像の貼り付け（BOSS が自分で作る）",
+        "start": "2026-10-31T11:10:00",
+        "finish": "2026-10-31T14:10:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【表から外れた理由】どちらも小さく、BOSS が既に文脈を持っていたので、SUB に引き継ぐより合計のトークンが少なかった。Gherkin の場面を別の SUB が確かめる段は、まだ通していない。\n【担当のモデル】BOSS が自分でした（Opus 5.5・high）（BOSS の知らせ、2026-10-31）。\n【済み】BOSS が作り、commit した: fc5a6c3（FR-080〜084）。テストは 71 件すべて通った。\n【始めた】実績の開始は BOSS の知らせが届いた時刻。\nBOSS が自分で作る（SUB は作らない）。仕様は画像を範囲の外にしていたので、仕様の直しも含む。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T11:09:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T11:18:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 68,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 70,
+        "parentTaskUid": null,
+        "wbsOrder": 36,
+        "name": "🌕 0.4.0 の実地の試験（BOSS とオーナー）",
+        "start": "2026-10-31T14:10:00",
+        "finish": "2026-10-31T15:10:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【表から外れた理由】どちらも小さく、BOSS が既に文脈を持っていたので、SUB に引き継ぐより合計のトークンが少なかった。Gherkin の場面を別の SUB が確かめる段は、まだ通していない。\n【担当のモデル】BOSS が自分でした（Opus 5.5・high）。試験役の SUB は Opus 5.5 で動いた（BOSS の知らせ、2026-10-31）。\n【済み】BOSS が画面を出さない Edge で試した: ページ A に貼った画像が、サーバーに保存され、ページ B に出て、Send が「画像の追加」を数え、新しいページと Claude の画面の写しにも写った。オーナーが実際のボードで貼る試しは、まだ（入れ直しの後）。\n実際のボードに仕様書の写しを貼って話せるかを確かめる。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T11:18:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T11:18:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 69,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 71,
+        "parentTaskUid": null,
+        "wbsOrder": 37,
+        "name": "🌕 ⑧ オーナーが 0.4.0 を push する",
+        "start": "2026-10-31T15:10:00",
+        "finish": "2026-10-31T15:40:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】オーナーが「pushしてよい。」と許し、BOSS が fc5a6c3 を push した。origin/main = fc5a6c3。担当: BOSS（Opus 5.5・high）。実績の時刻は BOSS の知らせの 11:47。\nコミットの後に、オーナーが push する（push はオーナーの手で）。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T11:47:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T11:47:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 70,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 72,
+        "parentTaskUid": null,
+        "wbsOrder": 38,
+        "name": "🌕 ⑨ 裁定: オーナーが 0.4.0 の Claude デスクトップへの入れ直しを OK する",
+        "start": "2026-10-31T11:18:00",
+        "finish": "2026-10-31T11:48:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】オーナーが入れ直しを OK した。BOSS が 0.4.0 を Claude デスクトップに入れ直し（違い 0 件）、ボードを 0.4.0 で再起動した（11:47、項目 102 個を読み込んだ）。担当: BOSS（Opus 5.5・high）。\n【オーナーの返事待ち】BOSS は、オーナーの OK を受けてから 0.4.0 を入れ直す。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T11:47:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T11:47:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 70,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 73,
+        "parentTaskUid": null,
+        "wbsOrder": 39,
+        "name": "🌕 ⑩ オーナーが実際のボードで画像を貼る試し（0.4.0）",
+        "start": "2026-10-31T11:47:00",
+        "finish": "2026-10-31T13:47:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【86 に統合して閉じた】BOSS の判断（15:08）: オーナーはまだ画像を貼る試しをしていない。画像の試しはタスク 86 で行う。実績の時刻は BOSS の知らせが届いた時刻で、試験の実施ではない。\nオーナーが仕様書の写しをボードに貼って話せるかを確かめる。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T15:08:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T15:08:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 72,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 74,
+        "parentTaskUid": null,
+        "wbsOrder": 40,
+        "name": "🌕 ⑪ 裁定: オーナーが node-forge を入れる OK を出す（LAN モードの試験の前提）",
+        "start": "2026-10-31T11:50:00",
+        "finish": "2026-10-31T12:10:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】オーナーが node-forge を入れる OK を出した（12:20 頃）。\n【オーナーの返事待ち】LAN モードの実地の試験（タスク 62）の前提。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T12:20:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T12:20:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 75,
+        "parentTaskUid": null,
+        "wbsOrder": 41,
+        "name": "🌕 ルーターの確認: iPad がつながらない原因を調べ、オーナーを案内する（SUB: Router check）",
+        "start": "2026-10-31T12:39:00",
+        "finish": "2026-10-31T13:39:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】原因を見つけた（ルーターではなくファイアウォール）。実績の時刻は BOSS の知らせの 13:05 頃。\n【始めた】BOSS が SUB を起こした。担当: SUB Router check（Sonnet 5.5・medium）。調べて、オーナーを案内する。表から外れた理由は、調べものと案内が主で、実装ではないため。実績の開始は BOSS の知らせが届いた時刻。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T12:39:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T13:05:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 74,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 76,
+        "parentTaskUid": null,
+        "wbsOrder": 42,
+        "name": "🌕 ⑫ 裁定: オーナーが 0.4.1（答えを書く役のページが眠る不具合の直し）を作るか決める",
+        "start": "2026-10-31T13:05:00",
+        "finish": "2026-10-31T15:05:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】オーナーの裁定（13:21、R-012）: 0.4.1 は案 a。表に出ているページを Leader にし、時間切れの答えを 1 回だけ次のページに回す。\n【オーナーの返事待ち】答えを書く役のページ（PC のタブ）が裏で眠ると、答えが時間切れになる。直し方は GQA Excalidraw\\qa\\leader-sleep-gqa.md で答える。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T13:05:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T13:21:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 62,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 77,
+        "parentTaskUid": null,
+        "wbsOrder": 43,
+        "name": "🌕 0.5.0（R-013・高い優先度）: Claude が図とテキストの編集・削除をする（人間ができる描画操作を Claude もできるように） 段 1 ヒアリング（オーナーが GQA の問 2〜4 に答える）",
+        "start": "2026-10-31T18:00:00",
+        "finish": "2026-10-31T18:30:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【実績の開始を直した】ヒアリングは 13:21（GQA の問 2〜4 を出した時刻）に始まった。以前の 15:12 は誤りで、終わりの 15:11 より後ろになり、GRS が開けなかった。\n【済み】オーナーが leader-sleep-gqa.md に答えた（15:11）: R-014 UAT は 1 回、R-015 描き方は b（JSON の draw・edit・delete と Mermaid の変換）、R-016 ボードの頼みで直す・消すをしてよい（事前の写し・undo・20 個超はチャットで確認）、R-017 Hyper-V の試しは最後。実績の時刻は BOSS の知らせが示した 15:11。\nオーナーの言葉「Claudeが図やテキストの編集や削除をできるようにしろ。人間ができる描画操作はClaudeもできるように。これは高優先。BOSSはPMOとよく相談しろ。」問 2〜4 は、順番・描き方・ボードの頼みで消してよいか。この段はオーナーの手が要る。GRSMD の時間帯（土 13:00〜18:00、日 08:00〜11:00）のうち、オーナーの手が要る段は避ける。土 13:00〜18:00 を避けて 18:00 から。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T13:21:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T15:11:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 43,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 78,
+        "parentTaskUid": null,
+        "wbsOrder": 44,
+        "name": "🌕 0.5.0（R-013・高い優先度）: Claude が図とテキストの編集・削除をする（人間ができる描画操作を Claude もできるように） 段 2 仕様書とテスト仕様（仕様の SUB）",
+        "start": "2026-10-31T15:30:00",
+        "finish": "2026-10-31T17:30:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】15:49。SUB wb-050-spec が仕様書とテスト仕様を書いた（FR-087〜114、SC-070〜098、UAT-01〜12）。BOSS が確かめて commit した: 0bbe990。オーナーへの問が 4 つ残り、GQA leader-sleep-gqa.md の問 5〜8 になった（既定の案 a が仕様書にある）。\n【始めた】15:39。担当: SUB wb-050-spec（session local_96f93c31-4ffe-4588-ace1-5787d53c733e、Opus 5.5・high、決まり 7 の表どおり）。\n前倒し（R-014 の裁定後、15:12）。仕様に入れる決め: 描き方は b（JSON の draw・edit・delete と Mermaid を Excalidraw の図に変える）、ボードの頼みで直す・消すをしてよい（事前の写し・undo で戻せる・20 個超はチャットで確認）。\n担当: 仕様の SUB（Opus 5.5・high）。見積もり 2 時間。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T15:39:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T15:49:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 88,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 79,
+        "parentTaskUid": null,
+        "wbsOrder": 45,
+        "name": "🌑 iPad では、縦でも横でも右上のバーが切れる件の直し（優先度は最低）（あとで・未定）",
+        "start": "2026-11-13T09:00:00",
+        "finish": "2026-11-13T12:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "優先度は最低（オーナーの言葉）。iPad では、縦でも横でも右上のバーが画面の端で切れる（オーナーの言葉「横にしても見切れてるからな！」）。縦では見えるのは「Send (1)」と「Claude: w…」まで。接続の表示と「auto」は見えない。横では右端の「auto」が切れる（オーナーの画面の写し、10-31 13:16）。直し方の見立ては、幅が狭い画面でバーを折り返すか、表示を短くする（page/index.html の CSS と app.js の StatusBadge）。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 43,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 80,
+        "parentTaskUid": null,
+        "wbsOrder": 46,
+        "name": "🌕 0.4.1: 表に出ているページを Leader にし、時間切れの答えを 1 回だけ次のページに回す（BOSS が自分で作る）",
+        "start": "2026-10-31T13:22:00",
+        "finish": "2026-10-31T14:22:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】BOSS が作り、commit した: 7f16e99（FR-034・085・086）。テストは 74 件すべて通った（新しい 3 件を含む）。画面を出さない Edge でも試した: ページ A を裏にすると、書く役がページ B に移り、Claude の答えを B が書いた。担当: BOSS（Opus 5.5・high、決まり 6 で SUB に分けず）。\n【始めた】BOSS が自分で作る（小さいので、決まり 6 で SUB に分けない）。担当: BOSS（Opus 5.5・high）。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T13:22:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T13:24:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 76,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 81,
+        "parentTaskUid": null,
+        "wbsOrder": 47,
+        "name": "🌓 0.5.0（R-013・高い優先度）: Claude が図とテキストの編集・削除をする（人間ができる描画操作を Claude もできるように） 段 3 実装と自動テスト（実装の SUB）",
+        "start": "2026-10-31T19:55:00",
+        "finish": "2026-10-31T23:55:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【実装とレビューを終えた 06:11】テスト 106 件がすべて通る。R-022 の Mermaid の件は閉じた（11.13.0 に固定し、サーバーが Mermaid の文を絞る）。🌓（作る物ができた）。BOSS の確認、commit、インストールが残る。実績の終わりは BOSS の知らせが届いた時刻。\n【途中経過 21:51】実装 SUB が ::: と cssClass も拒むようにした（テスト 106 件通過）。今は { } の後ろのすき間を直している。その後で BOSS がオーナーに commit とインストールの OK を聞く。進み具合 85% は PMO の目安。\n21:43 R-022 を受けた。実装 SUB が、mermaid 11.13.0 の固定と Server の Mermaid 文の絞りを今から入れる（30 分ほど）。🌓 から 🌒 に戻した。23:55 の終わりは動かさない。\n【途中経過 20:28】0.5.0 を一通り作った。テスト 103 件通過（旧 74 + 新 29）、Edge の確認も通った。残り: mermaid を 11.13.0 に固定する前の脆弱性の確認と固定、時々落ちる結合テストの調べ、短いラベルの折り返し。23:55 までに収まる見込み。その後に BOSS の確認、commit、インストール。進み具合 70% は PMO の目安。\n【始めた】19:56。担当: SUB wb-050-impl（session local_ba3f62d7-8251-41c6-bc65-114961af1a78、Opus 5.5・high、モデル表どおり）。\n段 3 の開始を SUB の起動に合わせて 19:55 へ後ろにずらした（BOSS の依頼）。長さは 4 時間のまま。\n前倒し（段 2 が早く済んだため、PMO が 15:49 に引き直した）。OK（タスク 90）の後に始める。\n担当: 実装の SUB（Opus 5.5・high）。見積もり 3〜4 時間（4 時間で置いた）。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T19:56:00",
+        "stop": null,
+        "actualFinish": "2026-11-01T06:11:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 90,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 82,
+        "parentTaskUid": null,
+        "wbsOrder": 48,
+        "name": "🌑 0.5.0（R-013・高い優先度）: Claude が図とテキストの編集・削除をする（人間ができる描画操作を Claude もできるように） 段 4 Gherkin の場面の確認（テストの SUB）",
+        "start": "2026-10-31T23:55:00",
+        "finish": "2026-11-01T00:55:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "担当: テストの SUB（Sonnet 5.5・medium）。見積もり 1 時間。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 81,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 91,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 94,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 83,
+        "parentTaskUid": null,
+        "wbsOrder": 49,
+        "name": "🌑 0.5.0（R-013・高い優先度）: Claude が図とテキストの編集・削除をする（人間ができる描画操作を Claude もできるように） 段 5 実地の試験（BOSS とオーナー）（0.4.1 の裏タブと画像の試しを含む）",
+        "start": "2026-11-01T11:00:00",
+        "finish": "2026-11-01T12:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "BOSS の知らせ: H チームの Obsidian の話は、0.5.0（描く機能）の後に行う。オーナーが決めた条件は、ボードで図（構成図・状態遷移図と表・シーケンス図）を互いに描けるようになること。この UAT の後が目安。\nタスク 86 を統合した（R-014）。0.4.1 の裏タブ（PC のタブを裏にして iPad で書く）と iPad からの画像 1 枚も、この 1 回で試す。試す内容が増えたので、PMO が終わりを 11:30 から 12:00 へ 30 分延ばした（BOSS に知らせる）。\nオーナーの手が要る。GRSMD の時間帯（土 13:00〜18:00、日 08:00〜11:00）のうち、オーナーの手が要る段は避ける。日 08:00〜11:00 を避けて 11:00 から。見積もり 30 分。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 82,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 84,
+        "parentTaskUid": null,
+        "wbsOrder": 50,
+        "name": "🌕 ⑮ 裁定: オーナーが 0.4.1 の Claude デスクトップへの入れ直しを OK する",
+        "start": "2026-10-31T13:24:00",
+        "finish": "2026-10-31T13:54:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】オーナーが「Yes, all three」と答えた。BOSS が 0.4.1 を入れ直した（違い 0 件）。実績は BOSS の知らせが届いた時刻。\n【オーナーの返事待ち】BOSS は、オーナーの OK を受けてから 0.4.1 を入れ直す。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T15:08:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T15:08:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 80,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 85,
+        "parentTaskUid": null,
+        "wbsOrder": 51,
+        "name": "🌕 ⑯ オーナーが 0.4.1 を push する",
+        "start": "2026-10-31T13:54:00",
+        "finish": "2026-10-31T14:24:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】BOSS が 7f16e99 を push した（オーナーの OK つき。origin/main = 7f16e99）。LAN のボードも 0.4.1 で再起動した。\nオーナーが許せば、BOSS が push する（0.4.0 のときと同じ）。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T15:08:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T15:08:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 84,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 86,
+        "parentTaskUid": null,
+        "wbsOrder": 52,
+        "name": "🌕 ⑰ オーナーが実際の PC と iPad で、PC のタブを裏にして 0.4.1 を試す。iPad から画像も 1 枚貼る",
+        "start": "2026-10-31T18:30:00",
+        "finish": "2026-10-31T19:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【83 に統合して閉じた】オーナーの裁定 R-014（15:11）: UAT は 1 回。0.4.1 の実地の試験（PC のタブを裏にして iPad で書く、iPad から画像 1 枚）は 0.5.0 の段 5（タスク 83）で行う。実績の時刻は知らせが届いた時刻で、試験の実施ではない。\n画像の試し（旧タスク 73）を統合した。オーナーが iPad から画像を 1 枚ボードに貼り、PC の画面に出るかを確かめる。\nオーナーのこの確認は、GRSMD の時間帯（土 13:00〜18:00）を避けられない。土 18:00 以降に置く場合は、BOSS が一言送れば PMO が直す。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T15:12:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T15:12:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 85,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 87,
+        "parentTaskUid": null,
+        "wbsOrder": 53,
+        "name": "🌑 ⑱ オーナーが Hyper-V の新しい仮想マシンで、新規インストールを試す（案内役の SUB つき）",
+        "start": "2026-11-01T13:00:00",
+        "finish": "2026-11-01T14:30:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "R-017: ほかの試しが全部済んでから行う（段 5 の後）。\n【オーナーの言葉待ち】オーナーの依頼（BOSSBOSS 経由）: 案内役の SUB（Sonnet 5.5・medium の予定）が、Hyper-V の新しい仮想マシンへの新規インストールを案内する。BOSS が SUB を作ろうとしたとき、アプリの安全の判定が止めた。オーナーが SUB の作成を言葉で認めるまで、SUB は動かない。オーナーの手作業が要るので、GRSMD の時間帯（土 13:00〜18:00、日 08:00〜11:00）を避けた。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 83,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 88,
+        "parentTaskUid": null,
+        "wbsOrder": 54,
+        "name": "🌕 ⑲ 裁定: オーナーが 0.5.0 の仕様 SUB を始める OK を出す",
+        "start": "2026-10-31T15:12:00",
+        "finish": "2026-10-31T15:30:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】オーナーが仕様 SUB を始める OK を出した。実績は BOSS の知らせが届いた時刻。\n【オーナーの返事待ち】オーナーが OK を出したら、BOSS が仕様の SUB（Opus 5.5・high）をすぐ始める。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T15:39:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T15:39:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 77,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 89,
+        "parentTaskUid": null,
+        "wbsOrder": 55,
+        "name": "🌕 ⑳ オーナーが GQA（leader-sleep-gqa.md）の問 5〜8 に答える",
+        "start": "2026-10-31T15:50:00",
+        "finish": "2026-10-31T16:20:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】オーナーが問 5〜8 すべてに a と答えた（R-018〜R-021: undo は Claude の直前の操作の Item だけ、draw・mermaid・edit・delete を 20 段、形の無い Mermaid は PNG 1 枚、ページが無いとき draw・edit・mermaid は NoPage を返し delete と undo は動く）。GQA は閉じた（未回答 0）。仕様の要件は変わらない。実績の終わりは知らせが届いた時刻。\n【オーナーの返事待ち】問 5〜8: undo の範囲、undo の対象と段数、形の無い Mermaid の図、ページが無いとき。どれも既定の案 a がある。答えが既定と違えば、実装の SUB が直す。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T15:50:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T19:52:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 78,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 90,
+        "parentTaskUid": null,
+        "wbsOrder": 56,
+        "name": "🌕 ㉑ 裁定: オーナーが 0.5.0 の実装 SUB（段 3）を始める OK を出す",
+        "start": "2026-10-31T15:50:00",
+        "finish": "2026-10-31T19:55:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】オーナーが「作れ！」と答えた（約 19:56）。実績の終わりは BOSS が示した時刻。\nBOSS の知らせ: 実装 SUB の起動はオーナーが始める。最も早い開始は 19:55 ごろ。PMO が予定の終わりを 16:10 から 19:55 へ延ばした。\n【オーナーの返事待ち】OK が出たら、BOSS が実装の SUB（Opus 5.5・high）を既定の案で始める。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T15:50:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T19:56:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 78,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 91,
+        "parentTaskUid": null,
+        "wbsOrder": 57,
+        "name": "🌕 ㉒ CGQA 問 1: Mermaid の版の裁定",
+        "start": "2026-10-31T20:30:00",
+        "finish": "2026-10-31T22:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】オーナーが CGQA 問 1 に答えた（21:41）。裁定 R-022: 案 A。mermaid を 11.13.0 に固定し、Server が Mermaid の文を絞る。CGQA は閉じた（残 0）。\nGQA のファイル: Excalidraw の qa フォルダの goodrelax-qa-c-whiteboard.md（1 行目は CGQA。名前を替えた）。\n【オーナーの返事待ち】BOSS が CGQA を出した 20:30 に始まった。期限は今夜 22:00 の目安（BOSS の指定）。答えが出たら BOSS が知らせる。段 3 の後続（段 4、タスク 82）の前提にした。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T20:30:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T21:41:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 78,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 92,
+        "parentTaskUid": null,
+        "wbsOrder": 58,
+        "name": "🌑 Mermaid の恒久対策の検討（変換部品 3.x の評価など、11.13.0 に頼らない方法）",
+        "start": "2026-11-11T10:00:00",
+        "finish": "2026-11-11T12:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "担当: C の BOSS。優先度は最低（オーナーの言葉: 今後の恒久対策の検討を BOSS に頼み、PMO がメモする）。3.1.0 が 2 週間を過ぎる 11-10 より後、Hyper-V の試し（R-017、タスク 87）よりも後に行う。R-022 の案 A（11.13.0 に固定）の次の手。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 87,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 93,
+        "parentTaskUid": null,
+        "wbsOrder": 59,
+        "name": "🌖 ㉓ 裁定: オーナーが 0.5.0 を a（commit とインストール）/ b（commit だけ）/ c（待つ）から決める",
+        "start": "2026-11-01T06:11:00",
+        "finish": "2026-11-01T06:41:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【オーナーの返事待ち】BOSS が a・b・c をオーナーに聞く。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-11-01T06:11:00",
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 81,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 94,
+        "parentTaskUid": null,
+        "wbsOrder": 60,
+        "name": "🌖 ㉔ 裁定: オーナーが 0.5.0 の Gherkin 確かめ SUB（段 4）を始める OK を出す",
+        "start": "2026-11-01T06:11:00",
+        "finish": "2026-11-01T06:41:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【オーナーの返事待ち】BOSS の知らせ: 段 4 の SUB は、オーナーの OK が要る。OK が出たら BOSS が始めた時刻を知らせ、PMO がタスク 82 の日時を引き直す。それまで 82 の日時はそのまま。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-11-01T06:11:00",
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 81,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -1480,7 +2342,7 @@
       },
       {
         "taskUid": 62,
-        "taskGroupId": "7c0e0000-0000-4000-8000-000000000006"
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
       },
       {
         "taskUid": 63,
@@ -1501,6 +2363,114 @@
       {
         "taskUid": 67,
         "taskGroupId": "7c0e0000-0000-4000-8000-000000000007"
+      },
+      {
+        "taskUid": 68,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 69,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
+      },
+      {
+        "taskUid": 70,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
+      },
+      {
+        "taskUid": 71,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 72,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 73,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 74,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 75,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
+      },
+      {
+        "taskUid": 76,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 79,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000006"
+      },
+      {
+        "taskUid": 80,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
+      },
+      {
+        "taskUid": 77,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 78,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
+      },
+      {
+        "taskUid": 81,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
+      },
+      {
+        "taskUid": 82,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
+      },
+      {
+        "taskUid": 83,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 84,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 85,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 86,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 87,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 88,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 89,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 90,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 91,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 92,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000006"
+      },
+      {
+        "taskUid": 93,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 94,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
       }
     ],
     "taskVisuals": [
@@ -1775,6 +2745,222 @@
         "fillColor": null,
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 68,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 69,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 70,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 71,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 72,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 73,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 74,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 75,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 76,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 77,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 78,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 79,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 80,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 81,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 82,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 83,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 84,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 85,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 86,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 87,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 88,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 89,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 90,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 91,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 92,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 93,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 94,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -1803,7 +2989,7 @@
       {
         "id": "7c0e0000-0000-4000-8000-0000000000c2",
         "leaderShapeKind": "calloutBox",
-        "text": "★オーナーがすること（優先順）\n① 長い通知の件は、直すと決まった（R-011）。0.3.1 で直した\n② 公開した（R-010）。旧リポジトリも消した（R-003）\n③ ボードをいつも通り使い、切れたらバッジの写しを送る（不具合 2 の確認）\n④ 記事の書き直しを頼む（最後の記事とまとめて。日は未定）\nW1 を満たした（10:51）: 0.3.1 は main にある\nW2 11-02（月）18:00: 不具合 2 の確認を終える",
+        "text": "★オーナーがすること（優先順）\n① 長い通知の件は、直すと決まった（R-011）。0.3.1 で直した\n② 公開した（R-010）。旧リポジトリも消した（R-003）\n③ ボードをいつも通り使い、切れたらバッジの写しを送る（不具合 2 の確認）\n④ 記事の書き直しを頼む（最後の記事とまとめて。日は未定）\nW1 を満たした（10:51）: 0.3.1 は main にある\nW2 11-02（月）18:00: 不具合 2 の確認を終える\n⑩ 0.4.0 で、実際のボードに画像を貼ってみる\n⑬ 0.5.0（図とテキストの編集・削除）の GQA の問 2〜4 に答える（土 18:00 から）\n⑭ 0.5.0 の実地の試験（日 11:00 から）\n⑮ 0.4.1 の入れ直しを OK する\n⑯ 0.4.1 を push する\n⑰ 0.4.1 を PC と iPad で試す（PC のタブを裏にする）\n⑱ Hyper-V の新しい仮想マシンで新規インストールを試す\n⑲ 0.5.0 の仕様 SUB を始める OK を出す\n⑳ GQA の問 5〜8 に答える\n㉑ 0.5.0 の実装 SUB を始める OK を出す\n㉒ CGQA 問 1: Mermaid の版の裁定（今夜 22:00 の目安）\n㉓ 0.5.0 を commit・インストールするか決める（a/b/c）\n㉔ 段 4 の SUB を始める OK を出す",
         "anchorDate": "2026-10-31T09:00:00",
         "anchorTaskGroupId": "7c0e0000-0000-4000-8000-000000000001",
         "anchorBandFraction": null,
@@ -2109,10 +3295,10 @@
     "zoomY": 1
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-10-31T01:51:34Z",
+    "scheduleUpdatedAt": "2026-10-31T21:11:51Z",
     "lastEditedBy": "pmo-claude",
     "settingsUpdatedAt": "2026-10-30T19:40:00Z",
-    "fileSavedAt": "2026-10-31T01:51:34Z"
+    "fileSavedAt": "2026-10-31T21:11:51Z"
   },
   "changeLog": [
     {
@@ -2198,6 +3384,210 @@
       "editedBy": "pmo-claude",
       "explanation": "BOSS note: owner pushed 0.3.1 (origin/main ae07b78, checked 10:51); task 64 done; milestone W1 met. Next W2.",
       "changedAt": "2026-10-31T01:51:34Z"
+    },
+    {
+      "ordinal": 14,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: the plan was committed as 25d4179 (not pushed yet). No plan task covers it.",
+      "changedAt": "2026-10-31T01:59:56Z"
+    },
+    {
+      "ordinal": 15,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: owner pushed the plan commit 25d4179; origin/main = 25d4179 (checked by BOSS).",
+      "changedAt": "2026-10-31T02:00:37Z"
+    },
+    {
+      "ordinal": 16,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: 0.3.1 passed on the real board (11:07); owner wants to paste images (0.4.0); decision added as task 68.",
+      "changedAt": "2026-10-31T02:08:24Z"
+    },
+    {
+      "ordinal": 17,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: owner said build 0.4.0 (task 68 done); added build (69, started), test (70) and owner push (71).",
+      "changedAt": "2026-10-31T02:09:03Z"
+    },
+    {
+      "ordinal": 18,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: 0.4.0 built and committed (fc5a6c3, 71 tests pass); tasks 69 and 70 done; owner OK for reinstall added as task 72.",
+      "changedAt": "2026-10-31T02:18:09Z"
+    },
+    {
+      "ordinal": 19,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSSBOSS rule: GQA files are named <name>-gqa.md and old ones move to old/; the plan notes now point to qa\\old\\*_20261031_1118.md.",
+      "changedAt": "2026-10-31T02:18:54Z"
+    },
+    {
+      "ordinal": 20,
+      "editedBy": "pmo-claude",
+      "explanation": "Fixed the last old GQA path (rebuild-b) in task 5 notes.",
+      "changedAt": "2026-10-31T02:19:15Z"
+    },
+    {
+      "ordinal": 21,
+      "editedBy": "pmo-claude",
+      "explanation": "Model/effort rule: tasks 30, 31, 69, 70 note the model that did them (BOSS, Opus 5.5 high). Weekly quota % not received yet.",
+      "changedAt": "2026-10-31T02:25:09Z"
+    },
+    {
+      "ordinal": 22,
+      "editedBy": "pmo-claude",
+      "explanation": "Model rule 6: reason for leaving the default table (small work, BOSS already had the context) written into tasks 30, 31, 69, 70.",
+      "changedAt": "2026-10-31T02:44:36Z"
+    },
+    {
+      "ordinal": 23,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note (11:47): tasks 71 and 72 done (fc5a6c3 pushed, 0.4.0 reinstalled); owner live image trial added as task 73. Weekly quota at this milestone: week all models 43% (resets 11-04 18:59 JST), week Fable 0%, 5-hour 24%.",
+      "changedAt": "2026-10-31T02:47:46Z"
+    },
+    {
+      "ordinal": 24,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 62 (LAN mode live test) moved up to 10-31 12:10-12:50 with a 18:30-19:30 fallback, iPad; owner OK for node-forge added as task 74.",
+      "changedAt": "2026-10-31T03:02:45Z"
+    },
+    {
+      "ordinal": 25,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 74 done (node-forge OK 12:20); task 62 started 12:25, iPad not connecting; router-check SUB added as task 75.",
+      "changedAt": "2026-10-31T03:39:40Z"
+    },
+    {
+      "ordinal": 26,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: LAN test passed (cause: Windows firewall); tasks 62 and 75 done; added decision task 76 (0.4.1, leader-sleep GQA) and two later tasks (delete items, draw diagrams).",
+      "changedAt": "2026-10-31T04:05:48Z"
+    },
+    {
+      "ordinal": 27,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: iPad portrait bar cut-off added as lowest-priority later task 79; task 62 note gains the 13:12 iPad check.",
+      "changedAt": "2026-10-31T04:18:49Z"
+    },
+    {
+      "ordinal": 28,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS correction: task 79 now says the bar is cut off on iPad in both portrait and landscape (owner); priority stays lowest.",
+      "changedAt": "2026-10-31T04:19:19Z"
+    },
+    {
+      "ordinal": 29,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note (R-012, R-013): task 76 done; 0.4.1 build added as task 80; tasks 77-78 merged into 0.5.0 and split into five stages (77, 78, 81, 82, 83).",
+      "changedAt": "2026-10-31T04:22:37Z"
+    },
+    {
+      "ordinal": 30,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: 0.4.1 built and committed (7f16e99, 74 tests pass); task 80 done; owner tasks added: 84 reinstall OK, 85 push, 86 live check.",
+      "changedAt": "2026-10-31T04:24:51Z"
+    },
+    {
+      "ordinal": 31,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: tasks 84 and 85 done (0.4.1 reinstalled, 7f16e99 pushed); owner task 87 added (Hyper-V fresh-install test with guide SUB, waits for owner word).",
+      "changedAt": "2026-10-31T06:08:00Z"
+    },
+    {
+      "ordinal": 32,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 73 closed as merged into 86; task 86 now also covers pasting one image from the iPad.",
+      "changedAt": "2026-10-31T06:08:23Z"
+    },
+    {
+      "ordinal": 33,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 77 done 15:11 (R-014..R-017); owner task 88 added; stages 2-4 pulled forward; 86 merged into 83 (83 +30 min); 87 after 83.",
+      "changedAt": "2026-10-31T06:12:31Z"
+    },
+    {
+      "ordinal": 34,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 88 done (owner OK); task 78 started (SUB wb-050-spec, Opus 5.5 high).",
+      "changedAt": "2026-10-31T06:39:13Z"
+    },
+    {
+      "ordinal": 35,
+      "editedBy": "pmo-claude",
+      "explanation": "Fix task 77 actualStart to 13:21 (was 15:12, after actualFinish 15:11; GRS refused to open the file).",
+      "changedAt": "2026-10-31T06:44:20Z"
+    },
+    {
+      "ordinal": 36,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 78 done (0bbe990); owner tasks 89 (answer GQA Q5-8) and 90 (OK to start stage 3) added; 81/82 pulled forward.",
+      "changedAt": "2026-10-31T06:49:57Z"
+    },
+    {
+      "ordinal": 37,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 89 done (Q5-8 all a, R-018..R-021); stage 3 (81) start moved to 19:55, 82 follows; task 90 planned finish 19:55; UAT Sun 11:00 fixed.",
+      "changedAt": "2026-10-31T10:52:45Z"
+    },
+    {
+      "ordinal": 38,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 90 done (owner: build it, ~19:56); task 81 started (SUB wb-050-impl, Opus 5.5 high).",
+      "changedAt": "2026-10-31T10:53:58Z"
+    },
+    {
+      "ordinal": 39,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 81 progress (0.5.0 built, 103 tests pass, Edge OK; 3 items left); on track for 23:55.",
+      "changedAt": "2026-10-31T11:28:51Z"
+    },
+    {
+      "ordinal": 40,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note (owner via DGQA): moon marks added to the head of every task name (new, working, built, gate, done, waiting, sent back, stopped); task 81 = third quarter.",
+      "changedAt": "2026-10-31T12:02:52Z"
+    },
+    {
+      "ordinal": 41,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: owner task 91 added (CGQA Q1 Mermaid version ruling, from 20:30, due ~22:00); stage 4 (82) now also follows it.",
+      "changedAt": "2026-10-31T12:03:19Z"
+    },
+    {
+      "ordinal": 42,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 91 notes point to the renamed GQA file goodrelax-qa-c-whiteboard.md.",
+      "changedAt": "2026-10-31T12:25:18Z"
+    },
+    {
+      "ordinal": 43,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: H team Obsidian talk waits until 0.5.0 drawing works (noted on task 83).",
+      "changedAt": "2026-10-31T12:32:29Z"
+    },
+    {
+      "ordinal": 44,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 91 done 21:41 (R-022 plan A, mermaid 11.13.0 pinned + server filter); task 81 back to working; low-priority task 92 added (permanent Mermaid measure, after 11-10 and after task 87).",
+      "changedAt": "2026-10-31T12:43:00Z"
+    },
+    {
+      "ordinal": 45,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 81 progress (::: and cssClass rejected, 106 tests pass; fixing braces gap).",
+      "changedAt": "2026-10-31T12:51:45Z"
+    },
+    {
+      "ordinal": 46,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 81 done (106 tests pass, review done; third quarter mark); R-022 closed; owner task 93 added (a/b/c decision).",
+      "changedAt": "2026-10-31T21:11:09Z"
+    },
+    {
+      "ordinal": 47,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: stage 4 SUB needs the owner's OK; owner task 94 added and made a predecessor of task 82; 82 dates unchanged.",
+      "changedAt": "2026-10-31T21:11:51Z"
     }
   ]
 }

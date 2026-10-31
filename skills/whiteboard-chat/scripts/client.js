@@ -12,6 +12,12 @@
 //   node scripts/client.js watch                         prints new events from the log, one per line, forever
 //                                                        (MessagesSent as a short line; read it with `sent`)
 //   node scripts/client.js sent [--at-ms N]              prints the full MessagesSent with atMs N (default: the last one)
+//   node scripts/client.js draw [--file PATH] [--at X,Y]  draws Skeletons (JSON list, or {"elements": [...]})
+//   node scripts/client.js mermaid [--file PATH] [--at X,Y]   draws a Mermaid diagram
+//   node scripts/client.js edit [--file PATH]            changes Items (JSON list, or {"changes": [...]})
+//   node scripts/client.js delete ID [ID ...] [--confirm]   deletes Items (--all instead of IDs: every Item)
+//   node scripts/client.js undo [--force]                takes back Claude's last Operation
+//   draw, mermaid, and edit read from PATH, or from stdin; they wait up to --timeout-ms (default 65000).
 // Common flags: --port N (the control port, default 47831),
 //               --log PATH (default <skills folder>/whiteboard-server/.data/server.log).
 // HTTP commands print the JSON reply; exit code 0 for HTTP 2xx, 1 otherwise.
@@ -23,6 +29,8 @@ const path = require("path");
 const DEFAULT_PORT = 47831;
 const DEFAULT_LOG = path.join(__dirname, "..", "..", "whiteboard-server", ".data", "server.log");
 const DEFAULT_WAIT_MS = 90000;
+// Two tries of a mermaid Job with the default jobTimeoutMs, plus 5 s (spec 4.11.5).
+const DEFAULT_OPERATION_MS = 65000;
 const POLL_MS = 300;
 // An older log may still be there when `wait` starts; ignore events older than this.
 const WAIT_LOOKBACK_MS = 5000;
@@ -35,10 +43,16 @@ const WATCH_EVENTS = new Set([
 
 // @purity pure
 function parseArgs(argv) {
-  const args = { command: argv[0], port: DEFAULT_PORT, log: DEFAULT_LOG, at: null, atMs: null, file: null, timeoutMs: DEFAULT_WAIT_MS, rest: [] };
+  const args = {
+    command: argv[0], port: DEFAULT_PORT, log: DEFAULT_LOG, at: null, atMs: null, file: null, timeoutMs: null, rest: [],
+    confirm: false, force: false, all: false,
+  };
   for (let i = 1; i < argv.length; i += 1) {
     const arg = argv[i];
     if (arg === "--port") args.port = Number(argv[(i += 1)]);
+    else if (arg === "--confirm") args.confirm = true;
+    else if (arg === "--force") args.force = true;
+    else if (arg === "--all") args.all = true;
     else if (arg === "--log") args.log = argv[(i += 1)];
     else if (arg === "--file") args.file = argv[(i += 1)];
     else if (arg === "--timeout-ms") args.timeoutMs = Number(argv[(i += 1)]);
@@ -48,7 +62,23 @@ function parseArgs(argv) {
       args.at = { x, y };
     } else args.rest.push(arg);
   }
+  if (args.timeoutMs === null) args.timeoutMs = ["draw", "mermaid", "edit"].includes(args.command) ? DEFAULT_OPERATION_MS : DEFAULT_WAIT_MS;
   return args;
+}
+
+// The body of draw or edit from the JSON input: a list, or an object with the list under `key` (spec 4.11.5).
+// Returns null when the input is not JSON of that form.
+// @purity pure
+function listBody(raw, key) {
+  let value;
+  try {
+    value = JSON.parse(raw.replace(BYTE_ORDER_MARK, ""));
+  } catch (error) {
+    return null;
+  }
+  if (Array.isArray(value)) return { [key]: value };
+  if (value && typeof value === "object" && Array.isArray(value[key])) return { [key]: value[key] };
+  return null;
 }
 
 // A Monitor cuts long lines, so `watch` prints MessagesSent as a short line (FR-078).
@@ -90,7 +120,7 @@ function delay(ms) {
 }
 
 // @purity non-pure
-function request(port, method, urlPath, body) {
+function request(port, method, urlPath, body, timeoutMs = DEFAULT_WAIT_MS) {
   return new Promise((resolve, reject) => {
     const data = body === undefined ? "" : JSON.stringify(body);
     const req = http.request({
@@ -102,6 +132,7 @@ function request(port, method, urlPath, body) {
       res.on("end", () => resolve({ status: res.statusCode, text: Buffer.concat(chunks).toString("utf8") }));
     });
     req.on("error", reject);
+    req.setTimeout(timeoutMs, () => req.destroy(new Error(`no reply within ${timeoutMs} ms`)));
     req.end(data);
   });
 }
@@ -207,9 +238,49 @@ function printSent(args) {
 }
 
 // @purity non-pure
+async function readInput(args) {
+  const raw = args.file ? fs.readFileSync(args.file, "utf8") : await readStdin();
+  return raw.replace(BYTE_ORDER_MARK, "");
+}
+
+// @purity non-pure
+function failInvalidJson(what) {
+  process.stdout.write(JSON.stringify({ v: 1, error: "InvalidJson", message: `the input is not ${what}` }) + "\n");
+  process.exit(1);
+}
+
+// @purity non-pure
 async function sendHttp(args) {
   let reply;
   switch (args.command) {
+    case "draw": {
+      const body = listBody(await readInput(args), "elements");
+      if (!body) failInvalidJson("a JSON list of Skeletons or {\"elements\": [...]}");
+      if (args.at) body.at = args.at;
+      reply = await request(args.port, "POST", "/v1/draw", body, args.timeoutMs);
+      break;
+    }
+    case "edit": {
+      const body = listBody(await readInput(args), "changes");
+      if (!body) failInvalidJson("a JSON list of Changes or {\"changes\": [...]}");
+      reply = await request(args.port, "POST", "/v1/edit", body, args.timeoutMs);
+      break;
+    }
+    case "mermaid": {
+      const source = (await readInput(args)).replace(/\r?\n$/, "");
+      const body = args.at ? { source, at: args.at } : { source };
+      reply = await request(args.port, "POST", "/v1/mermaid", body, args.timeoutMs);
+      break;
+    }
+    case "delete": {
+      const body = args.all ? { all: true } : { ids: args.rest };
+      if (args.confirm) body.confirm = true;
+      reply = await request(args.port, "POST", "/v1/delete", body);
+      break;
+    }
+    case "undo":
+      reply = await request(args.port, "POST", "/v1/undo", args.force ? { force: true } : {});
+      break;
     case "say": {
       const raw = args.file ? fs.readFileSync(args.file, "utf8") : await readStdin();
       // Remove the one line break that editors and heredocs add at the end.
@@ -231,7 +302,8 @@ async function sendHttp(args) {
       reply = await request(args.port, "POST", "/v1/stop");
       break;
     default:
-      process.stderr.write("usage: client.js say|shot|board|signal|stop|wait|watch|sent [--port N] [--log PATH] [--file PATH] [--at X,Y] [--at-ms N] [ITEM_ID]\n");
+      process.stderr.write("usage: client.js say|shot|board|signal|stop|wait|watch|sent|draw|mermaid|edit|delete|undo"
+        + " [--port N] [--log PATH] [--file PATH] [--at X,Y] [--at-ms N] [--timeout-ms N] [--confirm] [--all] [--force] [ID ...]\n");
       process.exit(2);
   }
   process.stdout.write(reply.text + "\n");

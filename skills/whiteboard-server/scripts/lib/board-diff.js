@@ -13,6 +13,7 @@ const STYLE_FIELDS = Object.freeze([
 ]);
 const KIND_ORDER = Object.freeze({ edited: 0, deletedText: 1, added: 2, changed: 3, deleted: 4 });
 const ANSWER_MARK = "answer";
+const CLAUDE_MARK = "claude";
 
 // @purity pure
 function round(value) {
@@ -37,6 +38,7 @@ function summarize(element) {
     text: element.type === "text" && typeof element.text === "string" ? element.text : null,
     containerId: element.containerId || null,
     isAnswer: Boolean(element.customData && element.customData.whiteboardChat === ANSWER_MARK),
+    byClaude: Boolean(element.customData && [ANSWER_MARK, CLAUDE_MARK].includes(element.customData.whiteboardChat)),
     style: Object.freeze(style),
     shape: Array.isArray(element.points) ? element.points.map((p) => `${round(p[0])},${round(p[1])}`).join(" ") : "",
   });
@@ -59,7 +61,7 @@ function isBlank(text) {
 
 // @purity pure
 function where(item) {
-  return { id: item.id, type: item.type, x: item.x, y: item.y, isAnswer: item.isAnswer };
+  return { id: item.id, type: item.type, x: item.x, y: item.y, isAnswer: item.isAnswer, byClaude: Boolean(item.byClaude) };
 }
 
 // What changed in one Element that is on both Boards; an empty list means "nothing worth telling".
@@ -98,7 +100,7 @@ function diffBoards(baseline, current, firstSeenMs, skipIds) {
     const before = baseline.get(id);
     if (!before) {
       if (now.type === "text") {
-        if (!isBlank(now.text) && !now.isAnswer) messages.push({ id, text: now.text, x: now.x, y: now.y, inShape: now.containerId !== null });
+        if (!isBlank(now.text) && !now.byClaude) messages.push({ id, text: now.text, x: now.x, y: now.y, inShape: now.containerId !== null });
       } else {
         changes.push({ kind: "added", ...where(now), width: now.width, height: now.height });
       }

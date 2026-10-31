@@ -9,16 +9,26 @@
 // A Job that times out goes once to another page (FR-086).
 // Jobs run one at a time, in arrival order (FR-027).
 // The Signal ("reading", "working", "waiting", or "none") tells every page what Claude is doing (FR-038).
+// From 0.5.0, the Leader also lays out Operations by Claude: draw, edit, and mermaid Jobs (ADR-009).
+// With no page open, these fail at once with NoPage (FR-087); they do not wait in the queue.
 
 const { AppError } = require("./app-error");
 const { mergeElements, toItems, isElement, ANSWER_MARK } = require("./board-store");
 const { placeAnswer, clearOfItems, estimateSize } = require("./answer-placement");
 const { addFiles } = require("./board-files");
+const { chooseOrigin } = require("./board-ops");
 
 // The font size that the page uses for Answers (page/app.js).
 const ANSWER_FONT_SIZE_PX = 20;
 
 const SIGNALS = Object.freeze(["none", "reading", "working", "waiting"]);
+// Jobs that change the Board for the Agent (Operations, FR-087 to FR-099).
+const OPERATION_KINDS = Object.freeze(["draw", "edit", "mermaid"]);
+// The page may say why a mermaid Job failed (FR-094, FR-095).
+const MERMAID_CODES = Object.freeze(["MermaidError", "MermaidUnsupported"]);
+const MERMAID_MESSAGE_CHARS = 300;
+// The first mermaid Job on a page loads Mermaid (about 3 MB), so it gets twice the time (FR-096).
+const MERMAID_TIME_FACTOR = 2;
 
 // On an empty Board, (0, 0) is under the menu of a new page. Start a little inside.
 const EMPTY_BOARD_POINT = Object.freeze({ x: 100, y: 100 });
@@ -32,10 +42,12 @@ function isAnswerElement(element) {
 // clock: { setTimeout, clearTimeout }. onBoardChanged(changed): called with the Elements that changed the Board.
 // onAnswerWritten(elements): called with the Answer Elements that the Leader wrote.
 // files: Map of id -> image file (FR-081). onFilesAdded(files): called with the new files, to save them.
+// applyOperation(job, reply): checks the result of a draw, edit, or mermaid Job, writes the Snapshot, and merges it
+// into the Board; returns { changed, result } or throws AppError (server.js, FR-099, FR-102, FR-106).
 // @purity non-pure
 function createBoardHub({
   elements, events, clock, jobTimeoutMs, gapPx, indentPx = 0, onBoardChanged, onAnswerWritten = () => {},
-  files = new Map(), onFilesAdded = () => {},
+  files = new Map(), onFilesAdded = () => {}, applyOperation = null,
 }) {
   // pageId -> { send(type, data), editingId, visible }. A Map keeps the order in which pages joined.
   const pages = new Map();
@@ -87,14 +99,37 @@ function createBoardHub({
     }
   }
 
+  // Answers and Claude Items are Claude's own; they are not Messages to answer (4.6).
+  // @purity pure
+  function ownIdsOf(items) {
+    return new Set(items.filter((item) => item.byClaude).map((item) => item.id));
+  }
+
   // @purity semi-pure-b
   function answerPoint(job) {
     const items = toItems(elements);
     const size = estimateSize(job.text, ANSWER_FONT_SIZE_PX);
     if (job.at) return clearOfItems(job.at, items, gapPx, size);
     if (items.length === 0) return EMPTY_BOARD_POINT;
-    const answerIds = new Set(items.filter((item) => item.isAnswer).map((item) => item.id));
-    return placeAnswer(items, answerIds, gapPx, indentPx, size);
+    return placeAnswer(items, ownIdsOf(items), gapPx, indentPx, size);
+  }
+
+  // The SSE `job` data for the Leader (spec 4.3).
+  // @purity semi-pure-b
+  function jobPayload(job) {
+    const payload = { jobId: job.id, kind: job.kind };
+    if (job.kind === "answer") {
+      const point = answerPoint(job);
+      job.point = { x: Math.round(point.x), y: Math.round(point.y) };
+      return Object.assign(payload, { text: job.text, x: job.point.x, y: job.point.y });
+    }
+    if (job.kind === "shot") return Object.assign(payload, { focusId: job.focusId });
+    if (job.kind === "edit") return Object.assign(payload, { opId: job.opId, changes: job.changes });
+    // draw and mermaid: the Origin (4.11.4).
+    const items = toItems(elements);
+    job.origin = chooseOrigin(items, job.at, ownIdsOf(items), indentPx);
+    const body = job.kind === "draw" ? { elements: job.elements, boardIds: job.boardTargets } : { source: job.source };
+    return Object.assign(payload, { opId: job.opId, ...body, x: job.origin.x, y: job.origin.y });
   }
 
   // @purity non-pure
@@ -105,15 +140,9 @@ function createBoardHub({
     current = jobs.shift();
     current.pageId = pageId;
     current.tried.add(pageId);
-    const payload = { jobId: current.id, kind: current.kind };
-    if (current.kind === "answer") {
-      const point = answerPoint(current);
-      current.point = { x: Math.round(point.x), y: Math.round(point.y) };
-      Object.assign(payload, { text: current.text, x: current.point.x, y: current.point.y });
-    } else {
-      payload.focusId = current.focusId;
-    }
-    current.timer = clock.setTimeout(() => timeOut(payload.jobId), jobTimeoutMs);
+    const payload = jobPayload(current);
+    const timeoutMs = current.kind === "mermaid" ? MERMAID_TIME_FACTOR * jobTimeoutMs : jobTimeoutMs;
+    current.timer = clock.setTimeout(() => timeOut(payload.jobId), timeoutMs);
     sendTo(pageId, "job", payload);
   }
 
@@ -140,6 +169,9 @@ function createBoardHub({
     current = null;
     if (error) {
       if (job.kind === "answer") events.emit({ event: "AnswerFailed", jobId: job.id, error: error.code, message: error.message });
+      if (OPERATION_KINDS.includes(job.kind)) {
+        events.emit({ event: "OperationFailed", kind: job.kind, jobId: job.id, error: error.code, message: error.message });
+      }
       job.reject(error);
     } else {
       job.resolve(result);
@@ -251,18 +283,71 @@ function createBoardHub({
     return addJob({ kind: "shot", focusId: focusId || null });
   }
 
-  // reply: { jobId, ok, elements, png, error } from the Leader page.
+  // Adds a draw, edit, or mermaid Job (FR-087, FR-093, FR-097). `job`: { kind, ... } checked by the caller.
+  // `reserveOpId()` gives the opId only when the Job is taken, so a refused request uses none.
+  // @purity non-pure
+  function queueOperation(job, reserveOpId) {
+    if (!OPERATION_KINDS.includes(job.kind)) throw new AppError("Internal", 500, `unknown operation ${job.kind}`);
+    if (pages.size === 0) throw new AppError("NoPage", 503, "no page is open; open the Board URL in a browser");
+    return addJob({ ...job, opId: reserveOpId() });
+  }
+
+  // A draw, edit, or mermaid result: the Server checks it and writes the Snapshot first (FR-099, FR-102).
+  // If that fails, the Agent gets the error, and the page gets 409 and takes its Elements off (FR-106).
+  // @purity non-pure
+  function finishOperation(pageId, reply) {
+    const job = current;
+    let applied;
+    try {
+      applied = applyOperation(job, reply);
+    } catch (error) {
+      const failure = error instanceof AppError ? error : new AppError("Internal", 500, String(error && error.message));
+      endJob(failure);
+      throw new AppError(failure.code, 409, failure.message);
+    }
+    if (applied.changed.length > 0) {
+      broadcast("elements", { elements: applied.changed }, pageId);
+      onBoardChanged(applied.changed);
+    }
+    if (job.kind === "mermaid" && Array.isArray(reply.files) && reply.files.length > 0) receiveFiles(pageId, reply.files);
+    if (applied.result.opId !== null) {
+      events.emit({ event: "OperationApplied", opId: applied.result.opId, kind: job.kind, count: applied.changed.length });
+    }
+    endJob(null, { jobId: job.id, ...applied.result });
+  }
+
+  // Changes that the Server itself makes (delete, undo; FR-100, FR-103) go to every page.
+  // @purity non-pure
+  function applyServerChanges(list) {
+    const changed = mergeElements(elements, list);
+    if (changed.length > 0) {
+      broadcast("elements", { elements: changed });
+      onBoardChanged(changed);
+    }
+    return changed;
+  }
+
+  // reply: { jobId, ok, elements, files, png, error, code } from the Leader page.
   // @purity non-pure
   function finishJob(pageId, reply) {
     if (current === null || !reply || reply.jobId !== current.id || pageId !== current.pageId) {
       throw new AppError("UnknownJob", 409, "this job is not running on this page");
     }
     if (!reply.ok) {
-      endJob(new AppError("JobFailed", 502, String(reply.error || "the page could not do the job")));
+      const message = String(reply.error || "the page could not do the job");
+      if (current.kind === "mermaid" && MERMAID_CODES.includes(reply.code)) {
+        endJob(new AppError(reply.code, 422, message.slice(0, MERMAID_MESSAGE_CHARS)));
+      } else {
+        endJob(new AppError("JobFailed", 502, message));
+      }
       return;
     }
     if (current.kind === "shot") {
       endJob(null, { png: String(reply.png || "") });
+      return;
+    }
+    if (OPERATION_KINDS.includes(current.kind)) {
+      finishOperation(pageId, reply);
       return;
     }
     const written = (Array.isArray(reply.elements) ? reply.elements : []).filter(isAnswerElement);
@@ -312,6 +397,8 @@ function createBoardHub({
     editingIds,
     queueAnswer,
     requestShot,
+    queueOperation,
+    applyServerChanges,
     finishJob,
     setSignal,
     signal: () => signal,

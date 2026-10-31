@@ -44,7 +44,8 @@ function within(promise, ms, clock) {
 }
 
 // handlers: { status(), board(), say(text, at) -> { jobId, done }, shot(focusId) -> Promise<{ path }>,
-//             signal(state), stop() }
+//             signal(state), stop(),
+//             draw(body), mermaid(body), edit(body) -> Promise<reply>, delete(body), undo(body) -> reply (0.5.0, spec 4.4) }
 // @purity non-pure
 function createControlApi({ handlers, maxTextChars, sayWaitMs, redact, clock }) {
   let port = 0;
@@ -76,6 +77,16 @@ function createControlApi({ handlers, maxTextChars, sayWaitMs, redact, clock }) 
         const request = parseJsonBody(await readBody(req, MAX_BODY_BYTES), false);
         handlers.signal(String(request.state || ""));
         return [200, { state: request.state }];
+      }
+      // Operations by Claude (0.5.0). The handlers check the body; draw, mermaid, and edit wait for the Leader.
+      case "POST /v1/draw":
+      case "POST /v1/mermaid":
+      case "POST /v1/edit":
+      case "POST /v1/delete":
+      case "POST /v1/undo": {
+        const request = parseJsonBody(await readBody(req, MAX_BODY_BYTES), key === "POST /v1/undo");
+        const name = key.slice("POST /v1/".length);
+        return [200, await handlers[name](request)];
       }
       case "POST /v1/stop":
         clock.setTimeout(handlers.stop, 0);

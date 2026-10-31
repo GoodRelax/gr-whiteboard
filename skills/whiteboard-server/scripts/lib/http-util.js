@@ -48,7 +48,7 @@ function sameSecret(given, expected) {
 // @purity non-pure
 function sendError(res, error, redact) {
   const message = redact(String(error && error.message));
-  if (error instanceof AppError) sendJson(res, error.status, { error: error.code, message });
+  if (error instanceof AppError) sendJson(res, error.status, { ...(error.details || {}), error: error.code, message });
   else sendJson(res, 500, { error: "Internal", message });
 }
 

@@ -6,6 +6,9 @@
 const MAX_ID_CHARS = 64;
 // The marker that Answers carry, so they are never reported as Messages (FR-014).
 const ANSWER_MARK = "answer";
+// The marker that Claude Items carry: Elements that the Agent drew with draw or mermaid (FR-091).
+const CLAUDE_MARK = "claude";
+const LINEAR_TYPES = Object.freeze(["arrow", "line"]);
 
 // @purity pure
 function isElement(value) {
@@ -43,13 +46,25 @@ function isAnswer(element) {
   return Boolean(element.customData && element.customData.whiteboardChat === ANSWER_MARK);
 }
 
+// Answers and Claude Items are "by Claude" (FR-091, FR-108).
+// @purity pure
+function isByClaude(element) {
+  const mark = element.customData && element.customData.whiteboardChat;
+  return mark === ANSWER_MARK || mark === CLAUDE_MARK;
+}
+
+// @purity pure
+function boundId(binding) {
+  return binding && typeof binding.elementId === "string" ? binding.elementId : null;
+}
+
 // The Item view of the Board (spec 3.4): no deleted elements, numbers only where needed.
 // @purity pure
 function toItems(elements) {
   const items = [];
   for (const element of elements.values()) {
     if (element.isDeleted) continue;
-    items.push(Object.freeze({
+    const item = {
       id: element.id,
       type: element.type,
       x: Number(element.x) || 0,
@@ -60,7 +75,16 @@ function toItems(elements) {
       containerId: element.containerId || null,
       updatedMs: Number(element.updated) || 0,
       isAnswer: isAnswer(element),
-    }));
+      byClaude: isByClaude(element),
+      angle: Number(element.angle) || 0,
+      strokeColor: typeof element.strokeColor === "string" ? element.strokeColor : null,
+      backgroundColor: typeof element.backgroundColor === "string" ? element.backgroundColor : null,
+    };
+    if (LINEAR_TYPES.includes(element.type)) {
+      item.startId = boundId(element.startBinding);
+      item.endId = boundId(element.endBinding);
+    }
+    items.push(Object.freeze(item));
   }
   return items;
 }
@@ -71,4 +95,4 @@ function pruneDeleted(list, nowMs, keepMs) {
   return list.filter((element) => !(element.isDeleted && nowMs - (Number(element.updated) || 0) > keepMs));
 }
 
-module.exports = { ANSWER_MARK, isElement, isNewer, mergeElements, toItems, pruneDeleted };
+module.exports = { ANSWER_MARK, CLAUDE_MARK, isElement, isByClaude, isNewer, mergeElements, toItems, pruneDeleted };
