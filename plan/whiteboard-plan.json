@@ -1,0 +1,1944 @@
+{
+  "$schema": "https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json",
+  "schemaVersion": "2026-10-19T00:35:37Z",
+  "schedule": {
+    "project": {
+      "id": "WHITEBOARD-PLAN",
+      "name": "Whiteboard plan",
+      "title": "ホワイトボードの計画",
+      "subject": "ホワイトボード（excalidraw-room-chat → whiteboard-chat-for-claude）の、済み・今・次・その後",
+      "category": null,
+      "company": null,
+      "manager": null,
+      "author": null,
+      "creationDate": "2026-10-31T04:40:00",
+      "revision": 8,
+      "startDate": "2026-10-29T22:44:00",
+      "statusDate": "2026-10-31T10:08:00",
+      "minutesPerDay": 1440,
+      "minutesPerWeek": 10080,
+      "daysPerMonth": 30,
+      "weekStartDay": 1,
+      "calendarUid": 1,
+      "defaultStartTime": "00:00:00",
+      "defaultFinishTime": "23:59:00",
+      "themeHue": 214,
+      "parentTaskProgressToleranceDays": 1,
+      "uidHighWaterMark": 63,
+      "importSequence": 0,
+      "outlineBase": 1,
+      "carry": {},
+      "carryElements": [],
+      "sourceFormat": "grs",
+      "scheduleDataTimeZone": "UTC+09:00"
+    },
+    "calendars": [
+      {
+        "uid": 1,
+        "name": "計画の暦（毎日 24 時間）",
+        "isBaseCalendar": true,
+        "baseCalendarUid": null,
+        "ordinal": 0,
+        "carry": {},
+        "carryElements": [],
+        "weekDays": [
+          {
+            "ordinal": 0,
+            "dayType": 1,
+            "dayWorking": true,
+            "workingTimes": [
+              {
+                "ordinal": 0,
+                "fromTime": "00:00:00",
+                "toTime": "00:00:00"
+              }
+            ],
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "ordinal": 1,
+            "dayType": 2,
+            "dayWorking": true,
+            "workingTimes": [
+              {
+                "ordinal": 0,
+                "fromTime": "00:00:00",
+                "toTime": "00:00:00"
+              }
+            ],
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "ordinal": 2,
+            "dayType": 3,
+            "dayWorking": true,
+            "workingTimes": [
+              {
+                "ordinal": 0,
+                "fromTime": "00:00:00",
+                "toTime": "00:00:00"
+              }
+            ],
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "ordinal": 3,
+            "dayType": 4,
+            "dayWorking": true,
+            "workingTimes": [
+              {
+                "ordinal": 0,
+                "fromTime": "00:00:00",
+                "toTime": "00:00:00"
+              }
+            ],
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "ordinal": 4,
+            "dayType": 5,
+            "dayWorking": true,
+            "workingTimes": [
+              {
+                "ordinal": 0,
+                "fromTime": "00:00:00",
+                "toTime": "00:00:00"
+              }
+            ],
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "ordinal": 5,
+            "dayType": 6,
+            "dayWorking": true,
+            "workingTimes": [
+              {
+                "ordinal": 0,
+                "fromTime": "00:00:00",
+                "toTime": "00:00:00"
+              }
+            ],
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "ordinal": 6,
+            "dayType": 7,
+            "dayWorking": true,
+            "workingTimes": [
+              {
+                "ordinal": 0,
+                "fromTime": "00:00:00",
+                "toTime": "00:00:00"
+              }
+            ],
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "exceptions": []
+      }
+    ],
+    "tasks": [
+      {
+        "uid": 1,
+        "parentTaskUid": null,
+        "wbsOrder": 0,
+        "name": "excalidraw-room-chat の作成（Playwright で excalidraw.com のルームに入るスキル）",
+        "start": "2026-10-29T22:44:00",
+        "finish": "2026-10-29T23:58:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "コミット 788609f〜79ccca5（初回の準備とルームに入るときの不具合の直しを含む）。実績の日時は git の時刻。開始は最初のコミット（作業はそれより前に始まった）。",
+        "calendarUid": null,
+        "actualStart": "2026-10-29T22:44:00",
+        "stop": null,
+        "actualFinish": "2026-10-29T23:58:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 2,
+        "parentTaskUid": null,
+        "wbsOrder": 1,
+        "name": "旧リポジトリ GoodRelax/excalidraw-room-chat を公開（79ccca5）",
+        "start": "2026-10-29T23:58:00",
+        "finish": "2026-10-29T23:58:00",
+        "milestone": true,
+        "deadline": null,
+        "notes": "origin/main は 79ccca5。push の時刻は記録が無いので、コミットの時刻で置いた。README に未コミットの変更（ZIP の手順）があるが、旧リポジトリは消すので捨ててよい（開発役の扱い）。",
+        "calendarUid": null,
+        "actualStart": "2026-10-29T23:58:00",
+        "stop": null,
+        "actualFinish": "2026-10-29T23:58:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 1,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 3,
+        "parentTaskUid": null,
+        "wbsOrder": 2,
+        "name": "記事の下書き（Zenn・dev.to、旧方式）",
+        "start": "2026-10-29T22:44:00",
+        "finish": "2026-10-29T23:03:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "Excalidraw\\articles\\ の zenn-excalidraw-room-chat.md と devto-excalidraw-room-chat.md。旧方式（excalidraw.com）の手順で書かれているので、そのままは出さない（R-009）。時刻は推定: 終わりはファイルの時刻、開始は旧方式の最初のコミット。",
+        "calendarUid": null,
+        "actualStart": "2026-10-29T22:44:00",
+        "stop": null,
+        "actualFinish": "2026-10-29T23:03:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 4,
+        "parentTaskUid": null,
+        "wbsOrder": 3,
+        "name": "Excalidraw の利用規約の調べ",
+        "start": "2026-10-29T23:58:00",
+        "finish": "2026-10-30T00:19:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "Excalidraw\\research\\excalidraw-terms-check.md（法的助言ではない調査メモ）。結論: excalidraw.com を bot・script で使うことと、その開発・配布は文言上 NG。自前ホストの MIT 部品なら OK。時刻は推定: 終わりはファイルの時刻、開始は旧方式の直しのコミット。",
+        "calendarUid": null,
+        "actualStart": "2026-10-29T23:58:00",
+        "stop": null,
+        "actualFinish": "2026-10-30T00:19:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 1,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 5,
+        "parentTaskUid": null,
+        "wbsOrder": 4,
+        "name": "作り直しの方針の Q&A（R-001〜R-018、6 回で閉じた）",
+        "start": "2026-10-30T00:27:00",
+        "finish": "2026-10-30T01:24:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "オーナーの裁定 R-001〜R-018: 構成 B（Excalidraw の npm 部品 + 小さな Node サーバー）、名前 whiteboard-chat-for-claude、旧リポジトリは新しい方の後に削除（オーナーが行う）、LAN は合言葉つき URL と https（自己署名、node-forge）、スキルは 2 つに分ける、など。シートは Excalidraw\\qa\\rebuild-b-qa.md。時刻はシートの最初と最後の版の時刻。",
+        "calendarUid": null,
+        "actualStart": "2026-10-30T00:27:00",
+        "stop": null,
+        "actualFinish": "2026-10-30T01:24:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 4,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 6,
+        "parentTaskUid": null,
+        "wbsOrder": 5,
+        "name": "whiteboard-chat-for-claude 0.1.0 の作成（whiteboard-server と whiteboard-chat）",
+        "start": "2026-10-30T01:24:00",
+        "finish": "2026-10-30T05:05:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "Node サーバー（SSE と POST、JSON への保存、合言葉、LAN モード）と、ボードで話すスキル。ページは @excalidraw/excalidraw 0.18.1 を esm.sh から読む。旧方式の新着の判定・置き場所・イベント・client.js を流用（R-008）。時刻は推定: 開始は Q&A が閉じた時刻、終わりはコミット 8fd68f2。",
+        "calendarUid": null,
+        "actualStart": "2026-10-30T01:24:00",
+        "stop": null,
+        "actualFinish": "2026-10-30T05:05:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 5,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 7,
+        "parentTaskUid": null,
+        "wbsOrder": 6,
+        "name": "0.1.0 をコミット（8fd68f2、ローカルだけ）",
+        "start": "2026-10-30T05:05:00",
+        "finish": "2026-10-30T05:05:00",
+        "milestone": true,
+        "deadline": null,
+        "notes": "リモートは無い（まだ push していない）。",
+        "calendarUid": null,
+        "actualStart": "2026-10-30T05:05:00",
+        "stop": null,
+        "actualFinish": "2026-10-30T05:05:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 6,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 8,
+        "parentTaskUid": null,
+        "wbsOrder": 7,
+        "name": "実地の試験 1〜6（オーナーと: 答え・青い字・2 つのタブ・代表の引き継ぎ・絵の読み取り・止めて再起動）",
+        "start": "2026-10-30T05:18:00",
+        "finish": "2026-10-30T06:16:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "6 項目とも合格。この中で不具合 1（答えの右端が切れる）と不具合 2（Edge でページのストリームが切れたまま）が見つかり、オーナーから合図（状態のタグ）の案が出た。記録は共有ノートの whiteboard-live-test-findings.md。時刻は推定: 開始はスキルの合言葉のファイルの時刻、終わりは 0.2.0 を入れた時刻。",
+        "calendarUid": null,
+        "actualStart": "2026-10-30T05:18:00",
+        "stop": null,
+        "actualFinish": "2026-10-30T06:16:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 7,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 9,
+        "parentTaskUid": null,
+        "wbsOrder": 8,
+        "name": "0.2.0: 不具合 1 の直し・不具合 2 の守り・合図",
+        "start": "2026-10-30T05:40:00",
+        "finish": "2026-10-30T06:16:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "不具合 1: 字の形（Excalifont）を待ってから幅を測る。直ったことを確かめた（F5 の後、前の切れた答えも広がった）。不具合 2: 20 秒ごとの ping、50 秒何も来ないか CLOSED ならページがつなぎ直す（FR-023a）。直ったかは未確認（下の「不具合 2 が直ったかを確かめる」）。合図: reading your text / working on it / waiting for you。時刻は推定（インストール先のファイルの時刻）。",
+        "calendarUid": null,
+        "actualStart": "2026-10-30T05:40:00",
+        "stop": null,
+        "actualFinish": "2026-10-30T06:16:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 8,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 10,
+        "parentTaskUid": null,
+        "wbsOrder": 9,
+        "name": "0.3.0: チャット風の置き方・Send ボタンと Ctrl+Shift+Enter・図形を図として数える",
+        "start": "2026-10-30T06:16:00",
+        "finish": "2026-10-30T07:20:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "答えは新しいメッセージのすぐ下、170 px 左（オーナーの指示）。Send を押すまで Claude に送らない（auto は既定で切）。合図の言葉はオーナーが選んだ（Claude: 動詞 + 目的語）。試験で、図形（楕円など）を図として数えず Send が灰色のままの不具合が見つかり、直した。時刻は推定。",
+        "calendarUid": null,
+        "actualStart": "2026-10-30T06:16:00",
+        "stop": null,
+        "actualFinish": "2026-10-30T07:20:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 9,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 11,
+        "parentTaskUid": null,
+        "wbsOrder": 10,
+        "name": "変更の一覧（B: 前の Send からのすべての変更を伝える）の実装",
+        "start": "2026-10-30T07:20:00",
+        "finish": "2026-10-30T07:49:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "オーナーの裁定 B: 消した・動かした・色を変えた（答えも含む）を伝える。基準はサーバーの .data/baseline.json。順は、新しい文 → ほかの変更 → 図が変わったら画面の写し → 答えは 1 回。時刻は推定: 終わりはインストール先のファイルの時刻。",
+        "calendarUid": null,
+        "actualStart": "2026-10-30T07:20:00",
+        "stop": null,
+        "actualFinish": "2026-10-30T07:49:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 10,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 12,
+        "parentTaskUid": null,
+        "wbsOrder": 11,
+        "name": "0.2.0〜0.3.0 をコミット（d852d79、ローカルだけ・テスト 64 件合格）",
+        "start": "2026-10-31T03:12:00",
+        "finish": "2026-10-31T03:12:00",
+        "milestone": true,
+        "deadline": null,
+        "notes": "main は clean。リモートは無い。コミット時の個人情報の点検は 0 件（開発役の報告）。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T03:12:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T03:12:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 11,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 13,
+        "parentTaskUid": null,
+        "wbsOrder": 12,
+        "name": "変更の一覧（B）の実地の試験",
+        "start": "2026-10-31T04:03:00",
+        "finish": "2026-10-31T04:11:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "合格（試験役の報告）。新しい文と円を送ると、文を先に読み、円も伝わった。円の移動と答えの移動の両方が届いた。Send ボタン・Ctrl+Shift+Enter・チャット風の置き方・合図 3 種も実地で合格。気付き: 長い MessagesSent は Monitor の通知で途中が切れる（server.log から全文を読めた。①の件）。時刻はサーバーの記録（server.log の ServerReady から ServerStopped）。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T04:03:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T04:11:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 12,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 20,
+        "parentTaskUid": null,
+        "wbsOrder": 13,
+        "name": "① 裁定: 長い MessagesSent の通知が途中で切れる件を直すか",
+        "start": "2026-10-31T09:00:00",
+        "finish": "2026-10-31T09:30:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "オーナーは GQA Excalidraw\\qa\\long-events-qa.md で答える。それまでタスク 30・31 は残す。\n【オーナーの返事待ち】長い MessagesSent が Monitor の通知で「...(truncated)」と切れる。直し方の案は、watch は短い要約を出し、全文を読むコマンドを足し、SKILL.md に書く。開発役（Playwright アクセステスト）が「直せ」を待っている。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 13,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 21,
+        "parentTaskUid": null,
+        "wbsOrder": 14,
+        "name": "② 裁定: 新しいリポジトリを GitHub に作って公開（push）するか",
+        "start": "2026-10-31T07:42:00",
+        "finish": "2026-10-31T07:42:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】オーナーの裁定（2026-10-31、R-010）: GitHub に公開する。タスク 40〜43 は残す。実績の日時は PMO が知らせを受けた時刻。\n【オーナーの返事待ち】GoodRelax/whiteboard-chat-for-claude はまだリモートが無い。公開すると R-003（旧リポジトリの削除）に進める。開発役が決定を待っている。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T07:42:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T07:42:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 13,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 22,
+        "parentTaskUid": null,
+        "wbsOrder": 15,
+        "name": "③ ホワイトボードをいつも通り使い、つながりが切れたらバッジの画面の写しを送る",
+        "start": "2026-10-31T09:00:00",
+        "finish": "2026-11-02T18:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "不具合 2 が直ったかを確かめるため。特に Edge で長く開いたまま、スリープの後、サーバーの再起動の後。「not connected, trying again」が消えないときは、閉じる前に写しを撮る。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 13,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 30,
+        "parentTaskUid": null,
+        "wbsOrder": 16,
+        "name": "長い通知の直し（watch の要約・全文を読むコマンド・SKILL.md）",
+        "start": "2026-10-31T09:30:00",
+        "finish": "2026-10-31T12:30:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "①の裁定が「直す」のときだけ行う。直さないなら、このタスクは消す。開発役が行い、テストを足す。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 20,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 31,
+        "parentTaskUid": null,
+        "wbsOrder": 17,
+        "name": "長い通知の直しの実地の試験",
+        "start": "2026-10-31T12:30:00",
+        "finish": "2026-10-31T13:30:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "試験役がオーナーと、長い文と多くの変更を一度に Send して、要約と全文の読み出しを確かめる。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 30,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 32,
+        "parentTaskUid": null,
+        "wbsOrder": 18,
+        "name": "不具合 2 が直ったかを確かめる（ページのストリームが切れたまま、つながり直さない）",
+        "start": "2026-10-31T09:00:00",
+        "finish": "2026-11-02T18:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "守りは 0.2.0 で入れた。元の症状（Edge で約 70 秒で切れ、つなぎ直さない）は、その後再現していない。最後のインストールの後、ページ 0 のまま約 3 時間たち、夜の間にサーバーが ServerStopped の記録なしに止まった（スリープとみられる）。開発役が起こし直し、オーナーはブラウザを開き直したので、再発かは判定できなかった（試験役の報告）。③の写しで判定する。再現したら、server.log と写しから原因を調べて直す。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 22,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 40,
+        "parentTaskUid": null,
+        "wbsOrder": 19,
+        "name": "公開前の個人情報の点検（whiteboard-chat-for-claude）",
+        "start": "2026-10-31T07:42:00",
+        "finish": "2026-10-31T07:42:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】全履歴の個人情報の点検は、すべて 0 件（開発役の報告、2026-10-31）。push のコマンドはオーナーに渡した。実績の日時は PMO が知らせを受けた時刻。公開は長い通知の直しを待たないので、タスク 31 からのつながりを外した。\n開発役が push の前に行う: 利用者名・個人の絶対パス・メール・秘密・.gitignore（.data など）。数えた結果をオーナーに伝える。②が「公開する」のときに行う。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T07:42:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T07:42:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 21,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 41,
+        "parentTaskUid": null,
+        "wbsOrder": 20,
+        "name": "GitHub に GoodRelax/whiteboard-chat-for-claude を作り、main を push（オーナー）",
+        "start": "2026-10-31T09:00:00",
+        "finish": "2026-10-31T09:30:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】オーナーが push を済ませた。BOSS が GitHub で確かめた: PUBLIC、main = d852d79、ファイル 37 個。実績の時刻は BOSS の知らせが届いた時刻。\nオーナーが行う（push はオーナーの手で）。公開した後は、消しても履歴が残る。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T10:08:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T10:08:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 40,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 42,
+        "parentTaskUid": null,
+        "wbsOrder": 21,
+        "name": "旧リポジトリ GoodRelax/excalidraw-room-chat の削除（オーナー、R-003）",
+        "start": "2026-10-31T09:30:00",
+        "finish": "2026-10-31T10:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "新しい方を公開した後に、オーナーが GitHub で削除する。手元の Excalidraw\\excalidraw-room-chat（README の未コミットの変更を含む）の扱いも決める。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 41,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 43,
+        "parentTaskUid": null,
+        "wbsOrder": 22,
+        "name": "公開した（whiteboard-chat-for-claude）",
+        "start": "2026-10-31T10:00:00",
+        "finish": "2026-10-31T10:00:00",
+        "milestone": true,
+        "deadline": null,
+        "notes": "【済み】新しいリポジトリ https://github.com/GoodRelax/whiteboard-chat-for-claude が公開された時点。BOSS の指示で、旧リポジトリの削除（タスク 42）を待たずに実績を入れ、42 からのつながりを 41 からに替えた。",
+        "calendarUid": null,
+        "actualStart": "2026-10-31T10:08:00",
+        "stop": null,
+        "actualFinish": "2026-10-31T10:08:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 41,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 50,
+        "parentTaskUid": null,
+        "wbsOrder": 23,
+        "name": "記事の書き直し（Zenn・dev.to、新方式で）",
+        "start": "2026-11-01T09:00:00",
+        "finish": "2026-11-01T15:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "オーナーの頼み（タスク 63）の後に始める。下書きは Excalidraw\\articles\\。新方式の手順・画面・規約に触れない書き方にする。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 43,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 63,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 51,
+        "parentTaskUid": null,
+        "wbsOrder": 24,
+        "name": "記事の確かめ（オーナー）",
+        "start": "2026-11-01T15:00:00",
+        "finish": "2026-11-01T17:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 50,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 52,
+        "parentTaskUid": null,
+        "wbsOrder": 25,
+        "name": "記事の公開（オーナー）",
+        "start": "2026-11-01T18:00:00",
+        "finish": "2026-11-01T18:00:00",
+        "milestone": true,
+        "deadline": null,
+        "notes": "公開はオーナーが行う。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 51,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 60,
+        "parentTaskUid": null,
+        "wbsOrder": 26,
+        "name": "部品を esm.sh からでなく、サーバーから配る（R-005 の見直し・L-1）（あとで・未定）",
+        "start": "2026-11-06T09:00:00",
+        "finish": "2026-11-06T12:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "今は CDN（esm.sh）から版を固定して読む。esm.sh が止まるとページが開かない。R-005 は「後で見直す」。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 43,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 61,
+        "parentTaskUid": null,
+        "wbsOrder": 27,
+        "name": "ほかの OS とブラウザでの確認（NFR-008: macOS・Ubuntu・Firefox・Safari）（あとで・未定）",
+        "start": "2026-11-06T09:00:00",
+        "finish": "2026-11-06T12:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "実地の試験は Windows の Edge と、組み込みのブラウザだけ。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 43,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 62,
+        "parentTaskUid": null,
+        "wbsOrder": 28,
+        "name": "LAN モードの実地の試験（別の PC から https・合言葉つき URL）（あとで・未定）",
+        "start": "2026-11-06T09:00:00",
+        "finish": "2026-11-06T12:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "単体のテストはある（config-lan）。実地の試験の記録には無い。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 43,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 63,
+        "parentTaskUid": null,
+        "wbsOrder": 29,
+        "name": "④ 裁定: オーナーが記事の書き直しを頼む",
+        "start": "2026-10-31T10:00:00",
+        "finish": "2026-10-31T10:30:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【オーナーの返事待ち】開発役は、オーナーの頼みを受けてから記事を書き直す。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 43,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      }
+    ],
+    "resources": [],
+    "assignments": [],
+    "taskGroups": [
+      {
+        "id": "7c0e0000-0000-4000-8000-000000000001",
+        "parentId": null,
+        "name": "★オーナーがすること",
+        "derivedFromTaskUid": null,
+        "order": 0,
+        "treeState": "auto",
+        "editPermission": null,
+        "color": "yellow",
+        "minHeightPx": null
+      },
+      {
+        "id": "7c0e0000-0000-4000-8000-000000000002",
+        "parentId": null,
+        "name": "済み",
+        "derivedFromTaskUid": null,
+        "order": 1,
+        "treeState": "auto",
+        "editPermission": null,
+        "color": "lightgray",
+        "minHeightPx": null
+      },
+      {
+        "id": "7c0e0000-0000-4000-8000-000000000021",
+        "parentId": "7c0e0000-0000-4000-8000-000000000002",
+        "name": "旧方式: excalidraw-room-chat（excalidraw.com のルーム）",
+        "derivedFromTaskUid": null,
+        "order": 0,
+        "treeState": "auto",
+        "editPermission": null,
+        "color": null,
+        "minHeightPx": null
+      },
+      {
+        "id": "7c0e0000-0000-4000-8000-000000000022",
+        "parentId": "7c0e0000-0000-4000-8000-000000000002",
+        "name": "規約の調べと作り直しの決定（B）",
+        "derivedFromTaskUid": null,
+        "order": 1,
+        "treeState": "auto",
+        "editPermission": null,
+        "color": null,
+        "minHeightPx": null
+      },
+      {
+        "id": "7c0e0000-0000-4000-8000-000000000023",
+        "parentId": "7c0e0000-0000-4000-8000-000000000002",
+        "name": "whiteboard-chat-for-claude 0.1.0",
+        "derivedFromTaskUid": null,
+        "order": 2,
+        "treeState": "auto",
+        "editPermission": null,
+        "color": null,
+        "minHeightPx": null
+      },
+      {
+        "id": "7c0e0000-0000-4000-8000-000000000024",
+        "parentId": "7c0e0000-0000-4000-8000-000000000002",
+        "name": "実地の試験と直し（0.2.0・0.3.0）",
+        "derivedFromTaskUid": null,
+        "order": 3,
+        "treeState": "auto",
+        "editPermission": null,
+        "color": null,
+        "minHeightPx": null
+      },
+      {
+        "id": "7c0e0000-0000-4000-8000-000000000003",
+        "parentId": null,
+        "name": "今: 0.3.0 の仕上げ（オーナーの裁定待ち）",
+        "derivedFromTaskUid": null,
+        "order": 2,
+        "treeState": "auto",
+        "editPermission": null,
+        "color": "yellow",
+        "minHeightPx": null
+      },
+      {
+        "id": "7c0e0000-0000-4000-8000-000000000004",
+        "parentId": null,
+        "name": "公開: GitHub への push と旧リポジトリの削除",
+        "derivedFromTaskUid": null,
+        "order": 3,
+        "treeState": "auto",
+        "editPermission": null,
+        "color": null,
+        "minHeightPx": null
+      },
+      {
+        "id": "7c0e0000-0000-4000-8000-000000000005",
+        "parentId": null,
+        "name": "記事の書き直し（R-009）",
+        "derivedFromTaskUid": null,
+        "order": 4,
+        "treeState": "auto",
+        "editPermission": null,
+        "color": null,
+        "minHeightPx": null
+      },
+      {
+        "id": "7c0e0000-0000-4000-8000-000000000006",
+        "parentId": null,
+        "name": "あとで",
+        "derivedFromTaskUid": null,
+        "order": 5,
+        "treeState": "auto",
+        "editPermission": null,
+        "color": null,
+        "minHeightPx": null
+      }
+    ],
+    "taskGroupMembers": [
+      {
+        "taskUid": 1,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000021"
+      },
+      {
+        "taskUid": 2,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000021"
+      },
+      {
+        "taskUid": 3,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000021"
+      },
+      {
+        "taskUid": 4,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000022"
+      },
+      {
+        "taskUid": 5,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000022"
+      },
+      {
+        "taskUid": 6,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000023"
+      },
+      {
+        "taskUid": 7,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000023"
+      },
+      {
+        "taskUid": 8,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000024"
+      },
+      {
+        "taskUid": 9,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000024"
+      },
+      {
+        "taskUid": 10,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000024"
+      },
+      {
+        "taskUid": 11,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000024"
+      },
+      {
+        "taskUid": 12,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000024"
+      },
+      {
+        "taskUid": 13,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000024"
+      },
+      {
+        "taskUid": 20,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 21,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 22,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 30,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
+      },
+      {
+        "taskUid": 31,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
+      },
+      {
+        "taskUid": 32,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
+      },
+      {
+        "taskUid": 40,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000004"
+      },
+      {
+        "taskUid": 41,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 42,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 43,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000004"
+      },
+      {
+        "taskUid": 50,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000005"
+      },
+      {
+        "taskUid": 51,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 52,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 60,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000006"
+      },
+      {
+        "taskUid": 61,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000006"
+      },
+      {
+        "taskUid": 62,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000006"
+      },
+      {
+        "taskUid": 63,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      }
+    ],
+    "taskVisuals": [
+      {
+        "taskUid": 1,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 2,
+        "shapeKind": "milestone",
+        "milestoneGlyph": "diamond",
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 3,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 4,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 5,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 6,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 7,
+        "shapeKind": "milestone",
+        "milestoneGlyph": "diamond",
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 8,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 9,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 10,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 11,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 12,
+        "shapeKind": "milestone",
+        "milestoneGlyph": "diamond",
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 13,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 20,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 21,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 22,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 30,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 31,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 32,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 40,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 41,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 42,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 43,
+        "shapeKind": "milestone",
+        "milestoneGlyph": "diamond",
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 50,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 51,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 52,
+        "shapeKind": "milestone",
+        "milestoneGlyph": "diamond",
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 60,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 61,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 62,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 63,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      }
+    ],
+    "commentBoxes": [
+      {
+        "id": "7c0e0000-0000-4000-8000-0000000000c1",
+        "leaderShapeKind": "calloutBox",
+        "text": "★今ここ（10-31 08:45）: 公開すると決まり（R-010）、個人情報の点検は 0 件。\nオーナーが push し、旧リポジトリを消す。長い通知の件は、オーナーが GQA で答える。\nオーナーがすることは、いちばん上の組にある",
+        "anchorDate": "2026-10-31T04:11:00",
+        "anchorTaskGroupId": "7c0e0000-0000-4000-8000-000000000024",
+        "anchorBandFraction": null,
+        "anchorTaskUid": 13,
+        "anchorTaskFigure": "plannedBar",
+        "anchorHighlightBoxId": null,
+        "anchorSnapPoint": "rightMiddle",
+        "bodyOffsetPx": {
+          "dx": 40,
+          "dy": -70
+        },
+        "strokeColor": "red",
+        "strokeWidthPx": 1,
+        "fillColor": null,
+        "fillTransparencyPercent": null,
+        "textColor": null,
+        "fontSizePx": null
+      },
+      {
+        "id": "7c0e0000-0000-4000-8000-0000000000c2",
+        "leaderShapeKind": "calloutBox",
+        "text": "★オーナーがすること（優先順）\n① 長い通知が切れる件を直すか（GQA: qa\\long-events-qa.md で答える）\n② 公開すると決まった（R-010）。点検は 0 件。push はオーナーが行う\n③ ボードをいつも通り使い、切れたらバッジの写しを送る（不具合 2 の確認）\n④ 記事の書き直しを開発役に頼む（公開の後）",
+        "anchorDate": "2026-10-31T09:00:00",
+        "anchorTaskGroupId": "7c0e0000-0000-4000-8000-000000000001",
+        "anchorBandFraction": null,
+        "anchorTaskUid": 20,
+        "anchorTaskFigure": "plannedBar",
+        "anchorHighlightBoxId": null,
+        "anchorSnapPoint": "topLeftCorner",
+        "bodyOffsetPx": {
+          "dx": -320,
+          "dy": -40
+        },
+        "strokeColor": "red",
+        "strokeWidthPx": 2,
+        "fillColor": null,
+        "fillTransparencyPercent": null,
+        "textColor": null,
+        "fontSizePx": null
+      }
+    ],
+    "highlightBoxes": [],
+    "taskOrigins": [],
+    "baselineTasks": [
+      {
+        "uid": 1,
+        "name": "excalidraw-room-chat の作成（Playwright で excalidraw.com のルームに入るスキル）",
+        "start": "2026-10-29T22:44:00",
+        "finish": "2026-10-29T23:58:00",
+        "milestone": false
+      },
+      {
+        "uid": 2,
+        "name": "旧リポジトリ GoodRelax/excalidraw-room-chat を公開（79ccca5）",
+        "start": "2026-10-29T23:58:00",
+        "finish": "2026-10-29T23:58:00",
+        "milestone": true
+      },
+      {
+        "uid": 3,
+        "name": "記事の下書き（Zenn・dev.to、旧方式）",
+        "start": "2026-10-29T22:44:00",
+        "finish": "2026-10-29T23:03:00",
+        "milestone": false
+      },
+      {
+        "uid": 4,
+        "name": "Excalidraw の利用規約の調べ",
+        "start": "2026-10-29T23:58:00",
+        "finish": "2026-10-30T00:19:00",
+        "milestone": false
+      },
+      {
+        "uid": 5,
+        "name": "作り直しの方針の Q&A（R-001〜R-018、6 回で閉じた）",
+        "start": "2026-10-30T00:27:00",
+        "finish": "2026-10-30T01:24:00",
+        "milestone": false
+      },
+      {
+        "uid": 6,
+        "name": "whiteboard-chat-for-claude 0.1.0 の作成（whiteboard-server と whiteboard-chat）",
+        "start": "2026-10-30T01:24:00",
+        "finish": "2026-10-30T05:05:00",
+        "milestone": false
+      },
+      {
+        "uid": 7,
+        "name": "0.1.0 をコミット（8fd68f2、ローカルだけ）",
+        "start": "2026-10-30T05:05:00",
+        "finish": "2026-10-30T05:05:00",
+        "milestone": true
+      },
+      {
+        "uid": 8,
+        "name": "実地の試験 1〜6（オーナーと: 答え・青い字・2 つのタブ・代表の引き継ぎ・絵の読み取り・止めて再起動）",
+        "start": "2026-10-30T05:18:00",
+        "finish": "2026-10-30T06:16:00",
+        "milestone": false
+      },
+      {
+        "uid": 9,
+        "name": "0.2.0: 不具合 1 の直し・不具合 2 の守り・合図",
+        "start": "2026-10-30T05:40:00",
+        "finish": "2026-10-30T06:16:00",
+        "milestone": false
+      },
+      {
+        "uid": 10,
+        "name": "0.3.0: チャット風の置き方・Send ボタンと Ctrl+Shift+Enter・図形を図として数える",
+        "start": "2026-10-30T06:16:00",
+        "finish": "2026-10-30T07:20:00",
+        "milestone": false
+      },
+      {
+        "uid": 11,
+        "name": "変更の一覧（B: 前の Send からのすべての変更を伝える）の実装",
+        "start": "2026-10-30T07:20:00",
+        "finish": "2026-10-30T07:49:00",
+        "milestone": false
+      },
+      {
+        "uid": 12,
+        "name": "0.2.0〜0.3.0 をコミット（d852d79、ローカルだけ・テスト 64 件合格）",
+        "start": "2026-10-31T03:12:00",
+        "finish": "2026-10-31T03:12:00",
+        "milestone": true
+      },
+      {
+        "uid": 13,
+        "name": "変更の一覧（B）の実地の試験",
+        "start": "2026-10-31T04:03:00",
+        "finish": "2026-10-31T04:11:00",
+        "milestone": false
+      },
+      {
+        "uid": 20,
+        "name": "① 裁定: 長い MessagesSent の通知が途中で切れる件を直すか",
+        "start": "2026-10-31T09:00:00",
+        "finish": "2026-10-31T09:30:00",
+        "milestone": false
+      },
+      {
+        "uid": 21,
+        "name": "② 裁定: 新しいリポジトリを GitHub に作って公開（push）するか",
+        "start": "2026-10-31T09:30:00",
+        "finish": "2026-10-31T10:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 22,
+        "name": "③ ホワイトボードをいつも通り使い、つながりが切れたらバッジの画面の写しを送る",
+        "start": "2026-10-31T09:00:00",
+        "finish": "2026-11-02T18:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 30,
+        "name": "長い通知の直し（watch の要約・全文を読むコマンド・SKILL.md）",
+        "start": "2026-10-31T10:00:00",
+        "finish": "2026-10-31T13:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 31,
+        "name": "長い通知の直しの実地の試験",
+        "start": "2026-10-31T13:00:00",
+        "finish": "2026-10-31T14:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 32,
+        "name": "不具合 2 が直ったかを確かめる（ページのストリームが切れたまま、つながり直さない）",
+        "start": "2026-10-31T09:00:00",
+        "finish": "2026-11-02T18:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 40,
+        "name": "公開前の個人情報の点検（whiteboard-chat-for-claude）",
+        "start": "2026-10-31T14:00:00",
+        "finish": "2026-10-31T15:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 41,
+        "name": "GitHub に GoodRelax/whiteboard-chat-for-claude を作り、main を push（オーナー）",
+        "start": "2026-10-31T15:00:00",
+        "finish": "2026-10-31T15:30:00",
+        "milestone": false
+      },
+      {
+        "uid": 42,
+        "name": "旧リポジトリ GoodRelax/excalidraw-room-chat の削除（オーナー、R-003）",
+        "start": "2026-10-31T15:30:00",
+        "finish": "2026-10-31T16:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 43,
+        "name": "公開した（whiteboard-chat-for-claude）",
+        "start": "2026-10-31T16:00:00",
+        "finish": "2026-10-31T16:00:00",
+        "milestone": true
+      },
+      {
+        "uid": 50,
+        "name": "記事の書き直し（Zenn・dev.to、新方式で）",
+        "start": "2026-11-01T09:00:00",
+        "finish": "2026-11-01T15:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 51,
+        "name": "記事の確かめ（オーナー）",
+        "start": "2026-11-01T15:00:00",
+        "finish": "2026-11-01T17:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 52,
+        "name": "記事の公開（オーナー）",
+        "start": "2026-11-01T18:00:00",
+        "finish": "2026-11-01T18:00:00",
+        "milestone": true
+      },
+      {
+        "uid": 60,
+        "name": "部品を esm.sh からでなく、サーバーから配る（R-005 の見直し・L-1）（あとで・未定）",
+        "start": "2026-11-06T09:00:00",
+        "finish": "2026-11-06T12:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 61,
+        "name": "ほかの OS とブラウザでの確認（NFR-008: macOS・Ubuntu・Firefox・Safari）（あとで・未定）",
+        "start": "2026-11-06T09:00:00",
+        "finish": "2026-11-06T12:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 62,
+        "name": "LAN モードの実地の試験（別の PC から https・合言葉つき URL）（あとで・未定）",
+        "start": "2026-11-06T09:00:00",
+        "finish": "2026-11-06T12:00:00",
+        "milestone": false
+      },
+      {
+        "uid": 63,
+        "name": "④ 裁定: オーナーが記事の書き直しを頼む",
+        "start": "2026-10-31T16:00:00",
+        "finish": "2026-10-31T16:30:00",
+        "milestone": false
+      }
+    ]
+  },
+  "documentSettings": {
+    "isActualVisible": true,
+    "isAssigneeVisible": false,
+    "isBaselineVisible": true,
+    "isDateGridLinesVisible": false,
+    "isDependencyVisible": true,
+    "displayScale": 100,
+    "displayTimeZones": [],
+    "fitSpanFinish": null,
+    "isFitSpanFixed": false,
+    "fitSpanStart": null,
+    "fontSizeStep": "M",
+    "isGroupGridLinesVisible": true,
+    "levelZeroTreeState": "auto",
+    "isPercentCompleteVisible": false,
+    "pinnedTaskGroupIds": [],
+    "isPlanDatesVisible": false,
+    "isPlanVisible": true,
+    "isProgressLineVisible": false,
+    "isProgressMarkerVisible": true,
+    "taskGroupPanelWidthPx": 200,
+    "isTaskGroupPanelWidthFixed": false,
+    "rulerFontSizePx": 14,
+    "rulerHeightPx": 48,
+    "scrollDate": "2026-10-29T22:00:00",
+    "scrollDateFraction": 0,
+    "scrollTaskGroupId": "7c0e0000-0000-4000-8000-000000000001",
+    "scrollTaskGroupFraction": 0,
+    "isTimeOfDayVisible": true,
+    "stackDirection": "down",
+    "tableViews": {
+      "delayDiagnosticsReport": {
+        "columnFilters": [],
+        "shownTaskUids": [],
+        "isScheduleFilterApplied": false,
+        "sort": null
+      },
+      "resourceList": {
+        "columnFilters": [],
+        "shownResourceUids": [],
+        "isScheduleFilterApplied": false,
+        "isUnassignedShown": false,
+        "sort": null
+      },
+      "searchPanel": {
+        "columnFilters": [],
+        "shownTaskUids": [],
+        "isScheduleFilterApplied": false,
+        "sort": null
+      }
+    },
+    "isThemeMonochrome": false,
+    "viewTimeZone": null,
+    "zoomX": 1,
+    "zoomY": 1
+  },
+  "documentStamp": {
+    "scheduleUpdatedAt": "2026-10-31T01:08:44Z",
+    "lastEditedBy": "pmo-claude",
+    "settingsUpdatedAt": "2026-10-30T19:40:00Z",
+    "fileSavedAt": "2026-10-31T01:08:44Z"
+  },
+  "changeLog": [
+    {
+      "ordinal": 0,
+      "editedBy": "pmo-claude",
+      "explanation": "PMO takeover: baseline frozen from the 04:40 plan; status date moved to 2026-10-31T07:35:00; content checked against the real state (d852d79, 0.3.0) with no change.",
+      "changedAt": "2026-10-30T22:35:10Z"
+    },
+    {
+      "ordinal": 1,
+      "editedBy": "pmo-claude",
+      "explanation": "Owner decision 2 (publish, R-010): task 21 done; task 40 done (privacy 0); link 31->40 removed; task 20 points to the QA sheet.",
+      "changedAt": "2026-10-30T22:42:12Z"
+    },
+    {
+      "ordinal": 2,
+      "editedBy": "pmo-claude",
+      "explanation": "Owner rule: call the /grsmd-qa answer sheet 'GQA'; wording updated.",
+      "changedAt": "2026-10-30T23:22:30Z"
+    },
+    {
+      "ordinal": 3,
+      "editedBy": "pmo-claude",
+      "explanation": "PMO rules from BOSS: title fixed; owner group renamed and holds tasks 41, 42, 51, 52; owner request before the article rewrite added as task 63.",
+      "changedAt": "2026-10-30T23:42:54Z"
+    },
+    {
+      "ordinal": 4,
+      "editedBy": "pmo-claude",
+      "explanation": "Rule 8 re-draw after the PMO-rules GQA closed (10-31 08:42): baseline = plan before the re-draw; tasks 21 and 40 take their actual times; tasks 41-43 and 63 pulled to 09:00-10:30; tasks 30-31 follow task 20.",
+      "changedAt": "2026-10-30T23:45:51Z"
+    },
+    {
+      "ordinal": 5,
+      "editedBy": "pmo-claude",
+      "explanation": "Moved the plan to whiteboard-chat-for-claude/plan/ (owner: Public in the repo, 2026-10-31); the old copy in the Excalidraw folder is gone.",
+      "changedAt": "2026-10-31T01:06:26Z"
+    },
+    {
+      "ordinal": 6,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: owner pushed (public, main d852d79); tasks 41 and 43 done; task 43 now follows 41 instead of 42; task 42 stays open.",
+      "changedAt": "2026-10-31T01:08:44Z"
+    }
+  ]
+}
