@@ -7,7 +7,7 @@ const MAX_ID_CHARS = 64;
 // The marker that Answers carry, so they are never reported as Messages (FR-014).
 const ANSWER_MARK = "answer";
 // The marker that Claude Items carry: Elements that the Agent drew with draw or mermaid (FR-091).
-const CLAUDE_MARK = "claude";
+const CLAUDE_MARK = "claudeItem";
 const LINEAR_TYPES = Object.freeze(["arrow", "line"]);
 
 // @purity pure
@@ -43,13 +43,13 @@ function mergeElements(elements, incoming) {
 
 // @purity pure
 function isAnswer(element) {
-  return Boolean(element.customData && element.customData.whiteboardChat === ANSWER_MARK);
+  return Boolean(element.customData && element.customData.grwbKind === ANSWER_MARK);
 }
 
 // Answers and Claude Items are "by Claude" (FR-091, FR-108).
 // @purity pure
 function isByClaude(element) {
-  const mark = element.customData && element.customData.whiteboardChat;
+  const mark = element.customData && element.customData.grwbKind;
   return mark === ANSWER_MARK || mark === CLAUDE_MARK;
 }
 

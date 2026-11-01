@@ -11,8 +11,8 @@ const os = require("os");
 const path = require("path");
 const { execFile, spawn, spawnSync } = require("child_process");
 
-const SERVER = path.join(__dirname, "..", "..", "skills", "whiteboard-server", "scripts", "server.js");
-const CLIENT = path.join(__dirname, "..", "..", "skills", "whiteboard-chat", "scripts", "client.js");
+const SERVER = path.join(__dirname, "..", "..", "skills", "debug-board-server", "scripts", "server.js");
+const CLIENT = path.join(__dirname, "..", "..", "skills", "talk-on-board", "scripts", "client.js");
 // Below the dynamic port range, and apart from the ports of server.test.js (see there).
 const PORT = 30000 + Math.floor(Math.random() * 9000);
 const CONTROL_PORT = PORT + 1;
@@ -173,7 +173,7 @@ test("draw, edit, mermaid, delete, and undo on the real Server (FR-087 to FR-109
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "wbc-ops-"));
   let server = await startServer(dataDir);
   try {
-    assert.equal(readLog(server.logPath).find((e) => e.event === "ServerReady").version, "0.6.1");
+    assert.equal(readLog(server.logPath).find((e) => e.event === "ServerReady").version, "0.7.0");
     const skeletons = [
       { id: "web", type: "rectangle", x: 0, y: 0, width: 160, height: 80, label: { text: "Web" } },
       { id: "db", type: "rectangle", x: 300, y: 0, width: 160, height: 80 },
@@ -211,7 +211,7 @@ test("draw, edit, mermaid, delete, and undo on the real Server (FR-087 to FR-109
     assert.deepEqual([drawn.json.opId, drawn.json.ids, drawn.json.count], [1, ["web", "db", "w2d"], 4]);
     assert.deepEqual([drawn.json.x, drawn.json.y, drawn.json.width, drawn.json.height], [200, 300, 460, 80]);
     const forOther = await until(() => other.received.find((m) => m.type === "elements"), 5000, "elements on the other page");
-    assert.ok(forOther.data.elements.every((e) => e.customData.whiteboardChat === "claude"), "FR-091 mark");
+    assert.ok(forOther.data.elements.every((e) => e.customData.grwbKind === "claudeItem"), "FR-091 mark");
     assert.ok(fs.existsSync(path.join(dataDir, "snapshots", "1.json")), "FR-102 Snapshot");
     assert.equal((await control("/v1/draw", { elements: [skeletons[0]] })).json.error, "DuplicateId");
 
@@ -237,7 +237,7 @@ test("draw, edit, mermaid, delete, and undo on the real Server (FR-087 to FR-109
     await answerJob(page, "edit", (job) => {
       assert.deepEqual(job.changes, [{ id: "db", dy: 200 }]);
       return [
-        el("db", { version: 2, x: 500, y: 500, boundElements: [{ id: "w2d", type: "arrow" }], customData: { whiteboardChat: "answer" } }),
+        el("db", { version: 2, x: 500, y: 500, boundElements: [{ id: "w2d", type: "arrow" }], customData: { grwbKind: "answer" } }),
         el("w2d", { type: "arrow", version: 2, x: 360, y: 340, points: [[0, 0], [140, 200]], startBinding: { elementId: "web" }, endBinding: { elementId: "db" } }),
         el("t1", { type: "text", text: "hacked", version: 9 }),
       ];
@@ -290,7 +290,7 @@ test("draw, edit, mermaid, delete, and undo on the real Server (FR-087 to FR-109
 
     // SC-075: a Person moves Claude's shape and presses Send.
     const webNow = (await control("/v1/board")).json.items.find((i) => i.id === "web");
-    await other.post("/api/elements", { elements: [el("web", { version: 5, x: webNow.x + 100, y: webNow.y, customData: { whiteboardChat: "claude" } })], editingId: null });
+    await other.post("/api/elements", { elements: [el("web", { version: 5, x: webNow.x + 100, y: webNow.y, customData: { grwbKind: "claudeItem" } })], editingId: null });
     await other.post("/api/send", {});
     const sent = await until(() => readLog(server.logPath).find((e) => e.event === "MessagesSent"), 5000, "MessagesSent");
     assert.deepEqual(sent.changes.map((c) => [c.kind, c.id, c.what, c.byClaude]), [["changed", "web", ["moved"], true]]);
@@ -376,7 +376,7 @@ test("DrawingAdded counts a Person's drawings, never Claude Items (FR-091, SC-07
     await until(() => added().length === 1, 5000, "DrawingAdded for the Person's shape");
 
     const drawing = control("/v1/draw", { elements: [{ id: "box", type: "rectangle", x: 0, y: 0 }] });
-    await answerJob(page, "draw", (job) => [el("box", { x: job.x, y: job.y, customData: { whiteboardChat: "claude" } })]);
+    await answerJob(page, "draw", (job) => [el("box", { x: job.x, y: job.y, customData: { grwbKind: "claudeItem" } })]);
     assert.equal((await drawing).status, 200);
     await delay(300);
     assert.equal(added().length, 1, "Claude's box adds no DrawingAdded");

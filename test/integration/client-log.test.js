@@ -9,7 +9,7 @@ const os = require("os");
 const path = require("path");
 const { spawn } = require("child_process");
 
-const CLIENT = path.join(__dirname, "..", "..", "skills", "whiteboard-chat", "scripts", "client.js");
+const CLIENT = path.join(__dirname, "..", "..", "skills", "talk-on-board", "scripts", "client.js");
 // "konnichiwa" in Japanese, built from code points so this file stays ASCII.
 const JAPANESE_TEXT = String.fromCharCode(0x3053, 0x3093, 0x306b, 0x3061, 0x306f);
 
@@ -79,7 +79,7 @@ function sentLine(atMs, changeCount) {
   return eventLine("MessagesSent", { messages: [{ id: "m1", text: JAPANESE_TEXT }], changes, atMs });
 }
 
-test("watch prints MessagesSent as a short line that names board_inbox, and sent prints it in full (FR-078, FR-145)", async () => {
+test("watch prints MessagesSent as a short line that names read_messages, and sent prints it in full (FR-078, FR-145)", async () => {
   const log = tempLog();
   fs.writeFileSync(log, "");
   const run = runClient(["watch", "--log", log]);
@@ -91,7 +91,7 @@ test("watch prints MessagesSent as a short line that names board_inbox, and sent
   await run.done;
   const short = run.output().trim().split("\n").map((line) => JSON.parse(line));
   assert.deepEqual(short[0], {
-    v: 1, event: "MessagesSent", atMs: 1000, messageCount: 1, changeCount: 200, read: "board_inbox atMs=1000",
+    v: 1, event: "MessagesSent", atMs: 1000, messageCount: 1, changeCount: 200, read: "read_messages atMs=1000",
   });
   assert.ok(run.output().split("\n")[0].length < 200);
 

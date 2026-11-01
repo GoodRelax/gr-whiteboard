@@ -473,10 +473,10 @@ function boxOf(list) {
 
 // @purity pure
 function withMark(element, mark) {
-  return { ...element, customData: { ...(element.customData || {}), whiteboardChat: mark } };
+  return { ...element, customData: { ...(element.customData || {}), grwbKind: mark } };
 }
 
-// Takes from a draw or mermaid result only the new Elements (marked "claude", no link; FR-091, NFR-014)
+// Takes from a draw or mermaid result only the new Elements (marked "claudeItem", no link; FR-091, NFR-014)
 // and the Board shapes that got a new arrow end (their mark stays). Throws JobFailed for a bad result.
 // `boardTargets`: Board IDs that the Job's arrows bind to. `allowImage`: true for mermaid (FR-095).
 // Returns { added, targets }.

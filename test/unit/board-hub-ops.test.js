@@ -4,10 +4,10 @@
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { createBoardHub } = require("../../skills/whiteboard-server/scripts/lib/board-hub");
-const { AppError } = require("../../skills/whiteboard-server/scripts/lib/app-error");
-const { summarizeBoard, diffBoards } = require("../../skills/whiteboard-server/scripts/lib/board-diff");
-const { toItems } = require("../../skills/whiteboard-server/scripts/lib/board-store");
+const { createBoardHub } = require("../../skills/debug-board-server/scripts/lib/board-hub");
+const { AppError } = require("../../skills/debug-board-server/scripts/lib/app-error");
+const { summarizeBoard, diffBoards } = require("../../skills/debug-board-server/scripts/lib/board-diff");
+const { toItems } = require("../../skills/debug-board-server/scripts/lib/board-store");
 
 // @purity non-pure
 function fakeClock() {
@@ -59,7 +59,7 @@ test("draw, edit, and mermaid fail at once with NoPage when no page is open (FR-
 });
 
 test("a draw Job goes to the Leader with the Origin; the result is applied and other pages get it (FR-089, FR-090)", async () => {
-  const added = el("web", { customData: { whiteboardChat: "claude" } });
+  const added = el("web", { customData: { grwbKind: "claudeItem" } });
   const { hub, emitted } = setup((job, reply) => ({ changed: reply.elements, result: { opId: job.opId, ids: ["web"], count: 1 } }));
   const leader = fakePage();
   const other = fakePage();
@@ -141,13 +141,13 @@ test("applyServerChanges merges and sends to every page, the Leader too (FR-100,
 });
 
 test("Claude Items are by Claude; a Person's later move is listed with byClaude true (FR-091, FR-092, FR-108, SC-075)", () => {
-  const web = el("web", { customData: { whiteboardChat: "claude" }, strokeColor: "#1971c2", backgroundColor: "transparent" });
+  const web = el("web", { customData: { grwbKind: "claudeItem" }, strokeColor: "#1971c2", backgroundColor: "transparent" });
   const arrow = el("w2d", { type: "arrow", startBinding: { elementId: "web" }, endBinding: { elementId: "db" } });
   const items = toItems(new Map([["web", web], ["w2d", arrow]]));
   assert.deepEqual([items[0].byClaude, items[0].isAnswer, items[0].strokeColor, items[0].backgroundColor], [true, false, "#1971c2", "transparent"]);
   assert.deepEqual([items[1].startId, items[1].endId, items[1].byClaude], ["web", "db", false]);
   assert.equal("startId" in items[0], false, "only arrows and lines have startId");
-  const label = el("lbl", { type: "text", text: "Web", containerId: "web", customData: { whiteboardChat: "claude" } });
+  const label = el("lbl", { type: "text", text: "Web", containerId: "web", customData: { grwbKind: "claudeItem" } });
   const fresh = diffBoards(new Map(), summarizeBoard([label]), new Map(), new Set());
   assert.deepEqual(fresh.messages, [], "a Claude text is never a Message");
   const before = summarizeBoard([web]);

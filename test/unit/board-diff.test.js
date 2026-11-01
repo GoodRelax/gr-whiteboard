@@ -2,7 +2,7 @@
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { summarize, summarizeBoard, diffBoards, countOf, toSentEvent } = require("../../skills/whiteboard-server/scripts/lib/board-diff");
+const { summarize, summarizeBoard, diffBoards, countOf, toSentEvent } = require("../../skills/debug-board-server/scripts/lib/board-diff");
 
 // @purity pure
 function el(id, type, extra = {}) {
@@ -27,7 +27,7 @@ test("added texts come first, in the order the Server got them (FR-077)", () => 
 });
 
 test("blank texts, texts being typed, and new Answers are not messages", () => {
-  const answer = text("ans", "hi", { customData: { whiteboardChat: "answer" } });
+  const answer = text("ans", "hi", { customData: { grwbKind: "answer" } });
   const result = diff([], [text("blank", "  "), text("typing", "hal"), answer], { skip: new Set(["typing"]) });
   assert.equal(countOf(result), 0);
 });
@@ -66,7 +66,7 @@ test("small nudges, size changes of text, and version-only changes are not news"
 });
 
 test("a deleted or moved Answer is a change, marked isAnswer", () => {
-  const answer = (extra) => text("ans", "hi", { customData: { whiteboardChat: "answer" }, ...extra });
+  const answer = (extra) => text("ans", "hi", { customData: { grwbKind: "answer" }, ...extra });
   const moved = diff([answer({})], [answer({ x: 400 })]).changes;
   assert.deepEqual(moved.map((c) => [c.kind, c.isAnswer, c.what]), [["changed", true, ["moved"]]]);
   const deleted = diff([answer({})], []).changes;

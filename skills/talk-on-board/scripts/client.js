@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 "use strict";
 
-// Client for the Board Server (skill whiteboard-server). Works the same in bash, PowerShell, and cmd
+// Client for the Board Server (skill debug-board-server). Works the same in bash, PowerShell, and cmd
 // (no curl, tail, grep, or heredoc). From 0.6.0 the Agent uses the MCP tools (mcp.js); this CLI is for
 // debugging, for tests, and for the board watch that the skill starts with the Monitor tool (spec 4.12, R-033).
 //   node scripts/client.js say [--file PATH] [--at X,Y]   text from PATH, or from stdin
@@ -22,7 +22,7 @@
 //   node scripts/client.js undo [--force]                takes back Claude's last Operation
 //   draw, mermaid, and edit read from PATH, or from stdin; they wait up to --timeout-ms (default 65000).
 // Common flags: --port N (the control port, default 47831),
-//               --log PATH (default <skills folder>/whiteboard-server/.data/server.log).
+//               --log PATH (default <skills folder>/debug-board-server/.data/server.log).
 // HTTP commands print the JSON reply; exit code 0 for HTTP 2xx, 1 otherwise.
 
 const fs = require("fs");
@@ -32,7 +32,7 @@ const { request, requestJson } = require("./lib/control-client");
 const { briefSent, pickFields } = require("./lib/brief");
 
 const DEFAULT_PORT = 47831;
-const DEFAULT_LOG = path.join(__dirname, "..", "..", "whiteboard-server", ".data", "server.log");
+const DEFAULT_LOG = path.join(__dirname, "..", "..", "debug-board-server", ".data", "server.log");
 const DEFAULT_WAIT_MS = 90000;
 // Two tries of a mermaid Job with the default jobTimeoutMs, plus 5 s (spec 4.11.5).
 const DEFAULT_OPERATION_MS = 65000;
@@ -103,7 +103,7 @@ function shortSent(event) {
     atMs: event.atMs,
     messageCount: Array.isArray(event.messages) ? event.messages.length : 0,
     changeCount: Array.isArray(event.changes) ? event.changes.length : 0,
-    read: `board_inbox atMs=${event.atMs}`,
+    read: `read_messages atMs=${event.atMs}`,
   });
 }
 

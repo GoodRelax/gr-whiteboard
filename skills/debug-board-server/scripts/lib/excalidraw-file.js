@@ -3,7 +3,7 @@
 // ExcalidrawFile (Entity). The Board as an `.excalidraw` file, the format that excalidraw.com opens
 // (type "excalidraw", version 2). Pure. Used when the Server stops after the idle time (0.6.1, FR-161).
 
-const SOURCE = "https://github.com/GoodRelax/whiteboard-chat-for-claude";
+const SOURCE = "https://github.com/GoodRelax/gr-whiteboard";
 
 // elements: Map id -> Element. files: Map id -> file ({ id, mimeType, dataURL, created }).
 // Only Elements that are not deleted, and only the files that they show.

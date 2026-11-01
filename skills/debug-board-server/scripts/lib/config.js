@@ -68,7 +68,7 @@ function parseConfig(argv, tempDir, skillDir) {
   if (config.port === config.controlPort) {
     return { ok: false, reason: "InvalidConfig", message: "--port and --control-port must differ", logPath };
   }
-  config.shotDir = path.resolve(flags.get("--shot-dir") || path.join(tempDir, "whiteboard-chat"));
+  config.shotDir = path.resolve(flags.get("--shot-dir") || path.join(tempDir, "gr-whiteboard"));
   return { ok: true, config: Object.freeze(config) };
 }
 

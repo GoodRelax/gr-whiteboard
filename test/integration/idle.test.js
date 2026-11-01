@@ -11,7 +11,7 @@ const os = require("os");
 const path = require("path");
 const { spawn } = require("child_process");
 
-const SERVER = path.join(__dirname, "..", "..", "skills", "whiteboard-server", "scripts", "server.js");
+const SERVER = path.join(__dirname, "..", "..", "skills", "debug-board-server", "scripts", "server.js");
 // Apart from the ports of the other test files, and far below 47830.
 const PORT = 10000 + Math.floor(Math.random() * 1800) * 2;
 const CONTROL_PORT = PORT + 1;

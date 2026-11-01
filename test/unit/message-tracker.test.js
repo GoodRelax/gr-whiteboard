@@ -4,7 +4,7 @@
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { createTrackerState, trackMessages } = require("../../skills/whiteboard-server/scripts/lib/message-tracker");
+const { createTrackerState, trackMessages } = require("../../skills/debug-board-server/scripts/lib/message-tracker");
 
 const SETTLE_MS = 1000;
 

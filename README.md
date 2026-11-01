@@ -1,4 +1,4 @@
-# whiteboard-chat-for-claude
+# gr-whiteboard (GRWB)
 
 Talk with Claude Code on a whiteboard.
 
@@ -8,12 +8,12 @@ The board runs on your own computer. Your iPad or other computers on your networ
 
 Powered by [Excalidraw](https://github.com/excalidraw/excalidraw) (MIT).
 
-This repository is one [Claude Code](https://claude.com/claude-code) plugin, `whiteboard-chat`. It has an MCP server with `board_*` tools and two skills:
+This repository is one [Claude Code](https://claude.com/claude-code) plugin, `gr-whiteboard` (GRWB). It has an MCP server, `board-control`, with tools such as `open_board` and `draw_mermaid`, and two skills:
 
 | Skill | What it does |
 | ----- | ------------ |
-| `whiteboard-chat` | Talk and draw with Claude on the board. |
-| `whiteboard-server` | Check Node.js, and debug the board server. |
+| `talk-on-board` | Talk and draw with Claude on the board. |
+| `debug-board-server` | Check Node.js, and debug the board server. |
 
 ## What you need
 
@@ -25,23 +25,23 @@ Nothing else to install. Only the LAN mode downloads one small package (node-for
 
 ## Install
 
-Ask Claude Code: "Make https://github.com/GoodRelax/whiteboard-chat-for-claude usable." Claude asks you for a yes, then runs:
+Ask Claude Code: "Make https://github.com/GoodRelax/gr-whiteboard usable." Claude asks you for a yes, then runs:
 
 ```bash
-claude plugin marketplace add GoodRelax/whiteboard-chat-for-claude
+claude plugin marketplace add GoodRelax/gr-whiteboard
 ```
 
 ```bash
-claude plugin install whiteboard-chat@goodrelax --scope user
+claude plugin install gr-whiteboard@goodrelax --scope user
 ```
 
 Then type `/reload-plugins` in Claude Code (or start a new session).
 
-If you used version 0.5 (the two folders in `~/.claude/skills/`), remove those folders after the install, so each skill loads once. The first time the board opens, it copies your old board.
+If you used an older version (the plugin `whiteboard-chat@goodrelax`, or the two folders in `~/.claude/skills/`), remove it after the install, so each skill loads once. The new plugin starts with an empty board; open your old board in the old version first and save it with Excalidraw's own menu if you want to keep it.
 
 ## Use
 
-1. In Claude Code, say "let's talk on the whiteboard" (or type `/whiteboard-chat`).
+1. In Claude Code, say "let's talk on the whiteboard" (or type `/gr-whiteboard:talk-on-board`).
 2. The board opens in your browser.
 3. Write on the board with the text tool (**T**). You can use several texts and drawings.
 4. Press **Send** (top right) or **Ctrl+Shift+Enter**. Claude answers right below, a little to the left, in blue, like a chat on a phone.
@@ -59,7 +59,7 @@ To use the board on an iPad or another computer, say "I want to use the board on
 
 A small Node.js program (the Server) serves the board page and keeps the board. It sends each change to every open page and saves the board to a JSON file.
 When you press Send, the Server tells Claude Code what changed since the last Send.
-Claude Code uses the `board_*` tools of the plugin's MCP server, which call the Server on 127.0.0.1. The first open page draws the answers and the diagrams.
+Claude Code uses the tools of the plugin's MCP server `board-control`, which call the Server on 127.0.0.1. The first open page draws the answers and the diagrams.
 
 Details: [docs/spec-en.md](docs/spec-en.md) and the design of 0.6.0, [docs/design-060-mcp-en.md](docs/design-060-mcp-en.md).
 
@@ -79,7 +79,7 @@ Details: [docs/spec-en.md](docs/spec-en.md) and the design of 0.6.0, [docs/desig
 npm test
 ```
 
-No install is needed for the tests. The command-line tools (`skills/whiteboard-chat/scripts/client.js`, `skills/whiteboard-server/scripts/board.js`) are for debugging; see the skill `whiteboard-server`.
+No install is needed for the tests. The command-line tools (`skills/talk-on-board/scripts/client.js`, `skills/debug-board-server/scripts/board.js`) are for debugging; see the skill `debug-board-server`.
 
 ## License
 

@@ -1,5 +1,5 @@
 {
-  "name": "whiteboard-chat-for-claude",
+  "name": "gr-whiteboard",
   "version": "0.1.0",
   "description": "Claude Code Skills: talk with Claude Code on a local whiteboard.",
   "license": "Apache-2.0",

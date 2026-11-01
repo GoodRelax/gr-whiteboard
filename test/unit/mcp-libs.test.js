@@ -9,13 +9,13 @@ const fs = require("fs");
 const path = require("path");
 const { spawnSync } = require("child_process");
 
-const LIB = path.join(__dirname, "..", "..", "skills", "whiteboard-chat", "scripts", "lib");
+const LIB = path.join(__dirname, "..", "..", "skills", "talk-on-board", "scripts", "lib");
 const { briefSent, sentLines, itemLines, paged, pickFields } = require(path.join(LIB, "brief"));
 const { buildTable, cellSize } = require(path.join(LIB, "table"));
 const { replaceNotEqual, pickMermaid, stripStyles, markdownTables } = require(path.join(LIB, "mermaid-pick"));
 const { validate } = require(path.join(LIB, "json-schema"));
 const { chooseVersion } = require(path.join(LIB, "mcp-stdio"));
-const { TOOLS, NEXT, shortChanges, settings, drawnLine, listIds, networkError } = require(path.join(__dirname, "..", "..", "skills", "whiteboard-chat", "scripts", "mcp.js"));
+const { TOOLS, NEXT, shortChanges, settings, drawnLine, listIds, networkError } = require(path.join(__dirname, "..", "..", "skills", "talk-on-board", "scripts", "mcp.js"));
 
 const ROOT = path.join(__dirname, "..", "..");
 const NOT_EQUAL = String.fromCharCode(0x2260);
@@ -54,7 +54,7 @@ test("the CLI JSON and the MCP lines choose the same fields of MessagesSent (FR-
   ]);
 });
 
-test("board_read rows: tabs and line breaks become spaces, answers are left out, near filters (FR-143, spec 4.12.4)", () => {
+test("read_board rows: tabs and line breaks become spaces, answers are left out, near filters (FR-143, spec 4.12.4)", () => {
   const items = [
     { id: "a", type: "rectangle", x: 0, y: 0, width: 100, height: 50, text: null },
     { id: "b", type: "text", x: 50, y: 60, width: 100, height: 25, text: "x\ty\nz".repeat(20) },
@@ -124,17 +124,17 @@ test("markdownTables reads pipe tables outside code blocks; replaceNotEqual coun
 });
 
 test("the schema check names the first wrong field (FR-141)", () => {
-  const schema = TOOLS.find((t) => t.name === "board_table").inputSchema;
+  const schema = TOOLS.find((t) => t.name === "draw_table").inputSchema;
   assert.equal(validate(schema, { rows: [["a"]] }), null);
   assert.deepEqual(validate(schema, { rows: [] }), { field: "rows", message: "rows must have at least 1 items" });
   assert.deepEqual(validate(schema, { rows: [["a", 1]] }), { field: "rows[0][1]", message: "rows[0][1] must be a string" });
   assert.deepEqual(validate(schema, { rows: [["a"]], color: "pink" }), { field: "color", message: "color must be one of blue, red, green, orange, gray, black" });
   assert.deepEqual(validate(schema, { rows: [["a"]], prefix: "a b" }), { field: "prefix", message: "prefix must match ^[A-Za-z0-9_]{1,12}$" });
   assert.deepEqual(validate(schema, { rows: [["a"]], extra: 1 }), { field: "extra", message: "extra is not a field of this tool" });
-  assert.deepEqual(validate(TOOLS.find((t) => t.name === "board_say").inputSchema, {}), { field: "text", message: "text is required" });
+  assert.deepEqual(validate(TOOLS.find((t) => t.name === "write_answer").inputSchema, {}), { field: "text", message: "text is required" });
 });
 
-test("tools: the short form of board_edit, the protocol version, and the settings (FR-127, FR-130, FR-131)", () => {
+test("tools: the short form of edit_items, the protocol version, and the settings (FR-127, FR-130, FR-131)", () => {
   assert.deepEqual(shortChanges({ set: "a, b", color: "red", bg: "blue", dx: 5 }), [
     { id: "a", strokeColor: "#e03131", backgroundColor: "#d0ebff", fillStyle: "solid", dx: 5 },
     { id: "b", strokeColor: "#e03131", backgroundColor: "#d0ebff", fillStyle: "solid", dx: 5 },
@@ -142,21 +142,20 @@ test("tools: the short form of board_edit, the protocol version, and the setting
   assert.deepEqual(shortChanges({ set: "a", bg: "none" }), [{ id: "a", backgroundColor: "transparent" }]);
   assert.equal(chooseVersion("2024-11-05"), "2024-11-05");
   assert.equal(chooseVersion("2030-01-01"), "2025-06-18");
-  const s = settings(["--port", "40001"], { CLAUDE_PLUGIN_DATA: path.join("x", "data"), WHITEBOARD_CONTROL_PORT: "40002", WHITEBOARD_BOARD_PORT: "40003" }, "home");
+  const s = settings(["--port", "40001"], { CLAUDE_PLUGIN_DATA: path.join("x", "data"), GRWB_CONTROL_PORT: "40002", GRWB_BOARD_PORT: "40003" }, "home");
   assert.deepEqual([s.controlPort, s.boardPort, s.dataDir, s.openBrowser], [40001, 40003, path.join("x", "data", "board"), true]);
-  assert.equal(settings([], { WHITEBOARD_CONTROL_PORT: "40002" }, "home").controlPort, 40002);
-  assert.equal(settings([], {}, "home").oldDataDir, path.join("home", ".claude", "skills", "whiteboard-server", ".data"));
+  assert.equal(settings([], { GRWB_CONTROL_PORT: "40002" }, "home").controlPort, 40002);
 });
 
 test("the plugin files name the MCP Server and the version (spec 4.12.6)", () => {
   const plugin = JSON.parse(fs.readFileSync(path.join(ROOT, ".claude-plugin", "plugin.json"), "utf8"));
   const market = JSON.parse(fs.readFileSync(path.join(ROOT, ".claude-plugin", "marketplace.json"), "utf8"));
   const mcp = JSON.parse(fs.readFileSync(path.join(ROOT, ".mcp.json"), "utf8"));
-  const server = JSON.parse(fs.readFileSync(path.join(ROOT, "skills", "whiteboard-server", "package.json"), "utf8"));
-  assert.equal(plugin.name, "whiteboard-chat");
+  const server = JSON.parse(fs.readFileSync(path.join(ROOT, "skills", "debug-board-server", "package.json"), "utf8"));
+  assert.equal(plugin.name, "gr-whiteboard");
   assert.equal(plugin.version, server.version);
-  assert.deepEqual([market.name, market.plugins[0].name, market.plugins[0].source, market.plugins[0].version], ["goodrelax", "whiteboard-chat", "./", server.version]);
-  assert.deepEqual(mcp.mcpServers.whiteboard, { command: "node", args: ["${CLAUDE_PLUGIN_ROOT}/skills/whiteboard-chat/scripts/mcp.js"] });
+  assert.deepEqual([market.name, market.plugins[0].name, market.plugins[0].source, market.plugins[0].version], ["goodrelax", "gr-whiteboard", "./", server.version]);
+  assert.deepEqual(mcp.mcpServers["board-control"], { command: "node", args: ["${CLAUDE_PLUGIN_ROOT}/skills/talk-on-board/scripts/mcp.js"] });
 });
 
 test("claude plugin validate accepts the plugin and the marketplace (when the claude command is there)", (t) => {

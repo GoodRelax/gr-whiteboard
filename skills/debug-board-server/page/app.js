@@ -21,7 +21,7 @@ const RETRY_MS = 1000;
 const ANSWER_COLOR = "#1971c2";
 const ANSWER_FONT_SIZE = 20;
 const ANSWER_MARK = "answer";
-const CLAUDE_MARK = "claude";
+const CLAUDE_MARK = "claudeItem";
 const SHOT_BOX = Object.freeze({ width: 1600, height: 1000 });
 const SHOT_MAX_PX = 2000;
 // A small board is drawn at up to twice its size, as before 0.5.2 (maxWidthOrHeight made it SHOT_MAX_PX wide).
@@ -175,7 +175,7 @@ function onChange(elements, appState) {
 }
 
 function isAnswer(element) {
-  return Boolean(element.customData && element.customData.whiteboardChat === ANSWER_MARK);
+  return Boolean(element.customData && element.customData.grwbKind === ANSWER_MARK);
 }
 
 // Scrolls only when the element (or box) is outside the visible part of the Board.
@@ -357,7 +357,7 @@ async function fixAnswerSizes() {
 async function writeAnswer(job) {
   await loadAnswerFont(job.text);
   const made = measure(job.text, job.x, job.y);
-  const element = { ...made, customData: { ...(made.customData || {}), whiteboardChat: ANSWER_MARK } };
+  const element = { ...made, customData: { ...(made.customData || {}), grwbKind: ANSWER_MARK } };
   api.updateScene({
     elements: [...api.getSceneElementsIncludingDeleted(), element],
     captureUpdate: CaptureUpdateAction.IMMEDIATELY,
@@ -466,7 +466,7 @@ const MERMAID_PNG_SCALE = 2;
 let mermaidModule = null;
 
 function isClaudeItem(element) {
-  return Boolean(element.customData && element.customData.whiteboardChat === CLAUDE_MARK);
+  return Boolean(element.customData && element.customData.grwbKind === CLAUDE_MARK);
 }
 
 function jobError(code, message) {
@@ -501,7 +501,7 @@ function sizeFromPoints(element) {
 }
 
 function marked(element) {
-  return { ...element, link: null, customData: { ...(element.customData || {}), whiteboardChat: CLAUDE_MARK } };
+  return { ...element, link: null, customData: { ...(element.customData || {}), grwbKind: CLAUDE_MARK } };
 }
 
 // Puts `list` into the scene in place of the Elements with the same id, and marks them as known to the Server.
@@ -1101,7 +1101,7 @@ function JoinDialog({ urls, onClose }) {
         h("ol", null, ...IPAD_STEPS.map((step) => h("li", { key: step }, step))),
         h("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" } },
           h(QrCode, { text: caUrl }),
-          h("div", { className: "wbc-join-url" }, "CA of this board: ", h("a", { href: caUrl, download: "whiteboard-chat-ca.crt" }, caUrl))),
+          h("div", { className: "wbc-join-url" }, "CA of this board: ", h("a", { href: caUrl, download: "gr-whiteboard-ca.crt" }, caUrl))),
         h("div", null, "On another computer: download the CA with this link and add it to the trusted root certificates once.")) : null,
       h("button", { type: "button", className: "wbc-send", onClick: onClose }, "Close")));
 }
@@ -1127,8 +1127,8 @@ function StatusBadge() {
     update(status);
   }, []);
   const text = shown.online
-    ? `Whiteboard Chat: connected${shown.leader ? " (this page writes Claude's answers)" : ""}`
-    : "Whiteboard Chat: not connected, trying again";
+    ? `gr-whiteboard: connected${shown.leader ? " (this page writes Claude's answers)" : ""}`
+    : "gr-whiteboard: not connected, trying again";
   const signal = SIGNAL_TEXT[shown.signal];
   const send = shown.autoSend
     ? null
@@ -1162,7 +1162,7 @@ function App() {
       connect();
     },
     onChange,
-    name: "Whiteboard Chat",
+    name: "gr-whiteboard",
     renderTopRightUI: () => h(StatusBadge),
   });
 }

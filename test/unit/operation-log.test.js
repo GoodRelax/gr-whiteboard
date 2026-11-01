@@ -7,8 +7,8 @@ const assert = require("node:assert/strict");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
-const { createOperationLog } = require("../../skills/whiteboard-server/scripts/lib/operation-log");
-const { createSnapshotStore } = require("../../skills/whiteboard-server/scripts/lib/data-files");
+const { createOperationLog } = require("../../skills/debug-board-server/scripts/lib/operation-log");
+const { createSnapshotStore } = require("../../skills/debug-board-server/scripts/lib/data-files");
 
 // @purity non-pure
 function fakeStore(initial = [], { failWrite = false, lastOpId = 0 } = {}) {

@@ -4,9 +4,9 @@
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const ops = require("../../skills/whiteboard-server/scripts/lib/board-ops");
-const { toItems } = require("../../skills/whiteboard-server/scripts/lib/board-store");
-const { placeAnswer } = require("../../skills/whiteboard-server/scripts/lib/answer-placement");
+const ops = require("../../skills/debug-board-server/scripts/lib/board-ops");
+const { toItems } = require("../../skills/debug-board-server/scripts/lib/board-store");
+const { placeAnswer } = require("../../skills/debug-board-server/scripts/lib/answer-placement");
 
 // @purity pure
 function el(id, extra = {}) {
@@ -284,7 +284,7 @@ test("filterDrawResult marks new Elements, keeps Board targets as they are, and 
     el("other", { version: 2, x: 999 }),
   ];
   const { added, targets } = ops.filterDrawResult(result, onBoard, ["p1"], false);
-  assert.deepEqual(added.map((e) => [e.id, e.customData.whiteboardChat, e.link]), [["w2d", "claude", null]]);
+  assert.deepEqual(added.map((e) => [e.id, e.customData.grwbKind, e.link]), [["w2d", "claudeItem", null]]);
   assert.deepEqual(targets.map((e) => [e.id, e.customData]), [["p1", undefined]], "the Person's shape keeps no mark");
   assert.equal(errorOf(() => ops.filterDrawResult([el("img", { type: "image" })], onBoard, [], false)).code, "JobFailed");
   assert.equal(ops.filterDrawResult([el("img", { type: "image" })], onBoard, [], true).added.length, 1, "mermaid may add an image");
@@ -295,13 +295,13 @@ test("filterDrawResult marks new Elements, keeps Board targets as they are, and 
 
 test("filterEditResult takes only the listed Items, their labels, and their arrows; marks stay (FR-099, SC-082)", () => {
   const onBoard = board([
-    el("db", { customData: { whiteboardChat: "claude" }, boundElements: [{ id: "w2d", type: "arrow" }] }),
+    el("db", { customData: { grwbKind: "claudeItem" }, boundElements: [{ id: "w2d", type: "arrow" }] }),
     el("lbl", { type: "text", containerId: "db" }),
     el("w2d", { type: "arrow", endBinding: { elementId: "db" } }),
     el("web"),
   ]);
-  const result = ["db", "lbl", "w2d", "web", "new"].map((id) => el(id, { version: 2, customData: { whiteboardChat: "answer" } }));
+  const result = ["db", "lbl", "w2d", "web", "new"].map((id) => el(id, { version: 2, customData: { grwbKind: "answer" } }));
   const out = ops.filterEditResult(result, onBoard, ["db"]);
   assert.deepEqual(out.map((e) => e.id), ["db", "lbl", "w2d"]);
-  assert.deepEqual(out.map((e) => e.customData && e.customData.whiteboardChat), ["claude", undefined, undefined]);
+  assert.deepEqual(out.map((e) => e.customData && e.customData.grwbKind), ["claudeItem", undefined, undefined]);
 });

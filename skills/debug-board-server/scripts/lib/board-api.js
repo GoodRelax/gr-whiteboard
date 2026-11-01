@@ -154,7 +154,7 @@ function createBoardApi({ hub, inbox, token, pageDir, redact, clock, caDer = nul
         if (!caDer) throw new AppError("NotFound", 404, "no CA certificate (LAN mode only)");
         res.writeHead(200, {
           "content-type": "application/x-x509-ca-cert",
-          "content-disposition": "attachment; filename=\"whiteboard-chat-ca.crt\"",
+          "content-disposition": "attachment; filename=\"gr-whiteboard-ca.crt\"",
           "cache-control": "no-store",
           "x-content-type-options": "nosniff",
         });

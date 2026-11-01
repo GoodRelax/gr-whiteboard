@@ -4,7 +4,7 @@
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { createBoardHub } = require("../../skills/whiteboard-server/scripts/lib/board-hub");
+const { createBoardHub } = require("../../skills/debug-board-server/scripts/lib/board-hub");
 
 // @purity non-pure
 function fakeClock() {
@@ -59,7 +59,7 @@ function text(id, version, extra = {}) {
 
 // @purity pure
 function answer(id) {
-  return text(id, 1, { customData: { whiteboardChat: "answer" } });
+  return text(id, 1, { customData: { grwbKind: "answer" } });
 }
 
 test("the first page is the Leader and gets the whole Board (FR-034)", () => {

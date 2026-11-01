@@ -7,7 +7,7 @@ const assert = require("node:assert/strict");
 const crypto = require("crypto");
 const path = require("path");
 
-const LIB = path.join(__dirname, "..", "..", "skills", "whiteboard-server", "scripts", "lib");
+const LIB = path.join(__dirname, "..", "..", "skills", "debug-board-server", "scripts", "lib");
 const { createIdleTimer, warnTimeOf } = require(path.join(LIB, "idle-timer"));
 const { toExcalidrawFile, exportFileName } = require(path.join(LIB, "excalidraw-file"));
 const { createBoardCa, createServerCert, certIsUsable, isPermittedAddress, trustCommand } = require(path.join(LIB, "cert"));
@@ -100,7 +100,7 @@ test("the CA may sign only for localhost and private addresses (FR-155)", () => 
 test("the CA signs a server certificate for the private LAN addresses; a new CA needs a new one (FR-155, FR-156)", (t) => {
   let forge;
   try {
-    forge = require(require.resolve("node-forge", { paths: [path.join(__dirname, "..", "..", "skills", "whiteboard-server")] }));
+    forge = require(require.resolve("node-forge", { paths: [path.join(__dirname, "..", "..", "skills", "debug-board-server")] }));
   } catch (error) {
     t.skip("node-forge is not installed (it comes with setup.js --lan)");
     return;

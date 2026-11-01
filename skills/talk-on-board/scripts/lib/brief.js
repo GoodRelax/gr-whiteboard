@@ -6,7 +6,7 @@
 // Old texts are cut to this many characters; a Message is cut at MESSAGE_MAX_CHARS.
 const OLD_TEXT_MAX_CHARS = 80;
 const MESSAGE_MAX_CHARS = 500;
-// Fields of an Item that `board --fields` and `board_read` may choose (the names of GET /v1/board).
+// Fields of an Item that `board --fields` and `read_board` may choose (the names of GET /v1/board).
 const ITEM_FIELDS = Object.freeze([
   "id", "type", "text", "x", "y", "width", "height", "angle", "containerId", "updatedMs", "isAnswer", "byClaude",
   "strokeColor", "backgroundColor", "startId", "endId", "points",
@@ -115,7 +115,7 @@ function centerOf(item) {
   return [Number(item.x) + Number(item.width) / 2, Number(item.y) + Number(item.height) / 2];
 }
 
-// The Items that `board_read` shows (spec 4.12.4): filters, then at most `limit`.
+// The Items that `read_board` shows (spec 4.12.4): filters, then at most `limit`.
 // options: { near, byClaude, type, answers, limit }. Returns { items, shown, filter } or { error }.
 // @purity pure
 function filterItems(items, options) {
@@ -143,7 +143,7 @@ function filterItems(items, options) {
   return { items: list.slice(0, options.limit), matched: list.length, filter };
 }
 
-// The text lines of `board_read` (spec 4.12.4): a header row, then one tab-separated row per Item.
+// The text lines of `read_board` (spec 4.12.4): a header row, then one tab-separated row per Item.
 // @purity pure
 function itemLines(reply, options) {
   const all = Array.isArray(reply.items) ? reply.items : [];

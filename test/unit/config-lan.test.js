@@ -3,11 +3,11 @@
 const test = require("node:test");
 const assert = require("node:assert/strict");
 const path = require("path");
-const { parseConfig, readFlags } = require("../../skills/whiteboard-server/scripts/lib/config");
-const { lanAddresses, boardUrls } = require("../../skills/whiteboard-server/scripts/lib/lan");
-const { contentSecurityPolicy, importMapOf, isSameOrigin } = require("../../skills/whiteboard-server/scripts/lib/board-api");
-const { validateAnswer, isLocalTool } = require("../../skills/whiteboard-server/scripts/lib/control-api");
-const { certIsUsable } = require("../../skills/whiteboard-server/scripts/lib/cert");
+const { parseConfig, readFlags } = require("../../skills/debug-board-server/scripts/lib/config");
+const { lanAddresses, boardUrls } = require("../../skills/debug-board-server/scripts/lib/lan");
+const { contentSecurityPolicy, importMapOf, isSameOrigin } = require("../../skills/debug-board-server/scripts/lib/board-api");
+const { validateAnswer, isLocalTool } = require("../../skills/debug-board-server/scripts/lib/control-api");
+const { certIsUsable } = require("../../skills/debug-board-server/scripts/lib/cert");
 
 const SKILL = path.resolve("skill");
 const TEMP = path.resolve("temp");
@@ -20,7 +20,7 @@ test("defaults: this computer only, ports 47830 and 47831, data in <skill>/.data
   assert.equal(config.controlPort, 47831);
   assert.equal(config.dataDir, path.join(SKILL, ".data"));
   assert.equal(config.logPath, path.join(SKILL, ".data", "server.log"));
-  assert.equal(config.shotDir, path.join(TEMP, "whiteboard-chat"));
+  assert.equal(config.shotDir, path.join(TEMP, "gr-whiteboard"));
 });
 
 test("--lan is a switch and does not eat the next flag", () => {

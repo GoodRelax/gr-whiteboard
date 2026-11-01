@@ -10,7 +10,7 @@ const os = require("os");
 const path = require("path");
 const { spawn } = require("child_process");
 
-const SERVER = path.join(__dirname, "..", "..", "skills", "whiteboard-server", "scripts", "server.js");
+const SERVER = path.join(__dirname, "..", "..", "skills", "debug-board-server", "scripts", "server.js");
 // Below the dynamic port range (49152 and up on Windows and macOS, 32768 and up on Linux): Windows reserves
 // blocks there (netsh int ipv4 show excludedportrange), and listening on them fails with EACCES.
 const BASE_PORT = 20000 + Math.floor(Math.random() * 9000);
@@ -159,7 +159,7 @@ test("page sync, Message events, Answers, safety checks, and saving", async () =
     const job = await until(() => leader.find("job"), 5000, "job");
     // Chat style: right below the Message (y 60 + height 25 + gap 12), 170 px to the left.
     assert.deepEqual([job.data.kind, job.data.text, job.data.x, job.data.y], ["answer", "hi there", -120, 97]);
-    const answer = textElement("a1", "hi there", { x: job.data.x, y: job.data.y, customData: { whiteboardChat: "answer" } });
+    const answer = textElement("a1", "hi there", { x: job.data.x, y: job.data.y, customData: { grwbKind: "answer" } });
     assert.equal((await leader.post("/api/job", { jobId: job.data.jobId, ok: true, elements: [answer] })).status, 200);
     const reply = await said;
     assert.equal(reply.status, 200);

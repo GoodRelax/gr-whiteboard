@@ -4,14 +4,14 @@
     "name": "GoodRelax"
   },
   "metadata": {
-    "description": "Whiteboard Chat: talk and draw with Claude on a local whiteboard."
+    "description": "gr-whiteboard: talk and draw with Claude on a local whiteboard."
   },
   "plugins": [
     {
-      "name": "whiteboard-chat",
+      "name": "gr-whiteboard",
       "source": "./",
       "description": "Talk and draw with Claude on a local whiteboard (Excalidraw component).",
-      "version": "0.6.1"
+      "version": "0.7.0"
     }
   ]
 }

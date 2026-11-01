@@ -13,7 +13,7 @@ const STYLE_FIELDS = Object.freeze([
 ]);
 const KIND_ORDER = Object.freeze({ edited: 0, deletedText: 1, added: 2, changed: 3, deleted: 4 });
 const ANSWER_MARK = "answer";
-const CLAUDE_MARK = "claude";
+const CLAUDE_MARK = "claudeItem";
 
 // @purity pure
 function round(value) {
@@ -37,8 +37,8 @@ function summarize(element) {
     angle: Number(element.angle) || 0,
     text: element.type === "text" && typeof element.text === "string" ? element.text : null,
     containerId: element.containerId || null,
-    isAnswer: Boolean(element.customData && element.customData.whiteboardChat === ANSWER_MARK),
-    byClaude: Boolean(element.customData && [ANSWER_MARK, CLAUDE_MARK].includes(element.customData.whiteboardChat)),
+    isAnswer: Boolean(element.customData && element.customData.grwbKind === ANSWER_MARK),
+    byClaude: Boolean(element.customData && [ANSWER_MARK, CLAUDE_MARK].includes(element.customData.grwbKind)),
     style: Object.freeze(style),
     shape: Array.isArray(element.points) ? element.points.map((p) => `${round(p[0])},${round(p[1])}`).join(" ") : "",
   });

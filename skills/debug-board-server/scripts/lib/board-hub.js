@@ -35,7 +35,7 @@ const EMPTY_BOARD_POINT = Object.freeze({ x: 100, y: 100 });
 
 // @purity pure
 function isAnswerElement(element) {
-  return isElement(element) && element.customData && element.customData.whiteboardChat === ANSWER_MARK;
+  return isElement(element) && element.customData && element.customData.grwbKind === ANSWER_MARK;
 }
 
 // elements: Map of id -> element (the Board). events: EventPort (emit).

@@ -9,6 +9,19 @@
 | Base     | spec-en.md 0.5.1, and the 0.5.2 CLI fixes (`--brief`, `--fields`, `--scale`, arrow and label fixes) |
 | License  | Apache-2.0 |
 
+> **Renamed in 0.7.0 (R-042 to R-047).** This document is the record of the 0.6.0 design and keeps the names of that time. The product is now gr-whiteboard (GRWB). Old and new names:
+
+| What | Before (0.6.1) | After (0.7.0) |
+| ---- | -------------- | ------------- |
+| Product and repository | whiteboard-chat-for-claude (GoodRelax/whiteboard-chat-for-claude) | gr-whiteboard, short GRWB (GoodRelax/gr-whiteboard; the owner renames it on GitHub) |
+| Plugin | `whiteboard-chat@goodrelax` | `gr-whiteboard@goodrelax` |
+| Skills and folders | `whiteboard-chat`, `whiteboard-server` | `talk-on-board`, `debug-board-server` |
+| MCP server (`.mcp.json` key, `serverInfo.name`) | `whiteboard` | `board-control` |
+| Tools | `board_open`, `board_close`, `board_status`, `board_inbox`, `board_read`, `board_say`, `board_signal`, `board_mermaid`, `board_table`, `board_draw`, `board_edit`, `board_delete`, `board_undo`, `board_shot` | `open_board`, `close_board`, `read_status`, `read_messages`, `read_board`, `write_answer`, `show_activity`, `draw_mermaid`, `draw_table`, `draw_skeletons`, `edit_items`, `delete_items`, `undo_operation`, `take_screenshot` |
+| Environment variables | `WHITEBOARD_CONTROL_PORT`, `_BOARD_PORT`, `_IDLE_STOP_MIN`, `_IDLE_STOP_MS`, `WHITEBOARD_DATA`, `WHITEBOARD_NO_BROWSER=1`, `WHITEBOARD_OLD_DATA` | `GRWB_CONTROL_PORT`, `GRWB_BOARD_PORT`, `GRWB_IDLE_STOP_MIN`, `GRWB_IDLE_STOP_MS`, `GRWB_DATA_DIR`, `GRWB_OPEN_BROWSER=0`; no OLD_DATA (the copy of a 0.5.x board is gone, R-044) |
+| Board mark | `customData.whiteboardChat` = `"answer"` or `"claude"` | `customData.grwbKind` = `"answer"` or `"claudeItem"` |
+| Name on the page | Whiteboard Chat | gr-whiteboard |
+
 Writing rule: this document follows spec-en.md (plain English, short sentences, terms of spec-en.md 1.8, EARS for requirements, RFC 2119 words). New requirement IDs continue the spec: FR-125 and up, NFR-015 and up. "MCP Server" means the new program of this design; "Server" still means the Board Server `server.js`. "Plugin" means a Claude Code plugin (code.claude.com/docs/en/plugins-reference).
 
 ---

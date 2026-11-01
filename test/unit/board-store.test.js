@@ -2,7 +2,7 @@
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { isElement, isNewer, mergeElements, toItems, boundsOf, pruneDeleted } = require("../../skills/whiteboard-server/scripts/lib/board-store");
+const { isElement, isNewer, mergeElements, toItems, boundsOf, pruneDeleted } = require("../../skills/debug-board-server/scripts/lib/board-store");
 
 // @purity pure
 function element(id, version, versionNonce, extra = {}) {
@@ -38,7 +38,7 @@ test("toItems leaves out deleted elements and marks Answers (FR-014)", () => {
   const board = new Map([
     ["a", element("a", 1, 1)],
     ["b", element("b", 1, 1, { isDeleted: true })],
-    ["c", element("c", 1, 1, { customData: { whiteboardChat: "answer" } })],
+    ["c", element("c", 1, 1, { customData: { grwbKind: "answer" } })],
     ["d", element("d", 1, 1, { type: "freedraw", text: undefined, containerId: "box" })],
   ]);
   const items = toItems(board);

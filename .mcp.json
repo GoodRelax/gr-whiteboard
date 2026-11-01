@@ -1,8 +1,8 @@
 {
   "mcpServers": {
-    "whiteboard": {
+    "board-control": {
       "command": "node",
-      "args": ["${CLAUDE_PLUGIN_ROOT}/skills/whiteboard-chat/scripts/mcp.js"]
+      "args": ["${CLAUDE_PLUGIN_ROOT}/skills/talk-on-board/scripts/mcp.js"]
     }
   }
 }

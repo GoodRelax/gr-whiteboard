@@ -2,7 +2,7 @@
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { placeAnswer, clearOfItems, estimateSize } = require("../../skills/whiteboard-server/scripts/lib/answer-placement");
+const { placeAnswer, clearOfItems, estimateSize } = require("../../skills/debug-board-server/scripts/lib/answer-placement");
 
 // @purity pure
 function item(id, x, y, height, updatedMs, type = "text") {

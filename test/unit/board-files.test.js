@@ -4,7 +4,7 @@
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { checkFile, addFiles, MAX_FILE_CHARS, MAX_TOTAL_CHARS } = require("../../skills/whiteboard-server/scripts/lib/board-files");
+const { checkFile, addFiles, MAX_FILE_CHARS, MAX_TOTAL_CHARS } = require("../../skills/debug-board-server/scripts/lib/board-files");
 
 // @purity pure
 function png(id, extraChars = 0) {

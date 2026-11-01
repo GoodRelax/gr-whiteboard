@@ -1,11 +1,11 @@
 ---
-name: whiteboard-server
-description: Check Node.js for the whiteboard, and debug the local Board Server (start, status, stop, logs) with its command-line tools. For normal use (open the board, talk, draw, stop), use the whiteboard-chat skill and its board_* tools instead. Use when the user asks to check Node.js for the whiteboard, or to debug the Board Server.
+name: debug-board-server
+description: Check Node.js for the whiteboard, and debug the local Board Server (start, status, stop, logs) with its command-line tools. For normal use (open the board, talk, draw, stop), use the talk-on-board skill and its tools instead. Use when the user asks to check Node.js for the whiteboard, or to debug the Board Server.
 ---
 
 # Whiteboard Server (checks and debugging)
 
-Normal use goes through the `board_*` tools and the skill `whiteboard-chat`: `board_open` starts the board (also for the LAN, with `lan: true`), and `board_close` stops it. Do not give the user the commands below for normal use (R-033).
+Normal use goes through the tools of the MCP server `board-control` and the skill `talk-on-board`: `open_board` starts the board (also for the LAN, with `lan: true`), and `close_board` stops it. Do not give the user the commands below for normal use (R-033).
 
 `SKILL_DIR` below means the folder of this file. Claude Code shows it as the base directory of the skill. Replace it with the full path and keep the double quotes, because the path may contain spaces. Every command is a plain `node` command and prints one JSON line.
 
