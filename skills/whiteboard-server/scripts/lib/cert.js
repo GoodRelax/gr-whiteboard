@@ -13,8 +13,8 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const VALID_DAYS = 397;
 const CA_VALID_DAYS = 3650;
 const RENEW_BEFORE_DAYS = 7;
-const CA_NAME = "Whiteboard Chat local CA";
-const SERVER_NAME = "Whiteboard Chat board";
+const CA_NAME = "gr-whiteboard local CA";
+const SERVER_NAME = "gr-whiteboard board";
 // The names that the CA may sign for (R-040): [address, mask].
 const PERMITTED_NETWORKS = Object.freeze([
   ["127.0.0.0", "255.0.0.0"],

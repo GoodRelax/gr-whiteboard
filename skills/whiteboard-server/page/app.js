@@ -1074,8 +1074,8 @@ function QrCode({ text }) {
 // The steps to trust the CA of this board on an iPad (0.6.1, FR-158). Done once per device.
 const IPAD_STEPS = Object.freeze([
   "Scan the code \"CA of this board\" with the iPad camera and open it in Safari. If Safari warns, tap \"Show Details\", then \"visit this website\". Tap \"Allow\" to download the profile.",
-  "Settings > General > VPN & Device Management: tap the profile \"Whiteboard Chat local CA\", then \"Install\".",
-  "Settings > General > About > Certificate Trust Settings: turn on \"Whiteboard Chat local CA\".",
+  "Settings > General > VPN & Device Management: tap the profile \"gr-whiteboard local CA\", then \"Install\".",
+  "Settings > General > About > Certificate Trust Settings: turn on \"gr-whiteboard local CA\".",
   "Scan the code of the board. Safari opens it without a warning.",
 ]);
 
