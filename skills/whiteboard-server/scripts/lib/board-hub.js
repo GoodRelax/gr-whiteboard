@@ -47,7 +47,7 @@ function isAnswerElement(element) {
 // @purity non-pure
 function createBoardHub({
   elements, events, clock, jobTimeoutMs, gapPx, indentPx = 0, onBoardChanged, onAnswerWritten = () => {},
-  files = new Map(), onFilesAdded = () => {}, applyOperation = null, joinUrls = () => [],
+  files = new Map(), onFilesAdded = () => {}, applyOperation = null, joinUrls = () => [], idleStopAtMs = () => null,
 }) {
   // pageId -> { send(type, data), editingId, visible }. A Map keeps the order in which pages joined.
   const pages = new Map();
@@ -202,7 +202,7 @@ function createBoardHub({
     const before = leaderId();
     pages.set(pageId, { send, editingId: null, visible: visible !== false });
     const isLeader = leaderId() === pageId;
-    send("hello", { pageId, leader: isLeader, signal, inbox, elements: [...elements.values()], files: [...files.values()], joinUrls: joinUrls() });
+    send("hello", { pageId, leader: isLeader, signal, inbox, elements: [...elements.values()], files: [...files.values()], joinUrls: joinUrls(), idleStopAtMs: idleStopAtMs() });
     events.emit({ event: "PageJoined", pageCount: pages.size });
     announceLeader(before, pageId);
     pump();
@@ -376,6 +376,12 @@ function createBoardHub({
     broadcast("inbox", inbox);
   }
 
+  // The idle warning (0.6.1, FR-160): stopAtMs, or null when a touch ended it. Every Page shows it.
+  // @purity non-pure
+  function setIdleWarning(stopAtMs) {
+    broadcast("idle", { stopAtMs });
+  }
+
   // @purity non-pure
   function setSignal(state) {
     if (!SIGNALS.includes(state)) throw new AppError("InvalidSignal", 400, `signal must be one of ${SIGNALS.join(", ")}`);
@@ -406,6 +412,7 @@ function createBoardHub({
     applyServerChanges,
     finishJob,
     setSignal,
+    setIdleWarning,
     signal: () => signal,
     setInbox,
     inbox: () => inbox,

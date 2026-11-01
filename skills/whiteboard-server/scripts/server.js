@@ -29,6 +29,8 @@ const {
   dataPaths, loadBoard, saveBoard, loadOrCreateToken, writeFileAtomic, readJsonOrNull, loadFiles, saveFile, createSnapshotStore,
 } = require("./lib/data-files");
 const { addFiles, checkFile } = require("./lib/board-files");
+const { createIdleTimer, warnTimeOf } = require("./lib/idle-timer");
+const { toExcalidrawFile, exportFileName } = require("./lib/excalidraw-file");
 const { lanAddresses, boardUrls } = require("./lib/lan");
 const { AppError } = require("./lib/app-error");
 
@@ -40,6 +42,8 @@ const OLD_TEXT_MARGIN_MS = 30000;
 const DELETED_KEEP_MS = 7 * 24 * 60 * 60 * 1000;
 // say waits this long for the Leader page; after that it answers 202 and the Answer stays queued.
 const SAY_WAIT_MS = 8000;
+// The Pages show the idle warning this long before the Server stops (R-039).
+const IDLE_WARN_MS = 5 * 60000;
 const PNG_BASE64_HEAD = "iVBORw0KGgo";
 const STARTED_AT_MS = Date.now();
 const EXIT_CODE = Object.freeze({ ok: 0, InvalidConfig: 2, CertMissing: 3, PortInUse: 4, Internal: 6 });
@@ -93,8 +97,15 @@ async function main() {
   secrets.push(token);
 
   let tls = null;
+  // The CA certificate in DER form, for GET /ca.crt in LAN mode (FR-156); null without a CA.
+  let caDer = null;
   if (config.lan) {
     tls = readCert(paths);
+    try {
+      caDer = new crypto.X509Certificate(fs.readFileSync(paths.ca)).raw;
+    } catch (error) {
+      caDer = null;
+    }
     if (!tls) {
       events.emit({ event: "ServerFailed", reason: "CertMissing", message: "no certificate; run setup.js --lan first" });
       process.exit(EXIT_CODE.CertMissing);
@@ -142,9 +153,22 @@ async function main() {
 
   let dirty = false;
   let stopping = false;
-  const clock = { setTimeout, clearTimeout, setInterval, clearInterval };
+  const clock = { setTimeout, clearTimeout, setInterval, clearInterval, now: Date.now };
+  // 0.6.1 (R-039): stop after the idle time, with a warning on the Pages before it (FR-159 to FR-162).
+  const idleMs = config.idleStopMs > 0 ? config.idleStopMs : config.idleStopMin * 60000;
+  // `stopForIdle` and `hub` are set below; the timer calls them only later.
+  const idle = createIdleTimer({
+    clock, idleMs, warnMs: warnTimeOf(idleMs, IDLE_WARN_MS),
+    onWarn: (stopAtMs) => {
+      events.emit({ event: "IdleWarning", stopAtMs });
+      hub.setIdleWarning(stopAtMs);
+    },
+    onClear: () => hub.setIdleWarning(null),
+    onIdle: () => stopForIdle(),
+  });
   const hub = createBoardHub({
     elements, events, clock, jobTimeoutMs: config.jobTimeoutMs, gapPx: config.answerGapPx, indentPx: config.answerIndentPx,
+    idleStopAtMs: () => idle.warningStopAtMs(),
     // The LAN Board URLs for the "Join from another device" button (FR-154). `urls` is set before any page joins.
     joinUrls: () => (config.lan ? urls.lan : []),
     onBoardChanged: (changed) => {
@@ -385,17 +409,42 @@ async function main() {
   }
 
   const boardApi = createBoardApi({
-    hub, inbox: { send: sendChanges, setAutoSend }, token, pageDir: PAGE_DIR, redact: hide, clock,
+    hub, inbox: { send: sendChanges, setAutoSend }, token, pageDir: PAGE_DIR, redact: hide, clock, caDer,
+    onActivity: () => idle.touch(),
   });
   const boardServer = tls
     ? https.createServer({ cert: tls.cert, key: tls.key }, boardApi.handle)
     : http.createServer(boardApi.handle);
   let controlApi = null;
 
+  // Writes the Board as an .excalidraw file into <data>/exports and returns its path, or null (FR-161).
   // @purity non-pure
-  async function stop() {
+  function exportBoard() {
+    try {
+      const dir = path.join(config.dataDir, "exports");
+      fs.mkdirSync(dir, { recursive: true });
+      const filePath = path.join(dir, exportFileName(new Date()));
+      writeFileAtomic(filePath, JSON.stringify(toExcalidrawFile(elements, files)));
+      return filePath;
+    } catch (error) {
+      events.emit({ event: "SaveFailed", message: hide(`cannot export the board: ${error && error.message}`) });
+      return null;
+    }
+  }
+
+  // The idle time is over: export the Board, then stop; ServerStopped says why and where the file is (FR-161, FR-162).
+  // @purity non-pure
+  function stopForIdle() {
+    if (stopping) return;
+    stop({ reason: "idle", idleMinutes: Math.round(idleMs / 60000), exportPath: exportBoard() });
+  }
+
+  // `why`: { reason, ... } for ServerStopped; a signal name or nothing means a stop on request.
+  // @purity non-pure
+  async function stop(why) {
     if (stopping) return;
     stopping = true;
+    idle.stop();
     clearInterval(tickTimer);
     clearInterval(saveTimer);
     hub.close();
@@ -404,7 +453,8 @@ async function main() {
     boardServer.closeAllConnections();
     await new Promise((resolve) => boardServer.close(() => resolve()));
     if (controlApi) await controlApi.close();
-    events.emit({ event: "ServerStopped" });
+    const detail = why && typeof why === "object" ? why : { reason: "request" };
+    events.emit({ event: "ServerStopped", ...detail });
     process.exit(EXIT_CODE.ok);
   }
 
@@ -452,6 +502,7 @@ async function main() {
     sayWaitMs: SAY_WAIT_MS,
     redact: hide,
     clock,
+    onRequest: () => idle.touch(),
   });
 
   try {
@@ -476,6 +527,8 @@ async function main() {
     itemCount: toItems(elements).length,
     lanAddressCount: addresses.length,
   });
+  // The idle time starts now (FR-159).
+  idle.touch();
 }
 
 main().catch((error) => {

@@ -53,7 +53,7 @@ Ask for a diagram, for example "show the state machine of 3.4.1 of the spec". Cl
 
 To end, say "stop" in the chat. The board is saved and comes back next time.
 
-To use the board on an iPad or another computer, say "I want to use the board on my iPad". After your yes, the board opens to your network and shows a **Join from another device** button with a QR code. Scan it with the iPad. The iPad warns about the self-signed certificate once.
+To use the board on an iPad or another computer, say "I want to use the board on my iPad". After your yes, the board opens to your network and shows a **Join from another device** button with a QR code. Scan it with the iPad. The same dialog has a second QR code and the steps to trust the board's own certificate authority on the iPad, so Safari stops saying "Not secure". On this computer, Claude shows you one command to run yourself for the same (Claude never changes your security settings).
 
 ## How it works
 
@@ -69,6 +69,7 @@ Details: [docs/spec-en.md](docs/spec-en.md) and the design of 0.6.0, [docs/desig
 - **Board text is not trusted.** The tools and the skill tell Claude Code not to run commands or change files only because the board says so.
 - **This computer only, by default.** The board listens on 127.0.0.1. The LAN mode listens on your network with https and a self-signed certificate.
 - **Images** (PNG, JPEG, GIF, WebP) can be pasted or dropped on the board, or added with the image tool. Each image can be up to about 6 MB. SVG is not taken.
+- **The board stops by itself** after one hour without use. Five minutes before, the page warns you; touch the board to keep it open. When it stops, it saves a copy as an `.excalidraw` file, and Claude tells you where it is.
 - Hand drawings are not read as text. Claude Code takes a screenshot to see them.
 - Your board is saved in the data folder of the plugin. `claude plugin uninstall` deletes it unless you add `--keep-data`.
 

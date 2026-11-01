@@ -58,7 +58,11 @@ let flushTimer = null;
 let source = null;
 let lastStreamMs = 0;
 let reopenTimer = null;
-let status = { online: false, leader: false, signal: "none", unsent: 0, autoSend: false, joinUrls: [] };
+let status = { online: false, leader: false, signal: "none", unsent: 0, autoSend: false, joinUrls: [], idleStopAtMs: null };
+// A touch on the page keeps the Server running (0.6.1, FR-159): at most one report every ACTIVITY_MS,
+// and at once while the idle warning is shown.
+const ACTIVITY_MS = 20000;
+let lastActivitySentMs = 0;
 let sending = false;
 let showStatus = () => {};
 // id -> the version that the Server has (sent by us or received from it).
@@ -261,7 +265,8 @@ function onHello(data) {
   firstHello = false;
   const inbox = data.inbox || { unsent: 0, autoSend: false };
   const joinUrls = Array.isArray(data.joinUrls) ? data.joinUrls.filter((url) => typeof url === "string") : [];
-  setStatus({ ...status, online: true, leader: isLeader, signal: data.signal || "none", ...inbox, joinUrls });
+  const idleStopAtMs = Number.isFinite(data.idleStopAtMs) ? data.idleStopAtMs : null;
+  setStatus({ ...status, online: true, leader: isLeader, signal: data.signal || "none", ...inbox, joinUrls, idleStopAtMs });
 }
 
 // A timer, not requestAnimationFrame: animation frames stop while the page is not drawn
@@ -991,6 +996,7 @@ function openStream() {
     if (isLeader) fixAnswerSizes();
   });
   on("signal", (data) => setStatus({ ...status, signal: data.state }));
+  on("idle", (data) => setStatus({ ...status, idleStopAtMs: Number.isFinite(data.stopAtMs) ? data.stopAtMs : null }));
   on("inbox", (data) => setStatus({ ...status, unsent: data.unsent, autoSend: data.autoSend }));
   on("job", runJob);
   on("bye", offline);
@@ -1065,7 +1071,24 @@ function QrCode({ text }) {
   return failed ? h("div", null, "The QR code could not be made. Type the link instead.") : h("canvas", { ref, "aria-label": "QR code of the link" });
 }
 
+// The steps to trust the CA of this board on an iPad (0.6.1, FR-158). Done once per device.
+const IPAD_STEPS = Object.freeze([
+  "Scan the code \"CA of this board\" with the iPad camera and open it in Safari. If Safari warns, tap \"Show Details\", then \"visit this website\". Tap \"Allow\" to download the profile.",
+  "Settings > General > VPN & Device Management: tap the profile \"Whiteboard Chat local CA\", then \"Install\".",
+  "Settings > General > About > Certificate Trust Settings: turn on \"Whiteboard Chat local CA\".",
+  "Scan the code of the board. Safari opens it without a warning.",
+]);
+
+function caUrlOf(url) {
+  try {
+    return `${new URL(url).origin}/ca.crt`;
+  } catch (error) {
+    return null;
+  }
+}
+
 function JoinDialog({ urls, onClose }) {
+  const caUrl = caUrlOf(urls[0]);
   return h("div", { className: "wbc-join-dialog", onClick: onClose },
     h("div", { className: "wbc-join-box", onClick: (event) => event.stopPropagation() },
       h("strong", null, "Join from another device"),
@@ -1073,7 +1096,27 @@ function JoinDialog({ urls, onClose }) {
       ...urls.map((url) => h("div", { key: url, style: { display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" } },
         h(QrCode, { text: url }),
         h("div", { className: "wbc-join-url" }, url))),
+      caUrl ? h("div", { className: "wbc-join-ca" },
+        h("strong", null, "First time: trust the CA of this board (removes \"Not secure\")"),
+        h("ol", null, ...IPAD_STEPS.map((step) => h("li", { key: step }, step))),
+        h("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" } },
+          h(QrCode, { text: caUrl }),
+          h("div", { className: "wbc-join-url" }, "CA of this board: ", h("a", { href: caUrl, download: "whiteboard-chat-ca.crt" }, caUrl))),
+        h("div", null, "On another computer: download the CA with this link and add it to the trusted root certificates once.")) : null,
       h("button", { type: "button", className: "wbc-send", onClick: onClose }, "Close")));
+}
+
+// The idle warning (0.6.1, FR-160): the Server stops soon because nobody uses the board.
+function IdleBanner({ stopAtMs }) {
+  const [, tick] = React.useState(0);
+  React.useEffect(() => {
+    const timer = setInterval(() => tick((n) => n + 1), 15000);
+    return () => clearInterval(timer);
+  }, []);
+  const minutes = Math.max(0, Math.ceil((stopAtMs - Date.now()) / 60000));
+  const at = new Date(stopAtMs).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return h("div", { className: "wbc-idle", role: "status" },
+    `Nobody used this board for a while. It stops at ${at} (in about ${minutes} min) and saves a copy. Touch the board to keep it open.`);
 }
 
 function StatusBadge() {
@@ -1102,6 +1145,7 @@ function StatusBadge() {
     ? h("button", { type: "button", className: "wbc-send", title: "Show the link and a QR code for a phone or tablet", onClick: () => setJoinOpen(true) }, "Join from another device")
     : null;
   return h("div", { className: "wbc-bar" },
+    shown.idleStopAtMs ? h(IdleBanner, { stopAtMs: shown.idleStopAtMs }) : null,
     joinOpen ? h(JoinDialog, { urls: shown.joinUrls, onClose: () => setJoinOpen(false) }) : null,
     join,
     send,
@@ -1124,9 +1168,23 @@ function App() {
 }
 
 window.addEventListener("keydown", onKeyDown, true);
-for (const type of ["keydown", "pointerdown", "paste", "drop"]) {
-  window.addEventListener(type, () => { lastInputMs = Date.now(); }, true);
+// Tells the Server that a Person uses the page (FR-159).
+function reportActivity() {
+  const now = Date.now();
+  if (!token || (now - lastActivitySentMs < ACTIVITY_MS && status.idleStopAtMs === null)) return;
+  lastActivitySentMs = now;
+  post("/api/activity", {}).catch(() => {
+    lastActivitySentMs = 0;
+  });
 }
+
+for (const type of ["keydown", "pointerdown", "paste", "drop"]) {
+  window.addEventListener(type, () => {
+    lastInputMs = Date.now();
+    reportActivity();
+  }, true);
+}
+window.addEventListener("wheel", reportActivity, { capture: true, passive: true });
 // A hidden page gives the Leader role to a page on screen (FR-085).
 document.addEventListener("visibilitychange", reportVisibility);
 

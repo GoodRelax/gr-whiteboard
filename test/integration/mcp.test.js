@@ -189,11 +189,11 @@ test("the MCP Server opens the board, draws, answers, reads, and keeps the Token
 
     // FR-131, FR-153: board_open starts the Server in <CLAUDE_PLUGIN_DATA>/board and copies the 0.5.x Board.
     const opened = await call("board_open");
-    assert.match(textOf(opened), /^ok open pages=0 lan=false version=0\.6\.0 browser=skipped migrated=1$/);
+    assert.match(textOf(opened), /^ok open pages=0 lan=false version=0.6.1 browser=skipped migrated=1$/);
     const dataDir = path.join(pluginData, "board");
     assert.equal(fs.readFileSync(path.join(dataDir, "token.txt"), "utf8").trim(), oldToken, "the old Token goes on");
-    assert.match(textOf(await call("board_open")), /^ok open pages=0 lan=false version=0\.6\.0 browser=skipped$/, "a second open starts nothing");
-    assert.match(textOf(await call("board_status")), /^state=running version=0\.6\.0 lan=false pageCount=0 /);
+    assert.match(textOf(await call("board_open")), /^ok open pages=0 lan=false version=0.6.1 browser=skipped$/, "a second open starts nothing");
+    assert.match(textOf(await call("board_status")), /^state=running version=0.6.1 lan=false pageCount=0 /);
 
     page = openPage(oldToken, "pageMCP00001");
     await until(() => page.find("hello"), 5000, "hello");

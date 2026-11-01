@@ -12,9 +12,9 @@
       "manager": null,
       "author": null,
       "creationDate": "2026-10-31T04:40:00",
-      "revision": 72,
+      "revision": 75,
       "startDate": "2026-10-29T22:44:00",
-      "statusDate": "2026-11-01T10:41:00",
+      "statusDate": "2026-11-01T11:42:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 108,
+      "uidHighWaterMark": 109,
       "importSequence": 0,
       "outlineBase": 1,
       "carry": {},
@@ -1904,6 +1904,14 @@
             "lagFormat": 7,
             "carry": {},
             "carryElements": []
+          },
+          {
+            "predecessorUid": 109,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
           }
         ],
         "carry": {},
@@ -2465,19 +2473,19 @@
         "uid": 105,
         "parentTaskUid": null,
         "wbsOrder": 71,
-        "name": "🌒 0.6.0 を作る（MCP のプラグイン）",
+        "name": "🌕 0.6.0 を作る（MCP のプラグイン）",
         "start": "2026-11-01T10:41:00",
         "finish": "2026-11-01T14:41:00",
         "milestone": false,
         "deadline": null,
-        "notes": "担当: ホワイトボード 0.5.0 の実装の SUB（wb-050-impl、session local_ba3f62d7-8251-41c6-bc65-114961af1a78、Opus 5.5・medium）、10:41 に始めた。見積もり約 4 時間。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "notes": "【済み】実績の終わりは BOSS の知らせが届いた時刻。レビューで直す点が 5 つ出て（必ず 1、軽い 4）、すべて直り、再確認も済んだ。commit 93f13ff、試験 132 件通過、点検は名前・パス 0、メール 0、秘密 0。\n担当: ホワイトボード 0.5.0 の実装の SUB（wb-050-impl、session local_ba3f62d7-8251-41c6-bc65-114961af1a78、Opus 5.5・medium）、10:41 に始めた。見積もり約 4 時間。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
         "calendarUid": null,
         "actualStart": "2026-11-01T10:41:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-01T11:10:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -2497,19 +2505,19 @@
         "uid": 106,
         "parentTaskUid": null,
         "wbsOrder": 72,
-        "name": "🌑 0.6.0 の BOSS のレビュー",
+        "name": "🌕 0.6.0 の BOSS のレビュー",
         "start": "2026-11-01T14:41:00",
         "finish": "2026-11-01T15:11:00",
         "milestone": false,
         "deadline": null,
-        "notes": "担当: BOSS。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "notes": "【済み】BOSS のレビュー。直す点 5 つ（必ず 1、軽い 4）を直し、再確認も済んだ。実績の時刻は知らせが届いた時刻で、開始と終わりは同じ。\n担当: BOSS。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-11-01T11:10:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-01T11:10:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -2529,19 +2537,19 @@
         "uid": 107,
         "parentTaskUid": null,
         "wbsOrder": 73,
-        "name": "🌑 ㉛ 裁定: オーナーが 0.6.0 の commit・push・プラグインの登録を OK する",
-        "start": "2026-11-01T15:11:00",
+        "name": "🌕 ㉛ 裁定: オーナーが 0.6.0 の commit・push・プラグインの登録を OK する",
+        "start": "2026-11-01T11:10:00",
         "finish": "2026-11-01T15:41:00",
         "milestone": false,
         "deadline": null,
-        "notes": "BOSS がオーナーに聞く。OK が出たら commit・push・プラグインの登録（オーナーに聞く）を行う。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "notes": "【済み】オーナーが CGQA の [ux] に答えた（11:39）。R-039（1 時間でサーバーが自動で止まり、Claude に知らせる）、R-040（ボード専用の認証局を作り、利用者が 1 回登録する）、R-041（push と登録を今する）。push 4b9ca93..93f13ff（11:42）。プラグイン whiteboard-chat@goodrelax 0.6.0 を user に登録した（11:44）。古い 2 つのスキルは skills-set-aside-0.5.2 に移した。実績の終わりは登録の 11:44。\n【途中経過 11:24】オーナーが 0.6.0 の使い勝手（QR、サーバーの止め方、「セキュリティ保護なし」の表示）を聞いた。CGQA の 0.6.0 使い勝手の問 1〜3 で聞いている（問 3 は push とプラグインの登録で、このタスクと同じ）。答えによっては 0.6.1（サーバーの自動停止、証明書の 1 回の登録）を足す。\n【オーナーの返事待ち】BOSS がオーナーに聞いている（push とプラグインの登録）。\nBOSS がオーナーに聞く。OK が出たら commit・push・プラグインの登録（オーナーに聞く）を行う。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-11-01T11:10:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-01T11:44:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -2561,14 +2569,46 @@
         "uid": 108,
         "parentTaskUid": null,
         "wbsOrder": 74,
-        "name": "🌑 ㉜ オーナーが 0.6.0 の MCP を実際に確かめる",
-        "start": "2026-11-01T15:41:00",
-        "finish": "2026-11-01T16:41:00",
+        "name": "🌖 ㉜ オーナーが 0.6.0 の MCP を実際に確かめる",
+        "start": "2026-11-01T11:45:00",
+        "finish": "2026-11-01T12:45:00",
         "milestone": false,
         "deadline": null,
-        "notes": "オーナーが、登録したプラグインの MCP の道具でボードに描かせて確かめる。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "notes": "【オーナーの手待ち】オーナーが Claude Code を開き直した後に始まる。日時は PMO が 107 の終わりに合わせて前倒しの仮置きにした。\nオーナーが、登録したプラグインの MCP の道具でボードに描かせて確かめる。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-11-01T11:45:00",
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 107,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 109,
+        "parentTaskUid": null,
+        "wbsOrder": 75,
+        "name": "🌒 0.6.1（R-039 サーバーの自動停止・R-040 ボード専用の認証局）",
+        "start": "2026-11-01T11:45:00",
+        "finish": "2026-11-01T14:45:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "担当: ホワイトボード 0.5.0 の実装の SUB（wb-050-impl、session local_ba3f62d7-8251-41c6-bc65-114961af1a78）、11:45 に始めた。見積もり 3 時間。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-11-01T11:45:00",
         "stop": null,
         "actualFinish": null,
         "resume": null,
@@ -3015,6 +3055,10 @@
       {
         "taskUid": 108,
         "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 109,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
       }
     ],
     "taskVisuals": [
@@ -3617,6 +3661,14 @@
         "fillColor": null,
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 109,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -3951,10 +4003,10 @@
     "zoomY": 1
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-01T01:41:31Z",
+    "scheduleUpdatedAt": "2026-11-01T02:42:43Z",
     "lastEditedBy": "pmo-claude",
     "settingsUpdatedAt": "2026-10-30T19:40:00Z",
-    "fileSavedAt": "2026-11-01T01:41:31Z"
+    "fileSavedAt": "2026-11-01T02:42:43Z"
   },
   "changeLog": [
     {
@@ -4382,6 +4434,24 @@
       "editedBy": "pmo-claude",
       "explanation": "BOSS note: task 104 done 10:40 (R-038); added 0.6.0 build 105 (started 10:41), review 106, owner tasks 107 (commit/push/register OK) and 108 (owner check); task 87 follows 108.",
       "changedAt": "2026-11-01T01:41:31Z"
+    },
+    {
+      "ordinal": 71,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: tasks 105 and 106 done (0.6.0 built and reviewed, commit 93f13ff, 132 tests, privacy 0/0/0); task 107 waiting for the owner.",
+      "changedAt": "2026-11-01T02:10:47Z"
+    },
+    {
+      "ordinal": 72,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 107 note (asked in CGQA 0.6.0 usability Q1-3; 0.6.1 may follow).",
+      "changedAt": "2026-11-01T02:24:34Z"
+    },
+    {
+      "ordinal": 73,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 107 done 11:44 (R-039..R-041; push 93f13ff, plugin registered); added task 109 (0.6.1, started 11:45); task 108 waiting for owner restart; task 87 follows 109.",
+      "changedAt": "2026-11-01T02:42:43Z"
     }
   ]
 }

@@ -47,13 +47,15 @@ function within(promise, ms, clock) {
 //             signal(state), stop(),
 //             draw(body), mermaid(body), edit(body) -> Promise<reply>, delete(body), undo(body) -> reply (0.5.0, spec 4.4) }
 // @purity non-pure
-function createControlApi({ handlers, maxTextChars, sayWaitMs, redact, clock }) {
+function createControlApi({ handlers, maxTextChars, sayWaitMs, redact, clock, onRequest = () => {} }) {
   let port = 0;
 
   // @purity non-pure
   async function route(req) {
     if (!isLocalTool(req, port)) throw new AppError("NotLocal", 403, "only local tools may use this API");
     const key = `${req.method} ${req.url}`;
+    // Every call of the Agent keeps the Server running (FR-159).
+    onRequest(key);
     switch (key) {
       case "GET /v1/status":
         return [200, handlers.status()];

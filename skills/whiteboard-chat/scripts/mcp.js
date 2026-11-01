@@ -7,7 +7,8 @@
 //   node scripts/mcp.js [--port N] [--board-port N]
 // Environment: CLAUDE_PLUGIN_DATA (the data folder is <it>/board), WHITEBOARD_CONTROL_PORT, WHITEBOARD_BOARD_PORT,
 // WHITEBOARD_DATA (data folder outside a plugin), WHITEBOARD_OLD_DATA (the 0.5.x data folder to copy),
-// WHITEBOARD_NO_BROWSER=1 (board_open opens no browser; for tests).
+// WHITEBOARD_NO_BROWSER=1 (board_open opens no browser; for tests), WHITEBOARD_IDLE_STOP_MIN (the idle time of the
+// Board Server in minutes, 0 = never; default 60) and WHITEBOARD_IDLE_STOP_MS (the same in ms, for tests).
 
 const fs = require("fs");
 const os = require("os");
@@ -20,6 +21,7 @@ const { validate } = require("./lib/json-schema");
 const { ITEM_FIELDS, sentLines, itemLines, paged, quoted, cut, safeWord } = require("./lib/brief");
 const { replaceNotEqual, pickMermaid, stripStyles, markdownTables } = require("./lib/mermaid-pick");
 const { COLORS, buildTable } = require("./lib/table");
+const { trustCommand } = require("../../whiteboard-server/scripts/lib/cert");
 
 const SERVER_DIR = path.join(__dirname, "..", "..", "whiteboard-server");
 const BOARD_JS = path.join(SERVER_DIR, "scripts", "board.js");
@@ -99,6 +101,8 @@ function settings(argv, env, home) {
     dataDir: pluginData ? path.join(pluginData, "board") : path.resolve(env.WHITEBOARD_DATA || path.join(SERVER_DIR, ".data")),
     oldDataDir: env.WHITEBOARD_OLD_DATA || path.join(home, ".claude", "skills", "whiteboard-server", ".data"),
     openBrowser: env.WHITEBOARD_NO_BROWSER !== "1",
+    idleStopMin: env.WHITEBOARD_IDLE_STOP_MIN || "",
+    idleStopMs: env.WHITEBOARD_IDLE_STOP_MS || "",
   });
 }
 
@@ -310,6 +314,8 @@ async function boardOpen(args) {
     }
     const startArgs = ["start", "--data", config.dataDir, "--port", String(config.boardPort), "--control-port", String(config.controlPort)];
     if (lan) startArgs.push("--lan");
+    if (config.idleStopMin) startArgs.push("--idle-stop-min", config.idleStopMin);
+    if (config.idleStopMs) startArgs.push("--idle-stop-ms", config.idleStopMs);
     const started = await runNode(BOARD_JS, startArgs, 30000);
     if (!started.ok) throw new ToolError(started.json.error || "StartFailed", quoted(cut(started.json.message || "the board did not start", 200)), "tell the user; the board log is server.log in the data folder");
     url = started.json.url;
@@ -323,7 +329,12 @@ async function boardOpen(args) {
   let line = `ok open pages=${status.pageCount} lan=${status.lan} version=${status.version || "?"} browser=${browser}`;
   if (migrated) line += " migrated=1";
   if (status.version && status.version !== VERSION) line += ` serverVersion=${status.version} pluginVersion=${VERSION} restart=needed`;
-  if (status.lan) line += "\nnext: the page shows a \"Join from another device\" button with a QR code for the iPad";
+  if (status.lan) {
+    line += "\nnext: the page shows a \"Join from another device\" button with QR codes for the iPad (the board and its CA)";
+    // The user trusts the CA of the board once on this computer; Claude never runs this (FR-157, R-040).
+    const caPath = path.join(config.dataDir, "ca.crt");
+    if (fs.existsSync(caPath)) line += `\ntrust: the user may run this once in a terminal (a confirm window opens); never run it yourself: ${trustCommand(process.platform, caPath)}`;
+  }
   return textResult(line);
 }
 

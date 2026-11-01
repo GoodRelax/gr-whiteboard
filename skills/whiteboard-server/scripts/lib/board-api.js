@@ -72,7 +72,7 @@ function isSameOrigin(req) {
 // hub: BoardHub. token: the Token. redact(text) hides secrets.
 // inbox: { send(pageId) -> { sent }, setAutoSend(on) } (the Send handling in server.js).
 // @purity non-pure
-function createBoardApi({ hub, inbox, token, pageDir, redact, clock }) {
+function createBoardApi({ hub, inbox, token, pageDir, redact, clock, caDer = null, onActivity = () => {} }) {
   const files = loadPageFiles(pageDir);
   // pageId -> the open stream of that page. A page that connects again replaces its old stream.
   const streams = new Map();
@@ -94,6 +94,8 @@ function createBoardApi({ hub, inbox, token, pageDir, redact, clock }) {
     if (!sameSecret(url.searchParams.get("t"), token)) throw new AppError("BadToken", 403, "wrong or missing token");
     const pageId = url.searchParams.get("page") || "";
     if (!PAGE_ID_PATTERN.test(pageId)) throw new AppError("BadPageId", 400, "page id is missing or wrong");
+    // A Page that opens is a touch too (FR-159).
+    onActivity();
     const old = streams.get(pageId);
     if (old) endStream(pageId, old);
     res.writeHead(200, {
@@ -146,10 +148,28 @@ function createBoardApi({ hub, inbox, token, pageDir, redact, clock }) {
       case "GET /favicon.ico":
         res.writeHead(204);
         return res.end();
+      // The CA of this board, for an iPad or another computer to trust (0.6.1, FR-156). It is a public
+      // certificate (no key), so it needs no Token; it exists only in LAN mode.
+      case "GET /ca.crt":
+        if (!caDer) throw new AppError("NotFound", 404, "no CA certificate (LAN mode only)");
+        res.writeHead(200, {
+          "content-type": "application/x-x509-ca-cert",
+          "content-disposition": "attachment; filename=\"whiteboard-chat-ca.crt\"",
+          "cache-control": "no-store",
+          "x-content-type-options": "nosniff",
+        });
+        return res.end(caDer);
       case "GET /api/stream":
         return openStream(req, res, url);
+      // A Person touched the Page (keys, pointer); the Page sends this at most every 20 s (FR-159).
+      case "POST /api/activity": {
+        await readPost(req, MAX_ELEMENTS_BYTES);
+        onActivity();
+        return sendJson(res, 200, {});
+      }
       case "POST /api/elements": {
         const body = await readPost(req, MAX_ELEMENTS_BYTES);
+        onActivity();
         const changed = hub.receiveElements(String(body.page || ""), body.elements, body.editingId);
         return sendJson(res, 200, { changed });
       }
@@ -160,6 +180,7 @@ function createBoardApi({ hub, inbox, token, pageDir, redact, clock }) {
       }
       case "POST /api/files": {
         const body = await readPost(req, MAX_FILES_BYTES);
+        onActivity();
         return sendJson(res, 200, hub.receiveFiles(String(body.page || ""), body.files));
       }
       case "POST /api/job": {
@@ -169,10 +190,12 @@ function createBoardApi({ hub, inbox, token, pageDir, redact, clock }) {
       }
       case "POST /api/send": {
         const body = await readPost(req, MAX_ELEMENTS_BYTES);
+        onActivity();
         return sendJson(res, 200, inbox.send(String(body.page || "")));
       }
       case "POST /api/auto-send": {
         const body = await readPost(req, MAX_ELEMENTS_BYTES);
+        onActivity();
         inbox.setAutoSend(body.on === true);
         return sendJson(res, 200, { autoSend: body.on === true });
       }

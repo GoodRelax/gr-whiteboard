@@ -15,6 +15,10 @@ const INTEGER_SETTINGS = Object.freeze([
   { name: "answerGapPx", flag: "--answer-gap-px", defaultValue: 12, min: 0, max: 1000 },
   { name: "answerIndentPx", flag: "--answer-indent-px", defaultValue: 170, min: 0, max: 2000 },
   { name: "undoDepth", flag: "--undo-depth", defaultValue: 20, min: 1, max: 100 },
+  // 0.6.1 (R-039): stop after this many minutes without a touch on a Page or a call of the Agent; 0 = never.
+  { name: "idleStopMin", flag: "--idle-stop-min", defaultValue: 60, min: 0, max: 1440 },
+  // For tests: the idle time in ms; more than 0 wins over --idle-stop-min.
+  { name: "idleStopMs", flag: "--idle-stop-ms", defaultValue: 0, min: 0, max: 86400000 },
 ]);
 
 // Flags that take no value.

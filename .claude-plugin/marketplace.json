@@ -11,7 +11,7 @@
       "name": "whiteboard-chat",
       "source": "./",
       "description": "Talk and draw with Claude on a local whiteboard (Excalidraw component).",
-      "version": "0.6.0"
+      "version": "0.6.1"
     }
   ]
 }

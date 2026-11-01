@@ -4,7 +4,7 @@
 | -------- | --------------------------------------- |
 | Document | spec-en.md                              |
 | Template | ANMS v0.34 (gr-sw-maker process-rules)  |
-| Version  | 0.6.0 (draft)                           |
+| Version  | 0.6.1 (draft)                           |
 | Date     | 2026-11-01                              |
 | Status   | Draft. A person must review it.         |
 | License  | Apache-2.0                              |
@@ -318,6 +318,19 @@ MCP tools and the plugin (0.6.0, rulings R-031 to R-038). The design and its rea
 | FR-153 | When `board_open` runs, the data folder is empty, and a 0.5.x data folder exists at `~/.claude/skills/whiteboard-server/.data`, the MCP Server shall copy `board.json`, `baseline.json`, `token.txt`, `files/`, and `snapshots/` into the new folder and say `migrated=1` in the reply. | T |
 | FR-154 | Where LAN mode is on, the Page on this computer shall show a "Join from another device" button that shows each LAN Board URL as text and as a QR code. The Page makes the QR code with `qrcode-generator` 2.0.4 (MIT), loaded from esm.sh with a pinned version in the import map like Excalidraw and Mermaid (R-038 Q3). The link never leaves the Page: the Page sends no request with it, and every network request of the Page goes to esm.sh or to the Board Server. | D, T |
 
+Auto stop and the board CA (0.6.1, rulings R-039 and R-040 in CGQA [ux]):
+
+| ID     | Requirement (EARS) | Check |
+| ------ | ------------------ | ----- |
+| FR-155 | When `setup.js --lan` runs and the data folder has no CA, setup shall make the CA of the board (`ca.crt`, `ca-key.pem` in the data folder; RSA 2048, SHA-256, 10 years, a name with a random part, `basicConstraints` CA with path length 0, `keyUsage` keyCertSign and cRLSign, and a critical `nameConstraints` that permits only `localhost`, 127.0.0.0/8, 10.0.0.0/8, 172.16.0.0/12, and 192.168.0.0/16). It shall make the server certificate with this CA (397 days, `extKeyUsage` serverAuth, names: `localhost`, `127.0.0.1`, and the LAN addresses inside the permitted networks) and keep the CA when a LAN address changes. Reason: ruling R-040; the user trusts one CA once, and the CA cannot be used for other sites. | T, D |
+| FR-156 | Setup shall make a new server certificate when the old one comes from another CA (also the self-signed one of 0.6.0), misses a LAN address, or ends within 7 days. In LAN mode, the Board API shall serve `GET /ca.crt` without the Token (the CA certificate in DER form, `application/x-x509-ca-cert`, as an attachment); without LAN mode it shall reply 404. The server shall send its certificate with the CA as the chain. | T, D |
+| FR-157 | When `board_open` runs in LAN mode and the CA exists, the reply shall have a `trust:` line with the command that the user may run once to trust the CA on this computer (Windows `certutil -user -addstore Root "<ca.crt>"`; macOS `security add-trusted-cert -r trustRoot -k ...login.keychain-db "<ca.crt>"`; else the browser settings) and say that Claude never runs it. The Skill shall tell the Agent to show the command and never run it. Reason: it changes the security settings of the user's computer (R-040). | T, I |
+| FR-158 | Where LAN mode is on, the "Join from another device" dialog shall also show a QR code and a link of `<board origin>/ca.crt`, and the steps to install and trust the CA on an iPad (Safari download, Settings > General > VPN & Device Management, Settings > General > About > Certificate Trust Settings). | D |
+| FR-159 | The Server shall stop itself after `--idle-stop-min` minutes (default 60; 0 never) without a touch. A touch is: any Control API request (a call of the Agent), a Page that opens its event stream, and `POST /api/activity`, `/api/elements`, `/api/files`, `/api/send`, or `/api/auto-send`. The Page shall post `/api/activity` on a key, pointer, paste, drop, or wheel input, at most every 20 s (at once while the warning shows). Each touch starts the time again. The MCP Server passes `WHITEBOARD_IDLE_STOP_MIN` to `board.js start`. Reason: ruling R-039. | T, D |
+| FR-160 | When `min(5 min, idle time / 2)` is left, the Server shall send the Event `IdleWarning` (`stopAtMs`) and the SSE event `idle` (`{stopAtMs}`) to every Page, and `hello` shall have `idleStopAtMs` (null without a warning). The Page shall show "Nobody used this board for a while. It stops at HH:MM (in about N min) and saves a copy. Touch the board to keep it open." A touch shall end the warning (`idle` with `stopAtMs` null). | T, D |
+| FR-161 | When the idle time is over, the Server shall write the Board as an Excalidraw file (`type` "excalidraw", `version` 2, the Elements that are not deleted, and only the files that they show) to `<data>/exports/whiteboard-YYYYMMDD-HHMMSS.excalidraw` (local time), then save `board.json` and stop as FR-006. | T |
+| FR-162 | `ServerStopped` shall have `reason`: `"idle"` (with `idleMinutes` and `exportPath`, or `exportPath` null when the file could not be written) or `"request"`. `client.js watch` passes it to the Monitor. The Skill shall tell the Agent, on `reason` "idle", to stop the Monitor and tell the user in the chat that the board stopped for no use, that it is saved, and where the copy is. Reason: the owner's words in R-039. | T, I |
+
 What the Skill tells the Agent (0.5.0):
 
 | ID     | Requirement (EARS) | Check |
@@ -343,7 +356,7 @@ What the Skill tells the Agent (0.5.0):
 | FR-044 | Where LAN mode is off, the Server shall serve the Page with http on 127.0.0.1 only. | T |
 | FR-045 | The Server shall make a random Token (18 bytes, base64url) once, keep it in `token.txt`, and refuse the event stream and every POST of the Board API without it (403 `BadToken`). | T |
 | FR-046 | Where LAN mode is on, the Server shall serve the Page with https on all addresses, and the result of `board.js start` shall have one Board URL for each LAN address (IPv4, not internal, not 169.254.x.x). | T, D |
-| FR-047 | When `setup.js --lan` runs, setup shall install the fixed node-forge version into the Skill folder and make a self-signed certificate for `localhost`, `127.0.0.1`, and every LAN address. It shall make a new certificate if an address is missing or the old one ends within 7 days. | T, D |
+| FR-047 | When `setup.js --lan` runs, setup shall install the fixed node-forge version into the Skill folder and make a certificate (from 0.6.1 signed by the CA of the board, FR-155) for `localhost`, `127.0.0.1`, and every LAN address. It shall make a new certificate if an address is missing or the old one ends within 7 days. | T, D |
 | FR-048 | The Board API shall refuse requests with an `Origin` from another host (403 `BadOrigin`) and POSTs without `content-type: application/json` (415). The Page shall have a Content Security Policy that allows code only from the Server, esm.sh, and its own import map. | T |
 | FR-049 | The Control API shall listen on 127.0.0.1 only, also in LAN mode, and shall refuse requests that have an `Origin` header or a `Host` other than `127.0.0.1:<port>` or `localhost:<port>` (403 `NotLocal`). | T |
 
@@ -1259,6 +1272,44 @@ Feature: Talk with Claude Code on a local whiteboard
       Then it names the board_* tools for open, read, say, draw, edit, delete, undo, shot, and close
       And the only command in it is the Monitor command of the board watch, marked as never for the user
 
+  Rule: Auto stop and the board CA (0.6.1)
+
+    Scenario: SC-128 The idle time ends (traces: FR-159, FR-161, FR-162)
+      Given the Server runs with --idle-stop-min 60 and a Page is open
+      When nobody touches the Page and the Agent calls nothing for 60 minutes
+      Then the Server writes exports/whiteboard-<date>-<time>.excalidraw with the Elements that are not deleted
+      And it saves board.json and stops
+      And ServerStopped has reason "idle", idleMinutes 60, and exportPath
+      And the Agent tells the user in the chat where the copy is
+
+    Scenario: SC-129 The warning and a touch (traces: FR-159, FR-160)
+      Given 5 minutes are left
+      Then every Page shows "It stops at HH:MM" and the log has IdleWarning
+      When a Person clicks on the board
+      Then the warning goes away and the time starts again from 60 minutes
+      When the Agent calls any tool
+      Then the time starts again too
+
+    Scenario: SC-130 A stop on request (traces: FR-162)
+      When the Agent calls board_close
+      Then ServerStopped has reason "request" and no file is exported
+
+    Scenario: SC-131 One CA for the board (traces: FR-155, FR-156)
+      Given LAN mode with the LAN addresses 192.168.10.3 and 100.64.1.2
+      When setup.js --lan runs
+      Then ca.crt has a critical nameConstraints for localhost, 127/8, 10/8, 172.16/12, and 192.168/16
+      And the server certificate is signed by the CA and names localhost, 127.0.0.1, and 192.168.10.3, not 100.64.1.2
+      And a TLS client that trusts only ca.crt accepts the Board on every named address
+      When the LAN address changes
+      Then setup makes a new server certificate and keeps ca.crt
+
+    Scenario: SC-132 Trust on this computer and on an iPad (traces: FR-157, FR-158)
+      When the Agent calls board_open with lan true
+      Then the reply has a trust: line with the certutil command, and the Agent shows it and never runs it
+      When the user clicks "Join from another device"
+      Then the dialog shows the QR code of /ca.crt and the four iPad steps
+      And GET /ca.crt gives the CA in DER form without the Token
+
   Rule: What the Skill tells the Agent (0.5.0; checked by inspection and in the UAT)
 
     Scenario: SC-094 The Agent draws on request (traces: FR-110)
@@ -1307,6 +1358,7 @@ Flags of `server.js` (and of `board.js start`, which passes them on):
 | `--answer-indent-px` | 170 | 0-2000 | How far an Answer starts to the left of its Message. |
 | `--shot-dir` | `<temp>/whiteboard-chat` | folder | Where Screenshots go. |
 | `--undo-depth` | 20 | 1-100 | How many Operations `undo` can take back (FR-102). |
+| `--idle-stop-min` | 60 | 0-1440 | Stop after this many minutes without a touch; 0 never (0.6.1, FR-159). `--idle-stop-ms` (0-86400000) wins when above 0; for tests. |
 
 ### 4.3 Board API (port `--port`)
 
@@ -1350,7 +1402,9 @@ The Page and the Page script need no Token, because they have no Board data. Bod
 | `files/<id>.json` | `{id, mimeType, dataURL, created}`: one image file (FR-082). |
 | `snapshots/<opId>.json` | `{"v": 1, "opId", "kind", "atMs", "elements": [...], "changed": [{id, version}]}`: the whole Board before Operation `opId` (deleted Elements too), and each Element that the Operation changed with its `version` after it (FR-102). Written through a `.tmp` file and a rename. At most `undoDepth` files. |
 | `server.log` | Events (4.7), UTF-8, emptied at each start. |
-| `cert.pem`, `key.pem`, `cert-info.json` | LAN mode only. `cert-info.json`: `{addresses, createdMs, notAfterMs}`. The certificate is valid for 397 days. |
+| `cert.pem`, `key.pem`, `cert-info.json` | LAN mode only. `cert.pem` holds the server certificate and then the CA (0.6.1). `cert-info.json`: `{addresses, named, caSerial, createdMs, notAfterMs}`. The certificate is valid for 397 days. |
+| `ca.crt`, `ca-key.pem` | LAN mode only (0.6.1, FR-155): the CA of the board (PEM) and its private key. Kept when addresses change. |
+| `exports/whiteboard-YYYYMMDD-HHMMSS.excalidraw` | The Board at an idle stop (0.6.1, FR-161). |
 
 ### 4.6 Rules: where to put an Answer
 
@@ -1370,7 +1424,8 @@ Every Event has `v: 1`, `event`, and `atMs`.
 | Event | Fields | In the Monitor list |
 | ----- | ------ | ------------------- |
 | `ServerReady` | `version, lan, port, controlPort, itemCount, lanAddressCount` | yes |
-| `ServerStopped` | - | yes |
+| `ServerStopped` | `reason` (`idle` or `request`); for `idle` also `idleMinutes`, `exportPath` (0.6.1, FR-162) | yes |
+| `IdleWarning` | `stopAtMs` (0.6.1, FR-160) | no |
 | `ServerFailed` | `reason, message` | yes |
 | `MessagesSent` | `messages: [{id, text, x, y, inShape}]`, `changes: [{kind, id, type, x, y, isAnswer, ...}]` (FR-072, 4.10) | yes |
 | `MessageReceived`, `MessageEdited` | `id, text, x, y, inShape` (auto sending only) | yes |
@@ -1633,7 +1688,7 @@ Every error is a tool result with `isError: true` and two lines: `CODE key=value
 | Integration test | `server.js` as a child process; `client.js wait` and `watch` | A fake Page (SSE and POST) and the Control API: sync, Messages, typing, Answers, Token, Origin, saving. | `node:test` | All pass |
 | Manual test      | The Page in real browsers | Two Pages: sync, Answers, Screenshot, Leader change, restart; LAN mode from a second computer. | Browser | Scenarios in 4.1 pass |
 | Inspection       | FR-050 to FR-064, FR-110 to FR-114, NFR-009, NFR-011, NFR-014 | A person reads both `SKILL.md` files, one full session log, `index.html`, and `package.json`. | Reading | No finding of High or higher |
-| Scenario check   | 4.1 (SC-070 to SC-127) against the tests | A test SUB maps each scenario to a test or a manual step. | Reading | Every scenario has a test or a UAT step |
+| Scenario check   | 4.1 (SC-070 to SC-132) against the tests | A test SUB maps each scenario to a test or a manual step. | Reading | Every scenario has a test or a UAT step |
 | User acceptance test | 5.1 | The owner and the BOSS, Sunday 2026-11-01 11:00-12:00 JST, PC (Edge) and iPad (Safari), LAN mode. | Browser, Claude Code | Every UAT scenario passes, or the owner accepts a listed gap |
 
 Tests do not depend on each other. They share no state. Their order does not matter. Unit tests do not wait for real time.
@@ -1788,6 +1843,7 @@ Gaps that the UAT does not cover: Firefox and macOS (NFR-008), and Mermaid types
 
 | Version | Date | Change |
 | ------- | ---- | ------ |
+| 0.6.1 | 2026-11-01 | Auto stop and the board CA (rulings R-039, R-040). The Server stops itself after 60 minutes (`--idle-stop-min`; MCP: `WHITEBOARD_IDLE_STOP_MIN`) without a touch of a Page or a call of the Agent; 5 minutes before, every Page shows a warning, and a touch starts the time again; at the stop it writes the Board as an `.excalidraw` file into `<data>/exports`, and `ServerStopped` has `reason`, `idleMinutes`, and `exportPath`, which the board watch passes to the Agent; the Skill tells the user where the copy is (FR-159 to FR-162). LAN mode: setup makes a CA of the board with name constraints (localhost and the private networks) and signs the server certificate with it; the 0.6.0 self-signed certificate is replaced (FR-155, FR-156); `board_open` shows the user the one command to trust the CA (`certutil -user -addstore Root`), which Claude never runs (FR-157); the Join dialog has the QR code of `/ca.crt` and the iPad steps (FR-158). New files `lib/idle-timer.js`, `lib/excalidraw-file.js`; `POST /api/activity`, `GET /ca.crt`; SSE `idle`; Event `IdleWarning`. New scenarios SC-128 to SC-132. |
 | 0.6.0 | 2026-11-01 | The board becomes a Claude Code plugin with MCP tools (rulings R-031 to R-038; design `docs/design-060-mcp-en.md`, approved). New MCP Server `mcp.js` (no dependencies, stdio) with the tools `board_open`, `board_close`, `board_status`, `board_inbox`, `board_read`, `board_say`, `board_signal`, `board_mermaid` (Mermaid blocks straight from `.md` files, styles taken out), `board_table`, `board_draw`, `board_edit` (also a short form), `board_delete`, `board_undo`, and `board_shot` (the image in the reply, scale 0.5) (FR-125 to FR-153, NFR-015 to NFR-017, 4.12). Replies are short text lines; errors end with a `next:` line. The not-equal sign becomes `!=` (R-034). The Token and the link never appear in tool output; `board_open` opens the browser itself. Plugin files `.claude-plugin/plugin.json`, `marketplace.json`, `.mcp.json`; the data moves to `<CLAUDE_PLUGIN_DATA>/board`, and the first `board_open` copies a 0.5.x board (FR-153). LAN mode: a "Join from another device" button with a QR code (`qrcode-generator` 2.0.4 from esm.sh; FR-154; `hello` has `joinUrls`). `setup.js --forge-dir`. `client.js watch` names `board_inbox` in `read` and finds the log through `/v1/status` (FR-145, FR-146); `sent --brief` adds `old`, `by`, `what`, `style`, `at`, `size`, `byClaude`, and `shot` (JSON; FR-152). The skill `whiteboard-chat` is rewritten for the tools only; `whiteboard-server` keeps the Node.js check and the debug commands. Build notes B-Q1 to B-Q5 (design 8.2): requirement IDs moved up by 5; the CLI brief stays JSON; the QR library from esm.sh; the board watch starts with the Monitor tool because Claude Code 2.1.81 has no plugin monitors; the Windows browser opener is `rundll32 url.dll,FileProtocolHandler`. New scenarios SC-114 to SC-127. Not measured yet: NFR-017 (needs a replay of the K session). |
 | 0.5.2 | 2026-11-01 | Fixes from the Board use of K gr-handover and smaller replies (ruling R-031; the owner: "the proposal is fine; ship the fix today; use != for the not-equal sign"). Mermaid: `<br>` becomes a line break, labels are measured with the fonts of the Board so boxes do not overlap (FR-115), and the default black becomes `#1971c2`; a pie picture keeps its colors (FR-116, R-027). `edit`: bound arrows move once, an arrow in the Job moves only by its own change, and arrows with three or more points keep their form (FR-117). `shot`: Items and labels at the edge are no longer cut (FR-118), and `--scale` makes a smaller PNG (FR-123, new error `InvalidScale`). `board`: arrows and lines have `points` and the size of their points (FR-119), and `--fields` keeps only some fields (FR-122). `say --at` replies `requested` and `moved`; Japanese Answers are measured as 1 em per character (FR-120). `sent --brief` (FR-121). The Skill says `!=` (FR-124). New scenarios SC-105 to SC-113; new tests for SC-109 (the `InvalidScale` part), SC-110 (the Server part), SC-111, and SC-112; the Page parts were checked in headless Edge. |
 | 0.5.1 | 2026-11-01 | Fixes from the UAT of 0.5.0 and the Gherkin check (task 97, ruling R-027, option a). `undo` keeps the `updated` of an Element that comes back (FR-103): the Answer after an undo went to the top of the Board instead of below the newest Message (UAT-10; new SC-087a). FR-093a and FR-094 now say that the Page sets `securityLevel` "strict" itself, as the code does (C1). New scenarios SC-074a (DrawingAdded does not count Claude Items, G1) and SC-099 to SC-104 for FRs without one (A3). New tests for SC-074a, SC-087 (the Send count after undo, G2), SC-079 (a first Mermaid Job of 1.5 x `jobTimeoutMs`, G6), SC-087a, and SC-104 (the request bodies of every client command, G7). 5 now says that the UAT checks what the Leader Page does (G5). |

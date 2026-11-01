@@ -1,6 +1,6 @@
 {
   "name": "whiteboard-chat",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Talk and draw with Claude on a local whiteboard (Excalidraw component).",
   "author": {
     "name": "GoodRelax"

@@ -17,7 +17,7 @@ const { spawnSync } = require("child_process");
 const { readFlags } = require("./lib/config");
 const { dataPaths, writeFileAtomic, readJsonOrNull } = require("./lib/data-files");
 const { lanAddresses } = require("./lib/lan");
-const { createSelfSignedCert, certIsUsable } = require("./lib/cert");
+const { createBoardCa, createServerCert, certIsUsable } = require("./lib/cert");
 
 const SKILL_DIR = path.resolve(__dirname, "..");
 const MIN_NODE_MAJOR = 20;
@@ -45,18 +45,31 @@ function loadForge() {
   }
 }
 
+// The serial number of the CA in the data folder, or null (FR-155).
+// @purity semi-pure-b
+function caSerialOf(paths, forge) {
+  if (!forge || !fs.existsSync(paths.ca) || !fs.existsSync(paths.caKey)) return null;
+  try {
+    return forge.pki.certificateFromPem(fs.readFileSync(paths.ca, "utf8")).serialNumber;
+  } catch (error) {
+    return null;
+  }
+}
+
 // @purity semi-pure-b
 function check(paths) {
   const addresses = lanAddresses(os.networkInterfaces());
   const info = readJsonOrNull(paths.certInfo);
   const certFiles = fs.existsSync(paths.cert) && fs.existsSync(paths.key);
+  const caSerial = caSerialOf(paths, loadForge());
   return {
     v: 1,
     ok: nodeIsNewEnough(process.version),
     node: process.version,
     nodeOk: nodeIsNewEnough(process.version),
-    lanReady: loadForge() !== null && certFiles && certIsUsable(info, addresses, Date.now()),
+    lanReady: loadForge() !== null && caSerial !== null && certFiles && certIsUsable(info, addresses, Date.now(), caSerial),
     forge: loadForge() !== null,
+    ca: caSerial !== null,
     cert: certFiles,
     lanAddresses: addresses,
   };
@@ -86,17 +99,29 @@ function setupLan(paths) {
   if (addresses.length === 0) {
     return { v: 1, ok: false, step: "address", tail: ["this computer has no LAN address (IPv4); connect it to a network first"] };
   }
+  const forge = loadForge();
+  fs.mkdirSync(path.dirname(paths.cert), { recursive: true });
+  // The CA is made once and kept; the user trusts it once (FR-155, FR-157).
+  let caSerial = caSerialOf(paths, forge);
+  const madeCa = caSerial === null;
+  if (madeCa) {
+    const ca = createBoardCa(forge, { nowMs: Date.now() });
+    writeFileAtomic(paths.caKey, ca.caKeyPem);
+    writeFileAtomic(paths.ca, ca.caCertPem);
+    caSerial = ca.serial;
+  }
   const info = readJsonOrNull(paths.certInfo);
   const certFiles = fs.existsSync(paths.cert) && fs.existsSync(paths.key);
-  if (certFiles && certIsUsable(info, addresses, Date.now())) {
-    return { v: 1, ok: true, step: "done", madeCert: false, lanAddresses: addresses, tail: [] };
-  }
-  fs.mkdirSync(path.dirname(paths.cert), { recursive: true });
-  const made = createSelfSignedCert(loadForge(), { addresses, nowMs: Date.now() });
+  const result = { v: 1, ok: true, step: "done", madeCa, madeCert: false, caPath: paths.ca, lanAddresses: addresses, tail: [] };
+  if (certFiles && certIsUsable(info, addresses, Date.now(), caSerial)) return result;
+  // A new LAN address, an old self-signed certificate (0.6.0), or a near end date: a new server certificate.
+  const made = createServerCert(forge, {
+    caCertPem: fs.readFileSync(paths.ca, "utf8"), caKeyPem: fs.readFileSync(paths.caKey, "utf8"), addresses, nowMs: Date.now(),
+  });
   writeFileAtomic(paths.key, made.keyPem);
   writeFileAtomic(paths.cert, made.certPem);
   writeFileAtomic(paths.certInfo, JSON.stringify(made.info) + "\n");
-  return { v: 1, ok: true, step: "done", madeCert: true, lanAddresses: addresses, tail: [] };
+  return { ...result, madeCert: true, namedAddresses: made.info.named };
 }
 
 // @purity non-pure

@@ -602,6 +602,15 @@ Ruling R-038 (2026-11-01 10:40): the owner approved draft 2. Every decision of c
 
 ---
 
+## 9. After 0.6.0: 0.6.1 (R-039, R-040)
+
+The owner ruled two more points of use (CGQA [ux]); spec-en.md 0.6.1 has the requirements (FR-155 to FR-162) and scenarios (SC-128 to SC-132).
+
+| Ruling | What 0.6.1 does | MCP part |
+| ------ | --------------- | -------- |
+| R-039 Auto stop | The Board Server stops after 60 minutes without a touch of a Page or a call of the Agent; warning 5 minutes before on every Page; an `.excalidraw` copy in `<data>/exports`; `ServerStopped` with `reason`, `idleMinutes`, `exportPath`. | Every tool call is a touch (each calls the Control API). `WHITEBOARD_IDLE_STOP_MIN` sets the time. The board watch passes `ServerStopped` to the Agent, and the skill tells the user where the copy is. |
+| R-040 "Not secure" | A CA of the board with name constraints (localhost, 127/8, 10/8, 172.16/12, 192.168/16) signs the server certificate; `GET /ca.crt`; the Join dialog shows the CA QR code and the iPad steps. | `board_open` with `lan: true` adds a `trust:` line with the one command that the user runs; Claude never runs it (FR-157). |
+
 ## Appendix A. Requirement list of this design
 
 | ID | Short |

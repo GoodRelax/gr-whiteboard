@@ -20,7 +20,7 @@ A person writes on a whiteboard in the browser. You answer and draw on the same 
 3. Greet with `board_say`: "Hi, I am Claude. Write with the text tool (T), then press Send (top right). I answer here, in blue."
 4. Tell the user in the chat: "The board is open in your browser. Write there and press Send. Say 'stop' here to end."
 
-For an iPad or another computer: ask the user first (it downloads node-forge, about 2 MB, and anyone on the network with the link can write). After a yes, call `board_open` with `lan: true`. The page then shows a "Join from another device" button with a QR code. Tell the user to click it and scan the code, and that the iPad warns about the certificate once (Advanced, then Proceed). If the board already runs without LAN, the reply is `RunningInOtherMode`: after a yes, call `board_close`, then `board_open` with `lan: true`.
+For an iPad or another computer: ask the user first (it downloads node-forge, about 2 MB, and anyone on the network with the link can write). After a yes, call `board_open` with `lan: true`. The page then shows a "Join from another device" button with QR codes: one for the board, one for the CA of the board with the iPad steps. Tell the user to click it and follow the steps once per iPad. To remove "Not secure" on this computer, the reply of `board_open` has a `trust:` line with a command: show it to the user and say that they may run it once in a terminal and confirm the Windows window. Never run it yourself: it changes the security settings of the computer. If the board already runs without LAN, the reply is `RunningInOtherMode`: after a yes, call `board_close`, then `board_open` with `lan: true`.
 
 ## Talk
 
@@ -29,7 +29,8 @@ Each Monitor line is one event.
 - `MessagesSent` (the person pressed Send): call `board_signal` with `reading`, then the `read` tool of the line (`board_inbox` with that `atMs`). Read the `msg` lines first, then the `chg` lines. `shot=yes` marks a drawing to look at with `board_shot`. Then answer once with `board_say`.
 - `MessageReceived` or `MessageEdited` (auto sending): `board_signal` `reading`, then answer the text. Do not answer the same idea twice.
 - `DrawingAdded`: look with `board_shot` before you talk about it.
-- `ServerStopped`, `ServerFailed`: tell the user.
+- `ServerStopped` with `reason: "idle"`: nobody used the board for `idleMinutes` minutes, so it stopped by itself and saved a copy. Stop the Monitor and tell the user in the chat: "Nobody used the board for an hour, so I stopped it. The board is saved; a copy is here: `exportPath` (excalidraw.com opens it). Say so if you want it again." Use the real minutes and path. Call `board_open` again only when the user asks.
+- Other `ServerStopped`, and `ServerFailed`: tell the user.
 
 Before longer work, call `board_signal` with `working`. `board_say` sets `waiting` by itself.
 

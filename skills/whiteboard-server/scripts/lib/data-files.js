@@ -4,7 +4,8 @@
 //   board.json   the Board (FR-040)
 //   token.txt    the Token (FR-045)
 //   baseline.json  the Board at the last Send, as summaries (FR-076)
-//   cert.pem, key.pem, cert-info.json   the self-signed certificate for LAN mode (FR-047)
+//   cert.pem, key.pem, cert-info.json   the server certificate for LAN mode (FR-047)
+//   ca.crt, ca-key.pem   the CA of this board that signs it (0.6.1, FR-155)
 //   files/<id>.json   one image file of the Board (FR-082)
 //   snapshots/<opId>.json   the whole Board before Operation opId (FR-102)
 
@@ -25,6 +26,8 @@ function dataPaths(dataDir) {
     cert: path.join(dataDir, "cert.pem"),
     key: path.join(dataDir, "key.pem"),
     certInfo: path.join(dataDir, "cert-info.json"),
+    ca: path.join(dataDir, "ca.crt"),
+    caKey: path.join(dataDir, "ca-key.pem"),
     files: path.join(dataDir, "files"),
     snapshots: path.join(dataDir, "snapshots"),
   });
