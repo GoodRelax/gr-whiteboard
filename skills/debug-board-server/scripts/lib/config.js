@@ -7,6 +7,8 @@ const path = require("path");
 const INTEGER_SETTINGS = Object.freeze([
   { name: "port", flag: "--port", defaultValue: 47830, min: 1024, max: 65535 },
   { name: "controlPort", flag: "--control-port", defaultValue: 47831, min: 1024, max: 65535 },
+  // 0.7.1 (NG-3, FR-166): LAN mode only; plain http with only GET /ca.crt, for an iPad to install the CA.
+  { name: "caPort", flag: "--ca-port", defaultValue: 47832, min: 1024, max: 65535 },
   { name: "tickMs", flag: "--tick-ms", defaultValue: 250, min: 50, max: 10000 },
   { name: "settleMs", flag: "--settle-ms", defaultValue: 1500, min: 0, max: 60000 },
   { name: "saveMs", flag: "--save-ms", defaultValue: 3000, min: 100, max: 600000 },
@@ -65,8 +67,8 @@ function parseConfig(argv, tempDir, skillDir) {
     if (!result.ok) return { ok: false, reason: "InvalidConfig", message: result.message, logPath };
     config[setting.name] = result.value;
   }
-  if (config.port === config.controlPort) {
-    return { ok: false, reason: "InvalidConfig", message: "--port and --control-port must differ", logPath };
+  if (new Set([config.port, config.controlPort, config.caPort]).size < 3) {
+    return { ok: false, reason: "InvalidConfig", message: "--port, --control-port, and --ca-port must differ", logPath };
   }
   config.shotDir = path.resolve(flags.get("--shot-dir") || path.join(tempDir, "gr-whiteboard"));
   return { ok: true, config: Object.freeze(config) };

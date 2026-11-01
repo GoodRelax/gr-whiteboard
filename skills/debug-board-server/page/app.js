@@ -45,6 +45,12 @@ const SIGNAL_TEXT = Object.freeze({
   working: "Claude: working on it",
   waiting: "Claude: waiting for you",
 });
+// The bar shows these short labels; SIGNAL_TEXT is their tooltip (R-049).
+const SIGNAL_SHORT = Object.freeze({
+  reading: "Claude: reading",
+  working: "Claude: working",
+  waiting: "Claude: waiting",
+});
 
 const token = new URLSearchParams(window.location.hash.slice(1)).get("t") || "";
 const pageId = randomId();
@@ -58,7 +64,7 @@ let flushTimer = null;
 let source = null;
 let lastStreamMs = 0;
 let reopenTimer = null;
-let status = { online: false, leader: false, signal: "none", unsent: 0, autoSend: false, joinUrls: [], idleStopAtMs: null };
+let status = { online: false, leader: false, signal: "none", unsent: 0, autoSend: false, join: [], idleStopAtMs: null };
 // A touch on the page keeps the Server running (0.6.1, FR-159): at most one report every ACTIVITY_MS,
 // and at once while the idle warning is shown.
 const ACTIVITY_MS = 20000;
@@ -264,9 +270,9 @@ function onHello(data) {
   if (firstHello && data.elements.length > 0) api.scrollToContent(undefined, { fitToContent: true });
   firstHello = false;
   const inbox = data.inbox || { unsent: 0, autoSend: false };
-  const joinUrls = Array.isArray(data.joinUrls) ? data.joinUrls.filter((url) => typeof url === "string") : [];
+  const join = Array.isArray(data.join) ? data.join.filter((target) => target && typeof target.url === "string") : [];
   const idleStopAtMs = Number.isFinite(data.idleStopAtMs) ? data.idleStopAtMs : null;
-  setStatus({ ...status, online: true, leader: isLeader, signal: data.signal || "none", ...inbox, joinUrls, idleStopAtMs });
+  setStatus({ ...status, online: true, leader: isLeader, signal: data.signal || "none", ...inbox, join, idleStopAtMs });
 }
 
 // A timer, not requestAnimationFrame: animation frames stop while the page is not drawn
@@ -1071,13 +1077,14 @@ function QrCode({ text }) {
   return failed ? h("div", null, "The QR code could not be made. Type the link instead.") : h("canvas", { ref, "aria-label": "QR code of the link" });
 }
 
-// The steps to trust the CA of this board on an iPad (0.6.1, FR-158). Done once per device.
+// The steps to trust the CA of this board on an iPad (0.6.1, FR-158; 0.7.1, FR-165, FR-167). Once per device.
 const IPAD_STEPS = Object.freeze([
-  "Scan the code \"CA of this board\" with the iPad camera and open it in Safari. If Safari warns, tap \"Show Details\", then \"visit this website\". Tap \"Allow\" to download the profile.",
+  "Scan the code of step 1 with the iPad camera and open it in Safari. Tap \"Allow\" to download the profile.",
   "Settings > General > VPN & Device Management: tap the profile \"gr-whiteboard local CA\", then \"Install\".",
   "Settings > General > About > Certificate Trust Settings: turn on \"gr-whiteboard local CA\".",
-  "Scan the code of the board. Safari opens it without a warning.",
 ]);
+const IPAD_FALLBACK = "If no profile appears: open the CA link on this computer, save the file to iCloud Drive or OneDrive, "
+  + "open it on the iPad in the Files app (tap the file), then do steps 2 and 3.";
 
 function caUrlOf(url) {
   try {
@@ -1087,22 +1094,63 @@ function caUrlOf(url) {
   }
 }
 
-function JoinDialog({ urls, onClose }) {
-  const caUrl = caUrlOf(urls[0]);
+// Copies a URL to the clipboard of this device (FR-164). The URL stays on this device: nothing is sent anywhere.
+function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+  return new Promise((resolve, reject) => {
+    const area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    const ok = document.execCommand("copy");
+    area.remove();
+    if (ok) resolve();
+    else reject(new Error("copy failed"));
+  });
+}
+
+function CopyButton({ text }) {
+  const [state, setState] = React.useState("Copy");
+  const onClick = () => copyText(text).then(() => setState("Copied")).catch(() => setState("Select and copy"));
+  return h("button", { type: "button", className: "wbc-send wbc-copy", title: "Copy the link to the clipboard of this device", onClick }, state);
+}
+
+// One address: what it is, its QR code, the link, and a copy button (FR-163, FR-164).
+function JoinTarget({ target, showQr }) {
+  const name = target.recommended ? `${target.label} - recommended` : target.label;
+  return h("div", { className: target.recommended ? "wbc-join-target wbc-recommended" : "wbc-join-target" },
+    h("div", { className: "wbc-join-name" }, `${name} (${target.name}, ${target.address})`),
+    showQr ? h(QrCode, { text: target.url }) : null,
+    h("div", { className: "wbc-join-row" }, h("div", { className: "wbc-join-url" }, target.url), h(CopyButton, { text: target.url })));
+}
+
+// The "Join" dialog (FR-165): step 1 trusts the CA of the board (once per device), step 2 opens the board.
+// The recommended address comes first; the others wait under "Other addresses" (FR-163).
+function JoinDialog({ targets, onClose }) {
+  const first = targets[0];
+  const caUrl = first.caUrl || caUrlOf(first.url);
+  const others = targets.slice(1);
   return h("div", { className: "wbc-join-dialog", onClick: onClose },
     h("div", { className: "wbc-join-box", onClick: (event) => event.stopPropagation() },
-      h("strong", null, "Join from another device"),
-      h("div", null, "Scan the code with the camera of the other device, on the same network. Anyone with this link can see and change the board."),
-      ...urls.map((url) => h("div", { key: url, style: { display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" } },
-        h(QrCode, { text: url }),
-        h("div", { className: "wbc-join-url" }, url))),
-      caUrl ? h("div", { className: "wbc-join-ca" },
-        h("strong", null, "First time: trust the CA of this board (removes \"Not secure\")"),
-        h("ol", null, ...IPAD_STEPS.map((step) => h("li", { key: step }, step))),
-        h("div", { style: { display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" } },
+      h("strong", null, "Join from another device (same network)"),
+      h("div", null, "Anyone with the board link can see and change the board."),
+      caUrl ? h("div", { className: "wbc-join-step" },
+        h("strong", null, "Step 1 (once per device): trust the CA of this board"),
+        h("div", { className: "wbc-join-target" },
           h(QrCode, { text: caUrl }),
-          h("div", { className: "wbc-join-url" }, "CA of this board: ", h("a", { href: caUrl, download: "gr-whiteboard-ca.crt" }, caUrl))),
-        h("div", null, "On another computer: download the CA with this link and add it to the trusted root certificates once.")) : null,
+          h("div", { className: "wbc-join-row" }, h("div", { className: "wbc-join-url" }, h("a", { href: caUrl, download: "gr-whiteboard-ca.crt" }, caUrl)), h(CopyButton, { text: caUrl }))),
+        h("ol", null, ...IPAD_STEPS.map((step) => h("li", { key: step }, step))),
+        h("div", { className: "wbc-join-note" }, IPAD_FALLBACK),
+        h("div", { className: "wbc-join-note" }, "Another computer: download the CA with the link and add it to the trusted root certificates once.")) : null,
+      h("div", { className: "wbc-join-step" },
+        h("strong", null, "Step 2: open the board"),
+        h(JoinTarget, { target: first, showQr: true }),
+        others.length > 0 ? h("details", null,
+          h("summary", null, `Other addresses (${others.length}) - use them only when the recommended one does not work`),
+          ...others.map((target) => h(JoinTarget, { key: target.url, target, showQr: true }))) : null),
       h("button", { type: "button", className: "wbc-send", onClick: onClose }, "Close")));
 }
 
@@ -1126,10 +1174,12 @@ function StatusBadge() {
     showStatus = update;
     update(status);
   }, []);
-  const text = shown.online
+  // Short texts; the full sentence is the tooltip (R-049, FR-169).
+  const statusText = shown.online ? (shown.leader ? "connected, writer" : "connected") : "offline, retrying";
+  const statusTitle = shown.online
     ? `gr-whiteboard: connected${shown.leader ? " (this page writes Claude's answers)" : ""}`
     : "gr-whiteboard: not connected, trying again";
-  const signal = SIGNAL_TEXT[shown.signal];
+  const signal = SIGNAL_SHORT[shown.signal];
   const send = shown.autoSend
     ? null
     : h("button", {
@@ -1141,16 +1191,17 @@ function StatusBadge() {
   const auto = h("label", { className: "wbc-auto", title: "Send each text by itself, 1.5 s after you stop typing" },
     h("input", { type: "checkbox", checked: shown.autoSend, onChange: (event) => setAutoSend(event.target.checked) }),
     "auto");
-  const join = shown.joinUrls && shown.joinUrls.length > 0
-    ? h("button", { type: "button", className: "wbc-send", title: "Show the link and a QR code for a phone or tablet", onClick: () => setJoinOpen(true) }, "Join from another device")
+  const join = shown.join && shown.join.length > 0
+    ? h("button", { type: "button", className: "wbc-send wbc-join", title: "Join from another device: links and QR codes for a phone or tablet", onClick: () => setJoinOpen(true) }, "Join")
     : null;
   return h("div", { className: "wbc-bar" },
     shown.idleStopAtMs ? h(IdleBanner, { stopAtMs: shown.idleStopAtMs }) : null,
-    joinOpen ? h(JoinDialog, { urls: shown.joinUrls, onClose: () => setJoinOpen(false) }) : null,
+    joinOpen ? h(JoinDialog, { targets: shown.join, onClose: () => setJoinOpen(false) }) : null,
     join,
     send,
-    signal ? h("div", { className: `wbc-signal wbc-${shown.signal}` }, signal) : null,
-    h("div", { className: shown.online ? "wbc-status" : "wbc-status off" }, text),
+    signal ? h("div", { className: `wbc-signal wbc-${shown.signal}`, title: SIGNAL_TEXT[shown.signal] }, signal) : null,
+    h("div", { className: shown.online ? "wbc-status" : "wbc-status off", title: statusTitle },
+      h("span", { className: "wbc-dot", "aria-hidden": "true" }, "\u25cf"), h("span", { className: "wbc-status-text" }, ` ${statusText}`)),
     auto);
 }
 

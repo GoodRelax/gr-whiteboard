@@ -12,7 +12,17 @@
   .wbc-status { font: 12px/1.4 system-ui, sans-serif; padding: 4px 8px; border-radius: 6px;
     background: rgba(255, 255, 255, 0.9); color: #1e1e1e; border: 1px solid #ddd; white-space: nowrap; }
   .wbc-status.off { background: #fff3bf; }
-  .wbc-bar { display: flex; gap: 6px; align-items: center; }
+  /* 0.7.1 (R-048, FR-168): the bar is its own row under the Excalidraw top bar, at the right, so it never
+     pushes the Library button out of the window. In the phone layout of Excalidraw (excalidraw--mobile, below
+     730 px) it moves to the left and shows only Send, the signal, and a colored dot (R-050, FR-170). */
+  .wbc-bar { position: fixed; top: 68px; right: 16px; z-index: 4; display: flex; flex-wrap: wrap; gap: 6px;
+    align-items: center; justify-content: flex-end; max-width: calc(100vw - 32px); }
+  .wbc-dot { color: #2f9e44; }
+  .wbc-status.off .wbc-dot { color: #e03131; }
+  .excalidraw--mobile .wbc-bar { right: auto; left: 16px; justify-content: flex-start; }
+  .excalidraw--mobile .wbc-bar .wbc-join, .excalidraw--mobile .wbc-bar .wbc-auto,
+  .excalidraw--mobile .wbc-bar .wbc-status-text { display: none; }
+  .excalidraw--mobile .wbc-bar .wbc-status { padding: 4px 6px; }
   .wbc-signal { font: 600 13px/1.4 system-ui, sans-serif; padding: 4px 10px; border-radius: 6px; white-space: nowrap; color: #1e1e1e; }
   .wbc-reading { background: #ffec99; }
   .wbc-working { background: #a5d8ff; }
@@ -28,9 +38,16 @@
     overflow: auto; font: 14px/1.5 system-ui, sans-serif; display: flex; flex-direction: column; gap: 12px; align-items: center; }
   .wbc-join-url { font: 12px/1.4 ui-monospace, monospace; word-break: break-all; user-select: all; text-align: center; }
   .wbc-join-box canvas { image-rendering: pixelated; }
-  .wbc-join-ca { border-top: 1px solid #dee2e6; padding-top: 12px; display: flex; flex-direction: column; gap: 8px; max-width: 640px; }
-  .wbc-join-ca ol { margin: 0; padding-left: 20px; }
-  .wbc-idle { position: fixed; top: 64px; left: 50%; transform: translateX(-50%); z-index: 15; max-width: 90vw;
+  .wbc-join-step { border-top: 1px solid #dee2e6; padding-top: 12px; display: flex; flex-direction: column; gap: 8px; max-width: 640px; width: 100%; }
+  .wbc-join-step ol { margin: 0; padding-left: 20px; }
+  .wbc-join-target { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 6px; border-radius: 8px; }
+  .wbc-recommended { background: #ebfbee; }
+  .wbc-join-name { font-weight: 600; text-align: center; }
+  .wbc-join-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .wbc-join-note { font-size: 13px; color: #495057; }
+  .wbc-join-box details { display: flex; flex-direction: column; gap: 8px; }
+  .wbc-join-box summary { cursor: pointer; color: #495057; }
+  .wbc-idle { position: fixed; top: 112px; left: 50%; transform: translateX(-50%); z-index: 15; max-width: 90vw;
     font: 600 14px/1.4 system-ui, sans-serif; background: #fff3bf; color: #1e1e1e; border: 1px solid #f08c00;
     border-radius: 8px; padding: 8px 14px; }
 </style>

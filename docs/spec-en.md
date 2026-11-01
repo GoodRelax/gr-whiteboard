@@ -4,7 +4,7 @@
 | -------- | --------------------------------------- |
 | Document | spec-en.md                              |
 | Template | ANMS v0.34 (gr-sw-maker process-rules)  |
-| Version  | 0.7.0 (draft)                           |
+| Version  | 0.7.1 (draft)                           |
 | Date     | 2026-11-01                              |
 | Status   | Draft. A person must review it.         |
 | License  | Apache-2.0                              |
@@ -316,7 +316,7 @@ MCP tools and the plugin (0.6.0, rulings R-031 to R-038). The design and its rea
 | FR-151 | The skill `talk-on-board` shall tell the Agent to use only the MCP tools for open, read, say, draw, edit, delete, undo, shot, and close, and shall name no CLI command. | I |
 | FR-152 | The CLI and the MCP Server shall choose the same fields for the same input (one `brief.js`). The form differs: the CLI prints JSON (`sent --brief`, `board --fields`), the MCP Server prints text lines (5.2, 5.4). Reason: the CLI is for debugging and tests (R-033); JSON is easy to check in tests, and the K team uses the 0.5.2 JSON. | T |
 | FR-153 | Removed in 0.7.0 (R-043, R-044): the MCP Server copies no 0.5.x board. Was: when `open_board` runs, the data folder is empty, and a 0.5.x data folder exists at `~/.claude/skills/debug-board-server/.data`, the MCP Server shall copy `board.json`, `baseline.json`, `token.txt`, `files/`, and `snapshots/` into the new folder and say `migrated=1` in the reply. | T |
-| FR-154 | Where LAN mode is on, the Page on this computer shall show a "Join from another device" button that shows each LAN Board URL as text and as a QR code. The Page makes the QR code with `qrcode-generator` 2.0.4 (MIT), loaded from esm.sh with a pinned version in the import map like Excalidraw and Mermaid (R-038 Q3). The link never leaves the Page: the Page sends no request with it, and every network request of the Page goes to esm.sh or to the Board Server. | D, T |
+| FR-154 | Where LAN mode is on, the Page on this computer shall show a "Join from another device" button (from 0.7.1 labeled "Join", with the dialog of FR-163 to FR-167) that shows each LAN Board URL as text and as a QR code. The Page makes the QR code with `qrcode-generator` 2.0.4 (MIT), loaded from esm.sh with a pinned version in the import map like Excalidraw and Mermaid (R-038 Q3). The link never leaves the Page: the Page sends no request with it, and every network request of the Page goes to esm.sh or to the Board Server. | D, T |
 
 Auto stop and the board CA (0.6.1, rulings R-039 and R-040 in CGQA [ux]):
 
@@ -330,6 +330,19 @@ Auto stop and the board CA (0.6.1, rulings R-039 and R-040 in CGQA [ux]):
 | FR-160 | When `min(5 min, idle time / 2)` is left, the Server shall send the Event `IdleWarning` (`stopAtMs`) and the SSE event `idle` (`{stopAtMs}`) to every Page, and `hello` shall have `idleStopAtMs` (null without a warning). The Page shall show "Nobody used this board for a while. It stops at HH:MM (in about N min) and saves a copy. Touch the board to keep it open." A touch shall end the warning (`idle` with `stopAtMs` null). | T, D |
 | FR-161 | When the idle time is over, the Server shall write the Board as an Excalidraw file (`type` "excalidraw", `version` 2, the Elements that are not deleted, and only the files that they show) to `<data>/exports/whiteboard-YYYYMMDD-HHMMSS.excalidraw` (local time), then save `board.json` and stop as FR-006. | T |
 | FR-162 | `ServerStopped` shall have `reason`: `"idle"` (with `idleMinutes` and `exportPath`, or `exportPath` null when the file could not be written) or `"request"`. `client.js watch` passes it to the Monitor. The Skill shall tell the Agent, on `reason` "idle", to stop the Monitor and tell the user in the chat that the board stopped for no use, that it is saved, and where the copy is. Reason: the owner's words in R-039. | T, I |
+
+Join dialog and the bar (0.7.1; NG-1 to NG-3 of the 0.7.0 UAT, rulings R-048 to R-051 in CGQA [bar]):
+
+| ID     | Requirement (EARS) | Check |
+| ------ | ------------------ | ----- |
+| FR-163 | Where LAN mode is on, `hello` shall have `join`: one entry per LAN address with `url`, `caUrl`, `address`, `name` (the interface), `kind` (`wifi`, `wired`, `other`, `virtual`, from the name), `label`, and `recommended` (the address that the default route uses; found with a UDP socket that only connects, so no packet goes out). The recommended address shall come first, then by kind. The dialog shall show each address with its label, interface, and address, the recommended one first and marked "recommended", and the others under "Other addresses". Reason: NG-1, three QR codes without a meaning. | T, D |
+| FR-164 | Each link in the dialog shall have a "Copy" button that copies the link to the clipboard of this device only. Reason: the owner asked for it in the UAT. | D |
+| FR-165 | The dialog shall show "Step 1 (once per device): trust the CA of this board" with the QR code and link of the CA file and the iPad steps, then "Step 2: open the board" with the QR code of the board. Reason: NG-2, the CA code under the board codes was missed. | D |
+| FR-166 | Where LAN mode is on and the CA exists, the Server shall also listen on `--ca-port` (default 47832, on all addresses) with plain http and answer only `GET` and `HEAD /ca.crt` (the CA certificate in DER form, `application/x-x509-ca-cert`); every other request gets 404. `caUrl` is `http://<address>:<ca-port>/ca.crt`. If the port cannot be used, the Server shall send `BoardWarning` and go on, and the dialog falls back to `https://<address>:<port>/ca.crt`. `--port`, `--control-port`, and `--ca-port` shall differ. Reason: NG-3, iPad Safari did not install the profile from an https page that it did not trust yet. | T, D |
+| FR-167 | The dialog shall say what to do when the iPad offers no profile: open the CA link on this computer, save the file to iCloud Drive or OneDrive, open it on the iPad in the Files app, then do the Settings steps. | D |
+| FR-168 | The bar of the Page (Join, Send, the Signal, the connection, auto) shall be its own row under the Excalidraw top bar, at the right (`position: fixed`, top 68 px, right 16 px, wrapping inside the window), so it never takes room from the Excalidraw top bar. Reason: R-048; the bar (832 px of text) pushed the Library button out of every window narrower than about 1640 px, also the owner's (about 1097 px). | T, D |
+| FR-169 | The bar shall show short labels: "Join", "Send (N)", "Claude: reading", "Claude: working", "Claude: waiting", a colored dot with "connected, writer", "connected", or "offline, retrying", and "auto". The full sentences shall be their tooltips. Reason: R-049. | D |
+| FR-170 | In the phone layout of Excalidraw (the class `excalidraw--mobile`, below 730 px), the bar shall stand at the left and show only "Send (N)", the Signal, and the colored dot. Reason: R-050 (the ruling said "under 600 px"; Excalidraw's phone layout starts at 730 px, and at 600 to 729 px the bar covered the Library button, so the build follows the phone layout). | T, D |
 
 What the Skill tells the Agent (0.5.0):
 
@@ -1308,6 +1321,40 @@ Feature: Talk with Claude Code on a local whiteboard
       Then the dialog shows the QR code of /ca.crt and the four iPad steps
       And GET /ca.crt gives the CA in DER form without the Token
 
+  Rule: Join dialog and the bar (0.7.1)
+
+    Scenario: SC-133 The recommended address first (traces: FR-163, FR-164, FR-165)
+      Given LAN mode on a computer with Wi-Fi 192.168.10.3 (the default route) and two virtual switches
+      When the user clicks "Join"
+      Then step 1 shows the QR code of http://192.168.10.3:47832/ca.crt and the iPad steps
+      And step 2 shows "Wi-Fi - recommended (Wi-Fi, 192.168.10.3)" with its QR code and a Copy button
+      And the two virtual switches are under "Other addresses (2)"
+      When the user clicks Copy
+      Then the clipboard of this computer has the board link, and no request carries it
+
+    Scenario: SC-134 The CA over http (traces: FR-166, FR-167)
+      Given LAN mode
+      When an iPad opens http://192.168.10.3:47832/ca.crt
+      Then it gets the CA in DER form as application/x-x509-ca-cert
+      And GET / and GET /v1/status on that port get 404
+      When the CA port is in use
+      Then the Server sends BoardWarning and the dialog links https://<address>:47830/ca.crt
+
+    Scenario Outline: SC-135 The Library button stays in the window (traces: FR-168 to FR-170)
+      Given the Page in a window <width> px wide
+      Then the Library button lies inside the window and the bar does not cover it
+      And the bar shows <items>
+
+      Examples:
+        | width | items |
+        | 375   | Send (0) and the dot |
+        | 729   | Send (0) and the dot |
+        | 820   | Join, Send (0), the dot with "connected, writer", auto |
+        | 1024  | Join, Send (0), the dot with "connected, writer", auto |
+        | 1097  | Join, Send (0), the dot with "connected, writer", auto |
+        | 1280  | Join, Send (0), the dot with "connected, writer", auto |
+        | 1920  | Join, Send (0), the dot with "connected, writer", auto |
+
   Rule: What the Skill tells the Agent (0.5.0; checked by inspection and in the UAT)
 
     Scenario: SC-094 The Agent draws on request (traces: FR-110)
@@ -1356,6 +1403,7 @@ Flags of `server.js` (and of `board.js start`, which passes them on):
 | `--answer-indent-px` | 170 | 0-2000 | How far an Answer starts to the left of its Message. |
 | `--shot-dir` | `<temp>/gr-whiteboard` | folder | Where Screenshots go. |
 | `--undo-depth` | 20 | 1-100 | How many Operations `undo` can take back (FR-102). |
+| `--ca-port` | 47832 | 1024-65535 | LAN mode only: plain http with only `GET /ca.crt` (0.7.1, FR-166). Must differ from `--port` and `--control-port`. |
 | `--idle-stop-min` | 60 | 0-1440 | Stop after this many minutes without a touch; 0 never (0.6.1, FR-159). `--idle-stop-ms` (0-86400000) wins when above 0; for tests. |
 
 ### 4.3 Board API (port `--port`)
@@ -1686,7 +1734,7 @@ Every error is a tool result with `isError: true` and two lines: `CODE key=value
 | Integration test | `server.js` as a child process; `client.js wait` and `watch` | A fake Page (SSE and POST) and the Control API: sync, Messages, typing, Answers, Token, Origin, saving. | `node:test` | All pass |
 | Manual test      | The Page in real browsers | Two Pages: sync, Answers, Screenshot, Leader change, restart; LAN mode from a second computer. | Browser | Scenarios in 4.1 pass |
 | Inspection       | FR-050 to FR-064, FR-110 to FR-114, NFR-009, NFR-011, NFR-014 | A person reads both `SKILL.md` files, one full session log, `index.html`, and `package.json`. | Reading | No finding of High or higher |
-| Scenario check   | 4.1 (SC-070 to SC-132) against the tests | A test SUB maps each scenario to a test or a manual step. | Reading | Every scenario has a test or a UAT step |
+| Scenario check   | 4.1 (SC-070 to SC-135) against the tests | A test SUB maps each scenario to a test or a manual step. | Reading | Every scenario has a test or a UAT step |
 | User acceptance test | 5.1 | The owner and the BOSS, Sunday 2026-11-01 11:00-12:00 JST, PC (Edge) and iPad (Safari), LAN mode. | Browser, Claude Code | Every UAT scenario passes, or the owner accepts a listed gap |
 
 Tests do not depend on each other. They share no state. Their order does not matter. Unit tests do not wait for real time.
@@ -1843,6 +1891,7 @@ The rows below 0.7.0 keep the names of their time (whiteboard-chat, board_* tool
 
 | Version | Date | Change |
 | ------- | ---- | ------ |
+| 0.7.1 | 2026-11-01 | Fixes from the 0.7.0 UAT (task 108) and the clipped bar (CGQA [bar], R-048 to R-051). NG-1: the Join dialog labels each LAN address (Wi-Fi, wired, virtual switch, from the interface name), marks the address of the default route "recommended" and shows it first, folds the others away, and has a Copy button for each link (FR-163, FR-164). NG-2: step 1 is the CA, step 2 the board (FR-165). NG-3: the CA file also over plain http on `--ca-port` 47832, only `/ca.crt` (FR-166), and a fallback through the Files app (FR-167). The bar: its own row under the Excalidraw top bar (FR-168), short labels with the full text as tooltips (FR-169), and only Send, the Signal, and a dot in Excalidraw's phone layout below 730 px (FR-170; the ruling said 600 px, but the phone layout starts at 730 px). The owner's Edge is about 1097 CSS px wide (564 px measured with the developer tools docked, device pixel ratio 1.75); the Library button was clipped below about 1640 px. Checked in headless Edge at 375, 600, 729, 760, 820, 1024, 1097, 1280, and 1920 px. Known limit: at 730 to about 747 px, Excalidraw's own top bar is wider than the window and its Library button is cut at the right (also without our bar). New scenarios SC-133 to SC-135. |
 | 0.7.0 | 2026-11-01 | Rename only (rulings R-042 to R-047; no change of behavior except the two removals below). New names, from the review standard R2 Naming (R-046, R-047): see the table under this one. R-043: every old name goes, also the board mark; boards with 0.6.x marks are not converted. R-044: no copy of a 0.5.x board and no OLD_DATA (FR-153 removed). `GRWB_OPEN_BROWSER=0` takes the place of `WHITEBOARD_NO_BROWSER=1`, `GRWB_DATA_DIR` of `WHITEBOARD_DATA`. Plugin users install `gr-whiteboard@goodrelax` and remove `whiteboard-chat@goodrelax` (its board data goes with it; export first if needed). Settings that allow `mcp__plugin_whiteboard-chat_whiteboard__*` need `mcp__plugin_gr-whiteboard_board-control__*`. |
 | 0.6.1 | 2026-11-01 | Auto stop and the board CA (rulings R-039, R-040). The Server stops itself after 60 minutes (`--idle-stop-min`; MCP: `WHITEBOARD_IDLE_STOP_MIN`) without a touch of a Page or a call of the Agent; 5 minutes before, every Page shows a warning, and a touch starts the time again; at the stop it writes the Board as an `.excalidraw` file into `<data>/exports`, and `ServerStopped` has `reason`, `idleMinutes`, and `exportPath`, which the board watch passes to the Agent; the Skill tells the user where the copy is (FR-159 to FR-162). LAN mode: setup makes a CA of the board with name constraints (localhost and the private networks) and signs the server certificate with it; the 0.6.0 self-signed certificate is replaced (FR-155, FR-156); `board_open` shows the user the one command to trust the CA (`certutil -user -addstore Root`), which Claude never runs (FR-157); the Join dialog has the QR code of `/ca.crt` and the iPad steps (FR-158). New files `lib/idle-timer.js`, `lib/excalidraw-file.js`; `POST /api/activity`, `GET /ca.crt`; SSE `idle`; Event `IdleWarning`. New scenarios SC-128 to SC-132. |
 | 0.6.0 | 2026-11-01 | The board becomes a Claude Code plugin with MCP tools (rulings R-031 to R-038; design `docs/design-060-mcp-en.md`, approved). New MCP Server `mcp.js` (no dependencies, stdio) with the tools `board_open`, `board_close`, `board_status`, `board_inbox`, `board_read`, `board_say`, `board_signal`, `board_mermaid` (Mermaid blocks straight from `.md` files, styles taken out), `board_table`, `board_draw`, `board_edit` (also a short form), `board_delete`, `board_undo`, and `board_shot` (the image in the reply, scale 0.5) (FR-125 to FR-153, NFR-015 to NFR-017, 4.12). Replies are short text lines; errors end with a `next:` line. The not-equal sign becomes `!=` (R-034). The Token and the link never appear in tool output; `board_open` opens the browser itself. Plugin files `.claude-plugin/plugin.json`, `marketplace.json`, `.mcp.json`; the data moves to `<CLAUDE_PLUGIN_DATA>/board`, and the first `board_open` copies a 0.5.x board (FR-153). LAN mode: a "Join from another device" button with a QR code (`qrcode-generator` 2.0.4 from esm.sh; FR-154; `hello` has `joinUrls`). `setup.js --forge-dir`. `client.js watch` names `board_inbox` in `read` and finds the log through `/v1/status` (FR-145, FR-146); `sent --brief` adds `old`, `by`, `what`, `style`, `at`, `size`, `byClaude`, and `shot` (JSON; FR-152). The skill `whiteboard-chat` is rewritten for the tools only; `whiteboard-server` keeps the Node.js check and the debug commands. Build notes B-Q1 to B-Q5 (design 8.2): requirement IDs moved up by 5; the CLI brief stays JSON; the QR library from esm.sh; the board watch starts with the Monitor tool because Claude Code 2.1.81 has no plugin monitors; the Windows browser opener is `rundll32 url.dll,FileProtocolHandler`. New scenarios SC-114 to SC-127. Not measured yet: NFR-017 (needs a replay of the K session). |

@@ -31,7 +31,8 @@ const {
 const { addFiles, checkFile } = require("./lib/board-files");
 const { createIdleTimer, warnTimeOf } = require("./lib/idle-timer");
 const { toExcalidrawFile, exportFileName } = require("./lib/excalidraw-file");
-const { lanAddresses, boardUrls } = require("./lib/lan");
+const { lanAddresses, lanInterfaces, boardUrls, joinTargets } = require("./lib/lan");
+const { createCaHttpServer, defaultRouteAddress } = require("./lib/ca-http");
 const { AppError } = require("./lib/app-error");
 
 const SKILL_DIR = path.resolve(__dirname, "..");
@@ -170,7 +171,7 @@ async function main() {
     elements, events, clock, jobTimeoutMs: config.jobTimeoutMs, gapPx: config.answerGapPx, indentPx: config.answerIndentPx,
     idleStopAtMs: () => idle.warningStopAtMs(),
     // The LAN Board URLs for the "Join from another device" button (FR-154). `urls` is set before any page joins.
-    joinUrls: () => (config.lan ? urls.lan : []),
+    joinTargets: () => join,
     onBoardChanged: (changed) => {
       dirty = true;
       const now = Date.now();
@@ -396,6 +397,8 @@ async function main() {
 
   const addresses = config.lan ? lanAddresses(os.networkInterfaces()) : [];
   const urls = boardUrls({ lan: config.lan, port: config.port, token, addresses });
+  // The "Join" dialog (0.7.1, FR-163, FR-166): set after the CA port listens; read only when a Page joins.
+  let join = [];
 
   // @purity non-pure
   async function takeShot(focusId, scale) {
@@ -527,6 +530,19 @@ async function main() {
     itemCount: toItems(elements).length,
     lanAddressCount: addresses.length,
   });
+  // LAN mode: the CA file over http on its own port (FR-166), and what the "Join" dialog shows (FR-163).
+  if (config.lan) {
+    let caPort = null;
+    if (caDer) {
+      try {
+        await listen(createCaHttpServer(caDer), config.caPort, "0.0.0.0");
+        caPort = config.caPort;
+      } catch (error) {
+        events.emit({ event: "BoardWarning", message: hide(`cannot serve the CA file on port ${config.caPort}: ${error && error.message}`) });
+      }
+    }
+    join = joinTargets({ interfaces: lanInterfaces(os.networkInterfaces()), port: config.port, caPort, token, routeAddress: await defaultRouteAddress() });
+  }
   // The idle time starts now (FR-159).
   idle.touch();
 }

@@ -312,7 +312,7 @@ async function openBoard(args) {
   let line = `ok open pages=${status.pageCount} lan=${status.lan} version=${status.version || "?"} browser=${browser}`;
   if (status.version && status.version !== VERSION) line += ` serverVersion=${status.version} pluginVersion=${VERSION} restart=needed`;
   if (status.lan) {
-    line += "\nnext: the page shows a \"Join from another device\" button with QR codes for the iPad (the board and its CA)";
+    line += "\nnext: the page shows a \"Join\" button: step 1 trusts the CA of the board (QR code), step 2 opens the board (QR code of the recommended address)";
     // The user trusts the CA of the board once on this computer; Claude never runs this (FR-157, R-040).
     const caPath = path.join(config.dataDir, "ca.crt");
     if (fs.existsSync(caPath)) line += `\ntrust: the user may run this once in a terminal (a confirm window opens); never run it yourself: ${trustCommand(process.platform, caPath)}`;
