@@ -45,11 +45,24 @@ const SIGNAL_TEXT = Object.freeze({
   working: "Claude: working on it",
   waiting: "Claude: waiting for you",
 });
-// The bar shows these short labels; SIGNAL_TEXT is their tooltip (R-049).
-const SIGNAL_SHORT = Object.freeze({
-  reading: "Claude: reading",
-  working: "Claude: working",
-  waiting: "Claude: waiting",
+// The glyphs of the palette (0.7.2, R-058). They follow gr-scheduler FR-029: one viewBox for all, stroke 2,
+// round caps and joins, no fill, currentColor. IC-53 (grip) and IC-75 (fold) are borrowed from gr-scheduler.
+const GLYPH = Object.freeze({
+  grip: '<g fill="currentColor" stroke="none"><circle cx="9" cy="7.5" r="1.3"/><circle cx="9" cy="12" r="1.3"/><circle cx="9" cy="16.5" r="1.3"/><circle cx="15" cy="7.5" r="1.3"/><circle cx="15" cy="12" r="1.3"/><circle cx="15" cy="16.5" r="1.3"/></g>',
+  send: '<path d="M21 3 L10 14"/><path d="M21 3 L14.5 21 L10 14 L3 9.5 Z"/>',
+  auto: '<circle cx="12" cy="13.5" r="7.5"/><path d="M12 10 V13.5 L14.5 15.5"/><path d="M9.5 2.5 H14.5"/><path d="M18.5 5.5 L20 4"/>',
+  reading: '<path d="M2 12 C4.5 7 8 5 12 5 C16 5 19.5 7 22 12 C19.5 17 16 19 12 19 C8 19 4.5 17 2 12 Z"/><circle cx="12" cy="12" r="3"/>',
+  working: '<path d="M21 12 A9 9 0 1 1 15.5 3.7"/>',
+  waiting: '<path d="M4 9 V17 L6 19 H14 L16 17 V9 Z"/><path d="M16 11 H19 L20 12.5 L19 15 H16"/><path d="M8 3 V6"/><path d="M12 3 V6"/>',
+  link: '<path d="M10 13.5 A4.5 4.5 0 0 0 16.8 14 L19.6 11.2 A4.5 4.5 0 0 0 13.2 4.8 L11.6 6.4"/><path d="M14 10.5 A4.5 4.5 0 0 0 7.2 10 L4.4 12.8 A4.5 4.5 0 0 0 10.8 19.2 L12.4 17.6"/>',
+  unlink: '<path d="M13.2 4.8 A4.5 4.5 0 0 1 19.6 11.2 L18 12.8"/><path d="M10.8 19.2 A4.5 4.5 0 0 1 4.4 12.8 L6 11.2"/><path d="M3 3 L21 21"/>',
+  qr: '<rect x="3.5" y="3.5" width="6" height="6" rx="1"/><rect x="14.5" y="3.5" width="6" height="6" rx="1"/><rect x="3.5" y="14.5" width="6" height="6" rx="1"/><path d="M14.5 14.5 H17 M20.5 14.5 V17 M14.5 20.5 H20.5 M17.5 17.5 H17.6"/>',
+  fold: '<path d="M6 17 H18"/>',
+});
+const CONNECTION_TEXT = Object.freeze({
+  leader: "gr-whiteboard: connected (this page writes Claude's answers)",
+  member: "gr-whiteboard: connected (another page writes Claude's answers)",
+  off: "gr-whiteboard: not connected, trying again",
 });
 
 const token = new URLSearchParams(window.location.hash.slice(1)).get("t") || "";
@@ -1167,42 +1180,77 @@ function IdleBanner({ stopAtMs }) {
     `Nobody used this board for a while. It stops at ${at} (in about ${minutes} min) and saves a copy. Touch the board to keep it open.`);
 }
 
-function StatusBadge() {
+// One glyph. The markup comes only from GLYPH above, never from the board or the Server.
+// Only the Leader chain has stroke 3: the shape, not the color, tells the Leader (R-058).
+function Glyph({ name, width = 2 }) {
+  return h("svg", {
+    viewBox: "0.8 1.5 22.7 21", fill: "none", stroke: "currentColor", strokeWidth: width,
+    strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true", dangerouslySetInnerHTML: { __html: GLYPH[name] },
+  });
+}
+
+// The palette (0.7.2, R-052 to R-058): one vertical column of glyph buttons at the right, under the Library
+// button (under the right column in the phone layout). It folds into one button and does not move.
+// Each full text is a tooltip at the left (data-tip) and the accessible name.
+function Palette() {
   const [shown, update] = React.useState(status);
   const [joinOpen, setJoinOpen] = React.useState(false);
+  const [folded, setFolded] = React.useState(false);
   React.useEffect(() => {
     showStatus = update;
     update(status);
   }, []);
-  // Short texts; the full sentence is the tooltip (R-049, FR-169).
-  const statusText = shown.online ? (shown.leader ? "connected, writer" : "connected") : "offline, retrying";
-  const statusTitle = shown.online
-    ? `gr-whiteboard: connected${shown.leader ? " (this page writes Claude's answers)" : ""}`
-    : "gr-whiteboard: not connected, trying again";
-  const signal = SIGNAL_SHORT[shown.signal];
-  const send = shown.autoSend
-    ? null
-    : h("button", {
-      type: "button",
-      className: shown.unsent > 0 ? "wbc-send wbc-has" : "wbc-send",
-      title: "Send your text and drawings to Claude (Ctrl+Shift+Enter)",
-      onClick: sendToClaude,
-    }, `Send (${shown.unsent})`);
-  const auto = h("label", { className: "wbc-auto", title: "Send each text by itself, 1.5 s after you stop typing" },
-    h("input", { type: "checkbox", checked: shown.autoSend, onChange: (event) => setAutoSend(event.target.checked) }),
-    "auto");
-  const join = shown.join && shown.join.length > 0
-    ? h("button", { type: "button", className: "wbc-send wbc-join", title: "Join from another device: links and QR codes for a phone or tablet", onClick: () => setJoinOpen(true) }, "Join")
+  const tip = (text) => ({ "data-tip": text, "aria-label": text });
+  const count = shown.unsent > 0 && !shown.autoSend ? h("span", { className: "wbp-count" }, String(Math.min(shown.unsent, 99))) : null;
+  const overlays = [
+    shown.idleStopAtMs ? h(IdleBanner, { key: "idle", stopAtMs: shown.idleStopAtMs }) : null,
+    joinOpen ? h(JoinDialog, { key: "join", targets: shown.join, onClose: () => setJoinOpen(false) }) : null,
+  ];
+  if (folded) {
+    return h("div", { className: "wbp", role: "toolbar", "aria-orientation": "vertical", "aria-label": "gr-whiteboard" },
+      ...overlays,
+      h("button", { type: "button", className: "wbp-btn", ...tip("Show the gr-whiteboard palette (same button)"), onClick: () => setFolded(false) },
+        h(Glyph, { name: "fold" }), count));
+  }
+  // R-054: while auto send is on, Send stays in its place, pale, and cannot be pressed.
+  const sendTip = shown.autoSend
+    ? "Send: off while auto send is on"
+    : shown.unsent > 0
+      ? `Send your text and drawings to Claude (Ctrl+Shift+Enter): ${shown.unsent} unsent`
+      : "Send to Claude (Ctrl+Shift+Enter): nothing new to send";
+  const autoTip = shown.autoSend
+    ? "Auto send: on. Each text goes by itself, 1.5 s after you stop typing"
+    : "Auto send: off. Press to send each text by itself, 1.5 s after you stop typing";
+  const connection = shown.online ? (shown.leader ? "leader" : "member") : "off";
+  const activity = SIGNAL_TEXT[shown.signal]
+    ? h("div", { className: `wbp-btn wbp-${shown.signal}`, role: "status", tabIndex: 0, ...tip(SIGNAL_TEXT[shown.signal]) },
+      h(Glyph, { name: shown.signal }))
     : null;
-  return h("div", { className: "wbc-bar" },
-    shown.idleStopAtMs ? h(IdleBanner, { stopAtMs: shown.idleStopAtMs }) : null,
-    joinOpen ? h(JoinDialog, { targets: shown.join, onClose: () => setJoinOpen(false) }) : null,
-    join,
-    send,
-    signal ? h("div", { className: `wbc-signal wbc-${shown.signal}`, title: SIGNAL_TEXT[shown.signal] }, signal) : null,
-    h("div", { className: shown.online ? "wbc-status" : "wbc-status off", title: statusTitle },
-      h("span", { className: "wbc-dot", "aria-hidden": "true" }, "\u25cf"), h("span", { className: "wbc-status-text" }, ` ${statusText}`)),
-    auto);
+  return h("div", { className: "wbp", role: "toolbar", "aria-orientation": "vertical", "aria-label": "gr-whiteboard" },
+    ...overlays,
+    h("div", { className: "wbp-btn wbp-grip", "aria-hidden": "true" }, h(Glyph, { name: "grip" })),
+    h("button", {
+      type: "button",
+      className: `wbp-btn wbp-send${shown.autoSend ? " wbp-dim" : shown.unsent > 0 ? " wbp-primary" : ""}`,
+      disabled: shown.autoSend,
+      ...tip(sendTip),
+      onClick: sendToClaude,
+    }, h(Glyph, { name: "send" }), count),
+    h("button", {
+      type: "button", className: shown.autoSend ? "wbp-btn wbp-auto wbp-on" : "wbp-btn wbp-auto", "aria-pressed": shown.autoSend,
+      ...tip(autoTip), onClick: () => setAutoSend(!shown.autoSend),
+    }, h(Glyph, { name: "auto" })),
+    h("div", { className: "wbp-sep" }),
+    activity,
+    h("div", { className: `wbp-btn wbp-conn wbp-${connection}`, role: "status", tabIndex: 0, ...tip(CONNECTION_TEXT[connection]) },
+      h(Glyph, { name: connection === "off" ? "unlink" : "link", width: connection === "leader" ? 3 : 2 })),
+    shown.join && shown.join.length > 0
+      ? h("button", { type: "button", className: "wbp-btn wbp-join", ...tip("Join from another device: links and QR codes for a phone or tablet"), onClick: () => setJoinOpen(true) },
+        h(Glyph, { name: "qr" }))
+      : null,
+    h("div", { className: "wbp-sep" }),
+    h("button", { type: "button", className: "wbp-btn wbp-fold", ...tip("Fold the palette (press again to show it)"), onClick: () => setFolded(true) },
+      h(Glyph, { name: "fold" })));
 }
 
 function App() {
@@ -1214,7 +1262,7 @@ function App() {
     },
     onChange,
     name: "gr-whiteboard",
-    renderTopRightUI: () => h(StatusBadge),
+    renderTopRightUI: () => h(Palette),
   });
 }
 

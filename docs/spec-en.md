@@ -4,7 +4,7 @@
 | -------- | --------------------------------------- |
 | Document | spec-en.md                              |
 | Template | ANMS v0.34 (gr-sw-maker process-rules)  |
-| Version  | 0.7.1 (draft)                           |
+| Version  | 0.7.2 (draft)                           |
 | Date     | 2026-11-01                              |
 | Status   | Draft. A person must review it.         |
 | License  | Apache-2.0                              |
@@ -340,9 +340,20 @@ Join dialog and the bar (0.7.1; NG-1 to NG-3 of the 0.7.0 UAT, rulings R-048 to 
 | FR-165 | The dialog shall show "Step 1 (once per device): trust the CA of this board" with the QR code and link of the CA file and the iPad steps, then "Step 2: open the board" with the QR code of the board. Reason: NG-2, the CA code under the board codes was missed. | D |
 | FR-166 | Where LAN mode is on and the CA exists, the Server shall also listen on `--ca-port` (default 47832, on all addresses) with plain http and answer only `GET` and `HEAD /ca.crt` (the CA certificate in DER form, `application/x-x509-ca-cert`); every other request gets 404. `caUrl` is `http://<address>:<ca-port>/ca.crt`. If the port cannot be used, the Server shall send `BoardWarning` and go on, and the dialog falls back to `https://<address>:<port>/ca.crt`. `--port`, `--control-port`, and `--ca-port` shall differ. Reason: NG-3, iPad Safari did not install the profile from an https page that it did not trust yet. | T, D |
 | FR-167 | The dialog shall say what to do when the iPad offers no profile: open the CA link on this computer, save the file to iCloud Drive or OneDrive, open it on the iPad in the Files app, then do the Settings steps. | D |
-| FR-168 | The bar of the Page (Join, Send, the Signal, the connection, auto) shall be its own row under the Excalidraw top bar, at the right (`position: fixed`, top 68 px, right 16 px, wrapping inside the window), so it never takes room from the Excalidraw top bar. Reason: R-048; the bar (832 px of text) pushed the Library button out of every window narrower than about 1640 px, also the owner's (about 1097 px). | T, D |
-| FR-169 | The bar shall show short labels: "Join", "Send (N)", "Claude: reading", "Claude: working", "Claude: waiting", a colored dot with "connected, writer", "connected", or "offline, retrying", and "auto". The full sentences shall be their tooltips. Reason: R-049. | D |
-| FR-170 | In the phone layout of Excalidraw (the class `excalidraw--mobile`, below 730 px), the bar shall stand at the left and show only "Send (N)", the Signal, and the colored dot. Reason: R-050 (the ruling said "under 600 px"; Excalidraw's phone layout starts at 730 px, and at 600 to 729 px the bar covered the Library button, so the build follows the phone layout). | T, D |
+| FR-168 | (Replaced in 0.7.2 by FR-171 to FR-175.) The bar of the Page (Join, Send, the Signal, the connection, auto) shall be its own row under the Excalidraw top bar, at the right (`position: fixed`, top 68 px, right 16 px, wrapping inside the window), so it never takes room from the Excalidraw top bar. Reason: R-048; the bar (832 px of text) pushed the Library button out of every window narrower than about 1640 px, also the owner's (about 1097 px). | T, D |
+| FR-169 | (Replaced in 0.7.2 by FR-173 and FR-174.) The bar shall show short labels: "Join", "Send (N)", "Claude: reading", "Claude: working", "Claude: waiting", a colored dot with "connected, writer", "connected", or "offline, retrying", and "auto". The full sentences shall be their tooltips. Reason: R-049. | D |
+| FR-170 | (Replaced in 0.7.2 by FR-171.) In the phone layout of Excalidraw (the class `excalidraw--mobile`, below 730 px), the bar shall stand at the left and show only "Send (N)", the Signal, and the colored dot. Reason: R-050 (the ruling said "under 600 px"; Excalidraw's phone layout starts at 730 px, and at 600 to 729 px the bar covered the Library button, so the build follows the phone layout). | T, D |
+
+The palette (0.7.2; CGQA [palette], rulings R-052 to R-058; it replaces the bar of FR-168 to FR-170):
+
+| ID     | Requirement (EARS) | Check |
+| ------ | ------------------ | ----- |
+| FR-171 | The Page shall show its controls in one vertical palette of glyph buttons at the right, under the Library button (`position: fixed`, top 68 px, right 16 px). In the phone layout of Excalidraw (the class `excalidraw--mobile`) the palette shall stand under the right column of Excalidraw (top 196 px, right 4 px). The palette shall not cover any control of Excalidraw. Reason: R-052 (replaces R-048), R-055 (replaces R-050); the owner found the bar in the way. | T, D |
+| FR-172 | The palette shall have, from the top: a grip (IC-53 of gr-scheduler; it only marks the palette, it does not move it), Send, auto send, a separator, the Signal (only while Claude shows one), the connection, Join (only in LAN mode), a separator, and Fold. | T, D |
+| FR-173 | Each glyph shall follow gr-scheduler FR-029 (one viewBox `0.8 1.5 22.7 21`, stroke 2, round caps and joins, no fill, `currentColor`). The glyphs (R-058): Send a paper plane, with the number of unsent items in a red circle and a blue button while there are unsent items; auto send a stopwatch, shown pressed while on; reading an orange eye; working a blue arc that turns once in 1.2 s and stands still under `prefers-reduced-motion: reduce`; waiting a green coffee cup; the connection a chain: the Leader a thick chain (stroke 3, the only exception to stroke 2), another connected page a chain, not connected a broken chain; Join a QR code; Fold IC-75 of gr-scheduler. The shape, not only the color, tells the state. | T, D |
+| FR-174 | Each glyph shall have its full text as a tooltip at its left (on hover and on keyboard focus) and as its accessible name. Reason: R-053, R-058. | T, D |
+| FR-175 | While auto send is on, Send shall stay in its place, pale, and not be pressable. Fold shall fold the palette into one button (IC-75, with the red count while there are unsent items), and the same button shall show the palette again. The palette shall not move. Reason: R-054, R-055. | T, D |
+| FR-176 | The palette, its tooltips, and the Join dialog shall use the colors of the Excalidraw theme (light and dark). The QR codes shall stay black on white in the dark theme (Excalidraw inverts every canvas there). Reason: R-056 and the 0.7.1 UAT (QR codes were inverted, the bar stayed light). | T, D |
 
 What the Skill tells the Agent (0.5.0):
 
@@ -1340,7 +1351,7 @@ Feature: Talk with Claude Code on a local whiteboard
       When the CA port is in use
       Then the Server sends BoardWarning and the dialog links https://<address>:47830/ca.crt
 
-    Scenario Outline: SC-135 The Library button stays in the window (traces: FR-168 to FR-170)
+    Scenario Outline: SC-135 The Library button stays in the window (traces: FR-168 to FR-170; replaced in 0.7.2 by SC-136)
       Given the Page in a window <width> px wide
       Then the Library button lies inside the window and the bar does not cover it
       And the bar shows <items>
@@ -1354,6 +1365,31 @@ Feature: Talk with Claude Code on a local whiteboard
         | 1097  | Join, Send (0), the dot with "connected, writer", auto |
         | 1280  | Join, Send (0), the dot with "connected, writer", auto |
         | 1920  | Join, Send (0), the dot with "connected, writer", auto |
+
+  Rule: The palette (0.7.2)
+
+    Scenario Outline: SC-136 The palette covers no Excalidraw control (traces: FR-171, FR-172)
+      Given the Page in LAN mode in a window <size> px
+      Then the palette lies inside the window, at <place>
+      And it covers no button, label, or island of Excalidraw (Library, zoom, undo, help, the right column, the bottom bar)
+
+      Examples:
+        | size     | place |
+        | 375x812  | under the right column (top 196 px) |
+        | 820x1180 | under the Library button (top 68 px) |
+        | 1280x800 | under the Library button (top 68 px) |
+
+    Scenario: SC-137 Glyphs, auto send, fold, and the dark theme (traces: FR-173 to FR-176)
+      Given the Page with the palette
+      When Claude shows "working"
+      Then the Signal is a blue turning arc with the tooltip "Claude: working on it"
+      And it stands still when the system asks for reduced motion
+      When the user turns on auto send
+      Then the stopwatch is pressed and Send is pale and cannot be pressed
+      When the user presses Fold
+      Then one button stays at the same place, and pressing it shows the palette again
+      When the user turns on the dark theme of Excalidraw and opens Join
+      Then the palette and the dialog are dark and the QR codes are black on white
 
   Rule: What the Skill tells the Agent (0.5.0; checked by inspection and in the UAT)
 
@@ -1734,7 +1770,7 @@ Every error is a tool result with `isError: true` and two lines: `CODE key=value
 | Integration test | `server.js` as a child process; `client.js wait` and `watch` | A fake Page (SSE and POST) and the Control API: sync, Messages, typing, Answers, Token, Origin, saving. | `node:test` | All pass |
 | Manual test      | The Page in real browsers | Two Pages: sync, Answers, Screenshot, Leader change, restart; LAN mode from a second computer. | Browser | Scenarios in 4.1 pass |
 | Inspection       | FR-050 to FR-064, FR-110 to FR-114, NFR-009, NFR-011, NFR-014 | A person reads both `SKILL.md` files, one full session log, `index.html`, and `package.json`. | Reading | No finding of High or higher |
-| Scenario check   | 4.1 (SC-070 to SC-135) against the tests | A test SUB maps each scenario to a test or a manual step. | Reading | Every scenario has a test or a UAT step |
+| Scenario check   | 4.1 (SC-070 to SC-137) against the tests | A test SUB maps each scenario to a test or a manual step. | Reading | Every scenario has a test or a UAT step |
 | User acceptance test | 5.1 | The owner and the BOSS, Sunday 2026-11-01 11:00-12:00 JST, PC (Edge) and iPad (Safari), LAN mode. | Browser, Claude Code | Every UAT scenario passes, or the owner accepts a listed gap |
 
 Tests do not depend on each other. They share no state. Their order does not matter. Unit tests do not wait for real time.
@@ -1891,6 +1927,7 @@ The rows below 0.7.0 keep the names of their time (whiteboard-chat, board_* tool
 
 | Version | Date | Change |
 | ------- | ---- | ------ |
+| 0.7.2 | 2026-11-01 | The palette (CGQA [palette], R-052 to R-058): the bar of 0.7.1 becomes one vertical palette of glyph buttons at the right, under the Library button, and under the right column in the phone layout (FR-171, FR-172). Glyphs after gr-scheduler FR-029: paper plane, stopwatch, eye, turning arc, coffee cup, chain (thick for the Leader), broken chain, QR code, and IC-53 and IC-75 of gr-scheduler (FR-173). Full texts as tooltips (FR-174). Send is pale while auto send is on; the palette folds into one button and does not move (FR-175). Colors of the Excalidraw theme, and QR codes no longer inverted in the dark theme (FR-176; 0.7.1 UAT). Checked in headless Edge on the real Excalidraw 0.18.1 at 375, 730, 820, 1024, 1097, 1280, and 1920 px: no Excalidraw control covered. New scenarios SC-136 and SC-137. |
 | 0.7.1 | 2026-11-01 | Fixes from the 0.7.0 UAT (task 108) and the clipped bar (CGQA [bar], R-048 to R-051). NG-1: the Join dialog labels each LAN address (Wi-Fi, wired, virtual switch, from the interface name), marks the address of the default route "recommended" and shows it first, folds the others away, and has a Copy button for each link (FR-163, FR-164). NG-2: step 1 is the CA, step 2 the board (FR-165). NG-3: the CA file also over plain http on `--ca-port` 47832, only `/ca.crt` (FR-166), and a fallback through the Files app (FR-167). The bar: its own row under the Excalidraw top bar (FR-168), short labels with the full text as tooltips (FR-169), and only Send, the Signal, and a dot in Excalidraw's phone layout below 730 px (FR-170; the ruling said 600 px, but the phone layout starts at 730 px). The owner's Edge is about 1097 CSS px wide (564 px measured with the developer tools docked, device pixel ratio 1.75); the Library button was clipped below about 1640 px. Checked in headless Edge at 375, 600, 729, 760, 820, 1024, 1097, 1280, and 1920 px. Known limit: at 730 to about 747 px, Excalidraw's own top bar is wider than the window and its Library button is cut at the right (also without our bar). New scenarios SC-133 to SC-135. |
 | 0.7.0 | 2026-11-01 | Rename only (rulings R-042 to R-047; no change of behavior except the two removals below). New names, from the review standard R2 Naming (R-046, R-047): see the table under this one. R-043: every old name goes, also the board mark; boards with 0.6.x marks are not converted. R-044: no copy of a 0.5.x board and no OLD_DATA (FR-153 removed). `GRWB_OPEN_BROWSER=0` takes the place of `WHITEBOARD_NO_BROWSER=1`, `GRWB_DATA_DIR` of `WHITEBOARD_DATA`. Plugin users install `gr-whiteboard@goodrelax` and remove `whiteboard-chat@goodrelax` (its board data goes with it; export first if needed). Settings that allow `mcp__plugin_whiteboard-chat_whiteboard__*` need `mcp__plugin_gr-whiteboard_board-control__*`. |
 | 0.6.1 | 2026-11-01 | Auto stop and the board CA (rulings R-039, R-040). The Server stops itself after 60 minutes (`--idle-stop-min`; MCP: `WHITEBOARD_IDLE_STOP_MIN`) without a touch of a Page or a call of the Agent; 5 minutes before, every Page shows a warning, and a touch starts the time again; at the stop it writes the Board as an `.excalidraw` file into `<data>/exports`, and `ServerStopped` has `reason`, `idleMinutes`, and `exportPath`, which the board watch passes to the Agent; the Skill tells the user where the copy is (FR-159 to FR-162). LAN mode: setup makes a CA of the board with name constraints (localhost and the private networks) and signs the server certificate with it; the 0.6.0 self-signed certificate is replaced (FR-155, FR-156); `board_open` shows the user the one command to trust the CA (`certutil -user -addstore Root`), which Claude never runs (FR-157); the Join dialog has the QR code of `/ca.crt` and the iPad steps (FR-158). New files `lib/idle-timer.js`, `lib/excalidraw-file.js`; `POST /api/activity`, `GET /ca.crt`; SSE `idle`; Event `IdleWarning`. New scenarios SC-128 to SC-132. |

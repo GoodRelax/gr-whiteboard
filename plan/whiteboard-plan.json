@@ -12,9 +12,9 @@
       "manager": null,
       "author": null,
       "creationDate": "2026-10-31T04:40:00",
-      "revision": 87,
+      "revision": 94,
       "startDate": "2026-10-29T22:44:00",
-      "statusDate": "2026-11-01T14:24:00",
+      "statusDate": "2026-11-01T16:38:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 115,
+      "uidHighWaterMark": 120,
       "importSequence": 0,
       "outlineBase": 1,
       "carry": {},
@@ -1862,7 +1862,7 @@
         "finish": "2026-11-02T14:30:00",
         "milestone": false,
         "deadline": null,
-        "notes": "0.5.2 は済んだ。残りは 0.6.0（タスク 102 のオーナーの答え待ち）で、R-017 のとおり、それが済んでから行う。\n97 が後ろに回ったので、PMO が 11-02（月）13:00〜14:30 に仮置きし直した。\nR-017: ほかの試しが全部済んでから行う（段 5 の後）。\n【オーナーの言葉待ち】オーナーの依頼（BOSSBOSS 経由）: 案内役の SUB（Sonnet 5.5・medium の予定）が、Hyper-V の新しい仮想マシンへの新規インストールを案内する。BOSS が SUB を作ろうとしたとき、アプリの安全の判定が止めた。オーナーが SUB の作成を言葉で認めるまで、SUB は動かない。オーナーの手作業が要るので、GRSMD の時間帯（土 13:00〜18:00、日 08:00〜11:00）を避けた。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "notes": "グリフのパレットの見本（タスク 118）と 0.7.2 の後ろへ回す（BOSS の知らせ）。\n0.5.2 は済んだ。残りは 0.6.0（タスク 102 のオーナーの答え待ち）で、R-017 のとおり、それが済んでから行う。\n97 が後ろに回ったので、PMO が 11-02（月）13:00〜14:30 に仮置きし直した。\nR-017: ほかの試しが全部済んでから行う（段 5 の後）。\n【オーナーの言葉待ち】オーナーの依頼（BOSSBOSS 経由）: 案内役の SUB（Sonnet 5.5・medium の予定）が、Hyper-V の新しい仮想マシンへの新規インストールを案内する。BOSS が SUB を作ろうとしたとき、アプリの安全の判定が止めた。オーナーが SUB の作成を言葉で認めるまで、SUB は動かない。オーナーの手作業が要るので、GRSMD の時間帯（土 13:00〜18:00、日 08:00〜11:00）を避けた。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -1923,6 +1923,30 @@
           },
           {
             "predecessorUid": 114,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 117,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 118,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 120,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -2777,19 +2801,19 @@
         "uid": 114,
         "parentTaskUid": null,
         "wbsOrder": 80,
-        "name": "🌒 0.7.1（NG-1〜3 とページのバーの見切れを直す）",
+        "name": "🌕 0.7.1（NG-1〜3 とページのバーの見切れを直す）",
         "start": "2026-11-01T14:24:00",
         "finish": "2026-11-01T17:24:00",
         "milestone": false,
         "deadline": null,
-        "notes": "【始めた 14:24】担当: ホワイトボード 0.5.0 の実装の SUB（wb-050-impl、session local_ba3f62d7-8251-41c6-bc65-114961af1a78）。今から 3 時間に引き直した。\nオーナーが CGQA の [bar] に答えた。R-048〜R-051（すべて a）: バーを上の段の下の右に 1 行で置く、文を短くする、スマホは Send と信号だけ、0.7.1 で NG-1・NG-2 と一緒に直す。ページのバーの見切れを、この版の中身に足した。R-027 の「iPad の表示の見切れ」（タスク 79 の一部）も、この版に移した。0.7.1 の時期は、タスク 115 でまだオーナーに聞いている。\nNG-1 参加の画面に QR が 3 つ出て迷う、NG-2 認証局の QR が分かりにくい、NG-3 iPad の Safari で認証局のファイルを取り込めない。直す時期はオーナーに聞く。スキップした iPad と自動停止の確かめも、この版でする。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "notes": "【済み】commit b25f01f。試験 142 件通過。点検は名前・パス 0、メール 0、秘密 0。本物の iPad での確かめはまだ。実績の終わりは BOSS の知らせが届いた時刻。\n【始めた 14:24】担当: ホワイトボード 0.5.0 の実装の SUB（wb-050-impl、session local_ba3f62d7-8251-41c6-bc65-114961af1a78）。今から 3 時間に引き直した。\nオーナーが CGQA の [bar] に答えた。R-048〜R-051（すべて a）: バーを上の段の下の右に 1 行で置く、文を短くする、スマホは Send と信号だけ、0.7.1 で NG-1・NG-2 と一緒に直す。ページのバーの見切れを、この版の中身に足した。R-027 の「iPad の表示の見切れ」（タスク 79 の一部）も、この版に移した。0.7.1 の時期は、タスク 115 でまだオーナーに聞いている。\nNG-1 参加の画面に QR が 3 つ出て迷う、NG-2 認証局の QR が分かりにくい、NG-3 iPad の Safari で認証局のファイルを取り込めない。直す時期はオーナーに聞く。スキップした iPad と自動停止の確かめも、この版でする。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
         "calendarUid": null,
         "actualStart": "2026-11-01T14:24:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-01T14:38:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -2835,6 +2859,166 @@
         "dependencies": [
           {
             "predecessorUid": 108,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 116,
+        "parentTaskUid": null,
+        "wbsOrder": 82,
+        "name": "🌕 ㊲ 裁定: オーナーが 0.7.1（b25f01f）の push とプラグインの更新を OK する",
+        "start": "2026-11-01T14:38:00",
+        "finish": "2026-11-01T15:08:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】オーナーの答え「push と更新」。push 3c9cf88..b25f01f。プラグイン gr-whiteboard@goodrelax を 0.7.0 から 0.7.1 に更新した（中身はリポジトリと差 0）。効くのは Claude Code を開き直した後。実績の終わりは BOSS の知らせが届いた時刻。\n【オーナーの返事待ち】BOSS がオーナーに聞く。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-11-01T14:38:00",
+        "stop": null,
+        "actualFinish": "2026-11-01T15:11:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 114,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 117,
+        "parentTaskUid": null,
+        "wbsOrder": 83,
+        "name": "🌕 ㊳ オーナーが 0.7.1 を実際の iPad で確かめる",
+        "start": "2026-11-01T15:47:00",
+        "finish": "2026-11-01T16:47:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】NG 0 件。軽い気づき 4 つ: ダークモードでバーが明るい、QR が反転する、バーが案内の文字に重なる、iPhone で字が serif になる。ボードは閉じた。実績の終わりは BOSS の知らせが届いた時刻。\n【始めた 15:47】オーナーが Claude Code を開き直し、0.7.1 の iPad での確かめを始めた。ナビ: ホワイトボード 0.5.0 の実装の SUB（wb-050-impl、session local_ba3f62d7-8251-41c6-bc65-114961af1a78）。今から 1 時間に引き直した。\nオーナーが Claude Code を開き直した後に始まる（プラグインの更新が効く）。\nNG-3（iPad の Safari で認証局のファイルを取り込めない）の直しと、スキップした iPad と自動停止の確かめ。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-11-01T15:47:00",
+        "stop": null,
+        "actualFinish": "2026-11-01T16:10:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 116,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 118,
+        "parentTaskUid": null,
+        "wbsOrder": 84,
+        "name": "🌕 ボタンをグリフのパレットにまとめ、右側に縦に並べる見本（.html）を作る（優先度は最高）",
+        "start": "2026-11-01T16:10:00",
+        "finish": "2026-11-01T17:10:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】オーナーが CGQA の [palette] に答えた。R-052〜R-056（位置・auto 入りの Send・畳む・スマホ・版は 0.7.2。グリフはボード（GRWB）で決める）、R-057 略称は GRWB で確定。実績の終わりは BOSS の知らせが届いた時刻。\nオーナーの指示で、優先度は最高。担当: ホワイトボード 0.5.0 の仕様の SUB（wb-050-spec、session local_96f93c31-4ffe-4588-ace1-5787d53c733e）、今から始めた。見積もり 1 時間。その後に「オーナーが CGQA の [palette] に答える」と「0.7.2 で作る」を足す。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-11-01T16:10:00",
+        "stop": null,
+        "actualFinish": "2026-11-01T16:24:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 117,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 119,
+        "parentTaskUid": null,
+        "wbsOrder": 85,
+        "name": "🌕 グリフをボードでオーナーと決める",
+        "start": "2026-11-01T16:24:00",
+        "finish": "2026-11-01T17:24:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】R-058（グリフの組）。オーナーの言葉:「よし、それでOK。この会話はこれまで。後はGQAで。」ボードは閉じた。実績の終わりは BOSS の知らせが届いた時刻。\n担当: ホワイトボード 0.5.0 の仕様の SUB（wb-050-spec、session local_96f93c31-4ffe-4588-ace1-5787d53c733e）、今から始めた。ボード（GRWB）でオーナーと決める。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-11-01T16:24:00",
+        "stop": null,
+        "actualFinish": "2026-11-01T16:38:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 118,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 120,
+        "parentTaskUid": null,
+        "wbsOrder": 86,
+        "name": "🌒 0.7.2（パレット）を作る",
+        "start": "2026-11-01T16:38:00",
+        "finish": "2026-11-01T19:38:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【始めた 16:38】担当: ホワイトボード 0.5.0 の実装の SUB（wb-050-impl、session local_ba3f62d7-8251-41c6-bc65-114961af1a78）。見積もり 3 時間で、今から 3 時間に引き直した。\nグリフが決まってから作る。担当と時刻は BOSS が知らせる。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-11-01T16:38:00",
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 119,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -3299,6 +3483,26 @@
       {
         "taskUid": 115,
         "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 116,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 117,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 118,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
+      },
+      {
+        "taskUid": 119,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
+      },
+      {
+        "taskUid": 120,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
       }
     ],
     "taskVisuals": [
@@ -3957,6 +4161,46 @@
         "fillColor": null,
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 116,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 117,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 118,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 119,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 120,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -3985,7 +4229,7 @@
       {
         "id": "7c0e0000-0000-4000-8000-0000000000c2",
         "leaderShapeKind": "calloutBox",
-        "text": "★オーナーがすること（優先順）\n① 長い通知の件は、直すと決まった（R-011）。0.3.1 で直した\n② 公開した（R-010）。旧リポジトリも消した（R-003）\n③ ボードをいつも通り使い、切れたらバッジの写しを送る（不具合 2 の確認）\n④ 記事の書き直しを頼む（最後の記事とまとめて。日は未定）\nW1 を満たした（10:51）: 0.3.1 は main にある\nW2 11-02（月）18:00: 不具合 2 の確認を終える\n⑩ 0.4.0 で、実際のボードに画像を貼ってみる\n⑬ 0.5.0（図とテキストの編集・削除）の GQA の問 2〜4 に答える（土 18:00 から）\n⑭ 0.5.0 の実地の試験（日 11:00 から）\n⑮ 0.4.1 の入れ直しを OK する\n⑯ 0.4.1 を push する\n⑰ 0.4.1 を PC と iPad で試す（PC のタブを裏にする）\n⑱ Hyper-V の新しい仮想マシンで新規インストールを試す\n⑲ 0.5.0 の仕様 SUB を始める OK を出す\n⑳ GQA の問 5〜8 に答える\n㉑ 0.5.0 の実装 SUB を始める OK を出す\n㉒ CGQA 問 1: Mermaid の版の裁定（今夜 22:00 の目安）\n㉓ 0.5.0 を commit・インストールするか決める（a/b/c）\n㉔ 段 4 の SUB を始める OK を出す\n㉕ 0.5.0 を push する OK を出す\n㉖ CGQA の問 1〜3 に答える（UAT の前）\n㉗ CGQA の「UAT の後」の問 1〜3 に答える\n㉘ CGQA の進め方の問 1 に答える（0.5.2 と MCP）\n㉙ CGQA の 0.6.0 の問 1〜6 に答える\n㉚ CGQA の 0.6.0 の問 2 に答える（P-1〜P-5）\n㉛ 0.6.0 の commit・push・登録を OK する\n㉜ 0.6.0 の MCP を確かめる\n㉝ CGQA の [rename] に答える\n㉞ 0.6.1 の push・プラグインの更新を OK する\n㉟ GitHub でリポジトリ名を gr-whiteboard に変える\n㊱ 0.7.1 を直す時期を決める",
+        "text": "★オーナーがすること（優先順）\n① 長い通知の件は、直すと決まった（R-011）。0.3.1 で直した\n② 公開した（R-010）。旧リポジトリも消した（R-003）\n③ ボードをいつも通り使い、切れたらバッジの写しを送る（不具合 2 の確認）\n④ 記事の書き直しを頼む（最後の記事とまとめて。日は未定）\nW1 を満たした（10:51）: 0.3.1 は main にある\nW2 11-02（月）18:00: 不具合 2 の確認を終える\n⑩ 0.4.0 で、実際のボードに画像を貼ってみる\n⑬ 0.5.0（図とテキストの編集・削除）の GQA の問 2〜4 に答える（土 18:00 から）\n⑭ 0.5.0 の実地の試験（日 11:00 から）\n⑮ 0.4.1 の入れ直しを OK する\n⑯ 0.4.1 を push する\n⑰ 0.4.1 を PC と iPad で試す（PC のタブを裏にする）\n⑱ Hyper-V の新しい仮想マシンで新規インストールを試す\n⑲ 0.5.0 の仕様 SUB を始める OK を出す\n⑳ GQA の問 5〜8 に答える\n㉑ 0.5.0 の実装 SUB を始める OK を出す\n㉒ CGQA 問 1: Mermaid の版の裁定（今夜 22:00 の目安）\n㉓ 0.5.0 を commit・インストールするか決める（a/b/c）\n㉔ 段 4 の SUB を始める OK を出す\n㉕ 0.5.0 を push する OK を出す\n㉖ CGQA の問 1〜3 に答える（UAT の前）\n㉗ CGQA の「UAT の後」の問 1〜3 に答える\n㉘ CGQA の進め方の問 1 に答える（0.5.2 と MCP）\n㉙ CGQA の 0.6.0 の問 1〜6 に答える\n㉚ CGQA の 0.6.0 の問 2 に答える（P-1〜P-5）\n㉛ 0.6.0 の commit・push・登録を OK する\n㉜ 0.6.0 の MCP を確かめる\n㉝ CGQA の [rename] に答える\n㉞ 0.6.1 の push・プラグインの更新を OK する\n㉟ GitHub でリポジトリ名を gr-whiteboard に変える\n㊱ 0.7.1 を直す時期を決める\n㊲ 0.7.1 の push・プラグインの更新を OK する\n㊳ 0.7.1 を iPad で確かめる",
         "anchorDate": "2026-10-31T09:00:00",
         "anchorTaskGroupId": "7c0e0000-0000-4000-8000-000000000001",
         "anchorBandFraction": null,
@@ -4291,10 +4535,10 @@
     "zoomY": 1
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-01T05:24:43Z",
+    "scheduleUpdatedAt": "2026-11-01T07:38:59Z",
     "lastEditedBy": "pmo-claude",
     "settingsUpdatedAt": "2026-10-30T19:40:00Z",
-    "fileSavedAt": "2026-11-01T05:24:43Z"
+    "fileSavedAt": "2026-11-01T07:38:59Z"
   },
   "changeLog": [
     {
@@ -4812,6 +5056,48 @@
       "editedBy": "pmo-claude",
       "explanation": "BOSS note: task 115 done (owner: build 0.7.1 now); task 114 started, re-timed to 3 hours from now.",
       "changedAt": "2026-11-01T05:24:43Z"
+    },
+    {
+      "ordinal": 86,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 114 done (0.7.1, b25f01f, 142 tests); owner tasks 116 (push/update OK) and 117 (iPad check) added; task 87 follows 117.",
+      "changedAt": "2026-11-01T05:38:02Z"
+    },
+    {
+      "ordinal": 87,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 116 done (push b25f01f; plugin 0.7.1); next task 117 (owner iPad check) after Claude Code restart.",
+      "changedAt": "2026-11-01T06:11:10Z"
+    },
+    {
+      "ordinal": 88,
+      "editedBy": "pmo-claude",
+      "explanation": "PMO stop before the owner restarts Claude Code; plan saved and re-read; resume from task 117 (owner iPad check of 0.7.1).",
+      "changedAt": "2026-11-01T06:37:23Z"
+    },
+    {
+      "ordinal": 89,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 117 (owner iPad check of 0.7.1) started; re-timed to one hour from now; navigator wb-050-impl.",
+      "changedAt": "2026-11-01T06:47:43Z"
+    },
+    {
+      "ordinal": 90,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 117 done (0 NG, 4 minor notes); added task 118 (glyph palette sample .html, top priority, started); task 87 moved behind it.",
+      "changedAt": "2026-11-01T07:10:48Z"
+    },
+    {
+      "ordinal": 91,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 118 done (CGQA [palette], R-052..R-057); added task 119 (decide glyphs on the board, started) and 120 (build 0.7.2 palette); task 87 follows 120.",
+      "changedAt": "2026-11-01T07:24:56Z"
+    },
+    {
+      "ordinal": 92,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 119 done (R-058 glyph set); task 120 (0.7.2 palette) started, re-timed to 3 hours from now.",
+      "changedAt": "2026-11-01T07:38:59Z"
     }
   ]
 }

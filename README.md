@@ -44,9 +44,9 @@ If you used an older version (the plugin `whiteboard-chat@goodrelax`, or the two
 1. In Claude Code, say "let's talk on the whiteboard" (or type `/gr-whiteboard:talk-on-board`).
 2. The board opens in your browser.
 3. Write on the board with the text tool (**T**). You can use several texts and drawings.
-4. Press **Send** (top right) or **Ctrl+Shift+Enter**. Claude answers right below, a little to the left, in blue, like a chat on a phone.
+4. Press **Send** (the paper plane in the palette at the right) or **Ctrl+Shift+Enter**. Claude answers right below, a little to the left, in blue, like a chat on a phone.
 
-The top right also shows what Claude is doing: "reading your text", "working on it", or "waiting for you".
+The palette also shows what Claude is doing: an orange eye ("reading your text"), a blue turning arc ("working on it"), or a green coffee cup ("waiting for you"). Point at a glyph to read its text.
 Turn on **auto** to send each text by itself, 1.5 seconds after you stop typing.
 
 Ask for a diagram, for example "show the state machine of 3.4.1 of the spec". Claude draws the Mermaid block of that file.

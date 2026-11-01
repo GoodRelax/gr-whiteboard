@@ -9,44 +9,62 @@
   html, body, #root { height: 100%; margin: 0; }
   #notice { position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
     font: 16px/1.5 system-ui, sans-serif; padding: 16px; text-align: center; background: #fff; color: #1e1e1e; z-index: 10; }
-  .wbc-status { font: 12px/1.4 system-ui, sans-serif; padding: 4px 8px; border-radius: 6px;
-    background: rgba(255, 255, 255, 0.9); color: #1e1e1e; border: 1px solid #ddd; white-space: nowrap; }
-  .wbc-status.off { background: #fff3bf; }
-  /* 0.7.1 (R-048, FR-168): the bar is its own row under the Excalidraw top bar, at the right, so it never
-     pushes the Library button out of the window. In the phone layout of Excalidraw (excalidraw--mobile, below
-     730 px) it moves to the left and shows only Send, the signal, and a colored dot (R-050, FR-170). */
-  .wbc-bar { position: fixed; top: 68px; right: 16px; z-index: 4; display: flex; flex-wrap: wrap; gap: 6px;
-    align-items: center; justify-content: flex-end; max-width: calc(100vw - 32px); }
-  .wbc-dot { color: #2f9e44; }
-  .wbc-status.off .wbc-dot { color: #e03131; }
-  .excalidraw--mobile .wbc-bar { right: auto; left: 16px; justify-content: flex-start; }
-  .excalidraw--mobile .wbc-bar .wbc-join, .excalidraw--mobile .wbc-bar .wbc-auto,
-  .excalidraw--mobile .wbc-bar .wbc-status-text { display: none; }
-  .excalidraw--mobile .wbc-bar .wbc-status { padding: 4px 6px; }
-  .wbc-signal { font: 600 13px/1.4 system-ui, sans-serif; padding: 4px 10px; border-radius: 6px; white-space: nowrap; color: #1e1e1e; }
-  .wbc-reading { background: #ffec99; }
-  .wbc-working { background: #a5d8ff; }
-  .wbc-waiting { background: #b2f2bb; }
+  /* 0.7.2 (R-052 to R-058): one vertical palette of glyphs at the right, under the Library button; in the
+     phone layout of Excalidraw (excalidraw--mobile) under the right column. It uses the colors of Excalidraw,
+     so it follows the light and dark theme. The full texts are tooltips at the left. */
+  .wbp { position: fixed; top: 68px; right: 16px; z-index: 4; display: flex; flex-direction: column; align-items: center;
+    gap: 2px; padding: 4px; border-radius: 10px; background: var(--island-bg-color, #fff);
+    box-shadow: var(--shadow-island, 0 1px 4px rgba(0, 0, 0, 0.12)); color: var(--text-primary-color, #1b1b1f); }
+  .excalidraw--mobile .wbp { top: 196px; right: 4px; }
+  .wbp-sep { width: 24px; height: 1px; margin: 3px 0; background: var(--default-border-color, #e9ecef); }
+  .wbp-btn { position: relative; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center;
+    box-sizing: border-box; border: 0; border-radius: 8px; padding: 0; margin: 0; background: transparent; color: inherit; cursor: pointer; }
+  .wbp-btn:hover { background: var(--button-hover-bg, #f1f0ff); }
+  .wbp-btn:focus-visible { outline: 2px solid var(--color-primary, #6965db); outline-offset: 1px; }
+  .wbp-btn svg { width: 22px; height: 20px; }
+  div.wbp-btn { cursor: default; }
+  .wbp-on, .wbp-on:hover { background: var(--color-surface-primary-container, #e0dfff); color: var(--color-on-primary-container, #030064); }
+  .wbp-primary, .wbp-primary:hover { background: #1971c2; color: #fff; }
+  .wbp-dim, .wbp-dim:hover { opacity: 0.35; cursor: default; background: transparent; }
+  .wbp-grip, .wbp-grip:hover { height: 14px; opacity: 0.5; background: transparent; }
+  .wbp-grip svg { width: 16px; height: 16px; }
+  .wbp-count { position: absolute; top: -3px; left: -5px; min-width: 16px; height: 16px; padding: 0 4px; box-sizing: border-box;
+    border-radius: 8px; background: #e03131; color: #fff; font: 700 10px/16px system-ui, sans-serif; text-align: center; }
+  .wbp-reading { color: #e8590c; }
+  .wbp-working { color: #1971c2; }
+  .wbp-waiting { color: #2f9e44; }
+  .theme--dark .wbp-reading { color: #ff922b; }
+  .theme--dark .wbp-working { color: #4dabf7; }
+  .theme--dark .wbp-waiting { color: #69db7c; }
+  .wbp-working svg { animation: wbp-spin 1.2s linear infinite; }
+  @keyframes wbp-spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .wbp-working svg { animation: none; } }
+  .wbp-btn[data-tip]:hover::after, .wbp-btn[data-tip]:focus-visible::after { content: attr(data-tip); position: absolute;
+    right: calc(100% + 10px); top: 50%; transform: translateY(-50%); white-space: nowrap; pointer-events: none; z-index: 5;
+    font: 12px/1.4 system-ui, sans-serif; padding: 4px 8px; border-radius: 6px; background: #1e1e1e; color: #fff; }
+  .theme--dark .wbp-btn[data-tip]:hover::after, .theme--dark .wbp-btn[data-tip]:focus-visible::after { background: #e3e3e8; color: #121212; }
+  .excalidraw--mobile .wbp-btn[data-tip]:hover::after, .excalidraw--mobile .wbp-btn[data-tip]:focus-visible::after { white-space: normal; width: 180px; }
+  /* Text buttons of the Join dialog (Copy, Close). */
   .wbc-send { font: 600 13px/1.4 system-ui, sans-serif; padding: 4px 10px; border-radius: 6px; cursor: pointer;
-    border: 1px solid #ced4da; background: #f1f3f5; color: #495057; white-space: nowrap; }
-  .wbc-send.wbc-has { background: #1971c2; border-color: #1971c2; color: #fff; }
-  .wbc-auto { font: 12px/1.4 system-ui, sans-serif; display: flex; align-items: center; gap: 2px; color: #495057;
-    background: rgba(255, 255, 255, 0.9); padding: 3px 6px; border-radius: 6px; cursor: pointer; white-space: nowrap; }
+    border: 1px solid var(--default-border-color, #ced4da); background: var(--button-gray-1, #f1f3f5); color: inherit; white-space: nowrap; }
   .wbc-join-dialog { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); display: flex; align-items: center;
     justify-content: center; z-index: 20; }
-  .wbc-join-box { background: #fff; color: #1e1e1e; border-radius: 10px; padding: 16px 20px; max-width: 90vw; max-height: 90vh;
+  .wbc-join-box { background: var(--island-bg-color, #fff); color: var(--text-primary-color, #1e1e1e); border-radius: 10px; padding: 16px 20px; max-width: 90vw; max-height: 90vh;
     overflow: auto; font: 14px/1.5 system-ui, sans-serif; display: flex; flex-direction: column; gap: 12px; align-items: center; }
   .wbc-join-url { font: 12px/1.4 ui-monospace, monospace; word-break: break-all; user-select: all; text-align: center; }
   .wbc-join-box canvas { image-rendering: pixelated; }
+  /* Excalidraw inverts every canvas in its dark theme; a QR code must stay black on white (0.7.2). */
+  .excalidraw.theme--dark .wbc-join-box canvas { filter: none; }
   .wbc-join-step { border-top: 1px solid #dee2e6; padding-top: 12px; display: flex; flex-direction: column; gap: 8px; max-width: 640px; width: 100%; }
   .wbc-join-step ol { margin: 0; padding-left: 20px; }
   .wbc-join-target { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 6px; border-radius: 8px; }
   .wbc-recommended { background: #ebfbee; }
+  .theme--dark .wbc-recommended { background: #1f3d26; }
   .wbc-join-name { font-weight: 600; text-align: center; }
   .wbc-join-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; }
-  .wbc-join-note { font-size: 13px; color: #495057; }
+  .wbc-join-note { font-size: 13px; opacity: 0.8; }
   .wbc-join-box details { display: flex; flex-direction: column; gap: 8px; }
-  .wbc-join-box summary { cursor: pointer; color: #495057; }
+  .wbc-join-box summary { cursor: pointer; opacity: 0.8; }
   .wbc-idle { position: fixed; top: 112px; left: 50%; transform: translateX(-50%); z-index: 15; max-width: 90vw;
     font: 600 14px/1.4 system-ui, sans-serif; background: #fff3bf; color: #1e1e1e; border: 1px solid #f08c00;
     border-radius: 8px; padding: 8px 14px; }
