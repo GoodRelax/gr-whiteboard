@@ -1942,7 +1942,7 @@ Gaps that the UAT does not cover: Firefox and macOS (NFR-008), and Mermaid types
 | `@excalidraw/mermaid-to-excalidraw`, `mermaid` | MIT | no (the browser loads them from esm.sh at the first Mermaid Job) | Credit in README ("Mermaid diagrams with mermaid-to-excalidraw and Mermaid (MIT)") |
 | node-forge | BSD-3-Clause or GPL-2.0; we use BSD-3-Clause | no (npm installs it in LAN mode) | no (not shipped) |
 
-"Excalidraw" is a trademark of its owners. This project is not made by, endorsed by, or connected with Excalidraw.
+"Excalidraw" is a registered trademark of Excalidraw s.r.o. in the US (Reg. No. 6863755). This project is not made by, endorsed by, or connected with Excalidraw.
 
 ### A.3 Changes
 

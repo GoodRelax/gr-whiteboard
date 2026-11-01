@@ -99,4 +99,4 @@ Apache License 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
 
 The page uses the Excalidraw component (`@excalidraw/excalidraw`, MIT license), React (MIT license), Mermaid to Excalidraw (MIT license), and qrcode-generator (MIT license), loaded by the browser from esm.sh. The LAN mode uses node-forge (BSD-3-Clause), installed from npm.
 
-"Excalidraw" is a trademark of its owners. This project is not made by, endorsed by, or connected with Excalidraw.
+"Excalidraw" is a registered trademark of Excalidraw s.r.o. in the US (Reg. No. 6863755). This project is not made by, endorsed by, or connected with Excalidraw.
