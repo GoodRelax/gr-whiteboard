@@ -72,6 +72,8 @@ Each Monitor event is one JSON line.
      - `byClaude: true`: the item is one of your answers or drawings, and the person changed it.
   3. If there are `added` or `changed` drawings, take a screenshot and look at it.
   4. Answer once. If a deletion or change may be a mistake (for example, an arrow is gone from a diagram), say so in the answer.
+
+  In a long talk, add `--brief` to `sent`. Then the event has the new texts (`messages`), and for each change only `id`, `kind`, and `type` (an `edited` text also keeps its new `text`). Run `sent` without `--brief` when you need the places or the old texts.
 - `MessageReceived`: a new text (only when the person turned on **auto** sending). Show the signal "reading" at once (see "Signals"), then answer it on the board.
 - `MessageEdited`: the person changed a text that you already saw. It is often the rest of a sentence. Answer the full new text. Do not answer twice for the same idea. Ignore an edit that only adds spaces or line breaks.
 - `DrawingAdded`: take a screenshot and look at it before you talk about the drawing.
@@ -105,7 +107,7 @@ If you decide not to answer on the board (for example, you answer in the chat), 
 
 The answer goes right below the newest message, a little to the left, like a chat on a phone. Later answers go below the earlier ones. To choose the place, add `--at X,Y` (board coordinates; use `x` and `y` from an event).
 
-The result has `ids` when the answer is on the board. `"queued": true` means no browser page is open (or the page is slow); the answer is written when a page opens.
+The result has `ids` when the answer is on the board, and `x` and `y` of its place. With `--at`, the result also has `requested` (the place you asked for) and `moved`. `"moved": true` means an item covered that place, so the answer went lower, to `x` and `y`. `"queued": true` means no browser page is open (or the page is slow); the answer is written when a page opens.
 
 ### Other commands
 
@@ -113,7 +115,9 @@ The result has `ids` when the answer is on the board. `"queued": true` means no 
 | ------- | ------------ |
 | `node "SKILL_DIR/scripts/client.js" shot` | Screenshot of the whole board. Prints `{"v":1,"path":"..."}`. Read that PNG file. Needs an open page. |
 | `node "SKILL_DIR/scripts/client.js" shot ITEM_ID` | Screenshot of the area around one item. |
-| `node "SKILL_DIR/scripts/client.js" board` | All items on the board as JSON. Your answers have `"isAnswer": true`; your answers and drawings have `"byClaude": true`. Arrows and lines have `startId` and `endId` (the shapes they join). |
+| `node "SKILL_DIR/scripts/client.js" shot --scale 0.5` | A smaller screenshot (here half the width and height). The scale is more than 0 and at most 1. Use it when you only check the layout. Also works with `ITEM_ID`. |
+| `node "SKILL_DIR/scripts/client.js" board` | All items on the board as JSON. Your answers have `"isAnswer": true`; your answers and drawings have `"byClaude": true`. Arrows and lines have `startId` and `endId` (the shapes they join) and `points` (relative to `x` and `y`). |
+| `node "SKILL_DIR/scripts/client.js" board --fields id,type,x,y,width,height` | Only these fields of each item. Use it on a big board. |
 
 If the Server was started with `--control-port N`, add `--port N` to every `client.js` command.
 
@@ -121,6 +125,7 @@ If the Server was started with `--control-port N`, add `--port N` to every `clie
 
 - Use the language the person writes in.
 - Keep answers short. Use short lines (about 40 characters) and line breaks. Long lines do not wrap.
+- Write `!=` for "not equal". The fonts of the board have no not-equal sign (U+2260); it looks like `-`.
 - If an answer needs a lot of text, write a short summary on the board and the details in the chat.
 
 ## Draw, change, delete, undo
@@ -175,7 +180,7 @@ The reply has `opId`, `ids` (one per shape), and the box of the drawing (`x`, `y
 
 The board takes six Mermaid types: `graph` or `flowchart`, `sequenceDiagram`, `classDiagram`, `stateDiagram` (also `stateDiagram-v2`), `erDiagram`, and `pie`. The first five become shapes and arrows that a person can move. A pie becomes one picture (`"image": true` in the reply); a person cannot change its parts. For any other type (for example gantt or mindmap), and when the person wants to edit a pie, draw it with `draw`. The first Mermaid diagram on a page loads Mermaid, so it can take up to 20 seconds.
 
-Write plain Mermaid without colors or styles. The Server refuses (`InvalidSource`) a source that has `%%{` (init directives) or `:::` (as in `A:::foo`), or a line that starts with `classDef`, `class`, `cssClass`, `style`, `linkStyle`, or `click`. In a class diagram, give members as `Animal : +name` instead of a `class Animal { ... }` block. To color the diagram, draw it first, then run `board` to find the IDs, and change the colors with `edit`.
+Write plain Mermaid without colors or styles. The Server refuses (`InvalidSource`) a source that has `%%{` (init directives) or `:::` (as in `A:::foo`), or a line that starts with `classDef`, `class`, `cssClass`, `style`, `linkStyle`, or `click`. In a class diagram, give members as `Animal : +name` instead of a `class Animal { ... }` block. To color the diagram, draw it first, then run `board` to find the IDs, and change the colors with `edit`. Mermaid lines and text come out blue. For a line break in a label, write `<br>` (as in `A[Web<br>server]`).
 
 ### Change items
 
@@ -193,7 +198,7 @@ node "SKILL_DIR/scripts/client.js" edit --file "SKILL_DIR/.run/edit.json"
 ]
 ```
 
-Each change has the `id` of an item and the fields to change: `x`, `y` (new place) or `dx`, `dy` (move by), `width`, `height`, `angle`, `text` (for a text, or the label of a shape or arrow), and the style fields of `draw`. Labels and bound arrows follow their shape. To change the type or the points, delete the item and draw a new one. Get the IDs with `board`.
+Each change has the `id` of an item and the fields to change: `x`, `y` (new place) or `dx`, `dy` (move by), `width`, `height`, `angle`, `text` (for a text, or the label of a shape or arrow), and the style fields of `draw`. Labels and bound arrows follow their shape: to move a diagram, list only its shapes, and each arrow moves once. An arrow that you list with `x`, `y`, `dx`, or `dy` moves only by that change. To change the type or the points, delete the item and draw a new one. Get the IDs with `board`.
 
 ### Delete items
 

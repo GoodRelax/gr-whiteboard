@@ -58,6 +58,30 @@ function boundId(binding) {
   return binding && typeof binding.elementId === "string" ? binding.elementId : null;
 }
 
+// The points of an arrow or line, relative to its x and y, rounded to 0.1 px (FR-119). Null when there are none.
+// @purity pure
+function pointsOf(element) {
+  if (!Array.isArray(element.points)) return null;
+  const points = element.points
+    .filter((p) => Array.isArray(p) && Number.isFinite(p[0]) && Number.isFinite(p[1]))
+    .map((p) => [Math.round(p[0] * 10) / 10, Math.round(p[1] * 10) / 10]);
+  return points.length > 0 ? points : null;
+}
+
+// The box of an Item on the Board. For an arrow or line, the box of its points:
+// its width and height can be old, and its points can go left of or above x and y (FR-119).
+// @purity pure
+function boundsOf(item) {
+  if (!Array.isArray(item.points) || item.points.length === 0) {
+    return { x: item.x, y: item.y, width: item.width, height: item.height };
+  }
+  const xs = item.points.map((p) => p[0]);
+  const ys = item.points.map((p) => p[1]);
+  const minX = Math.min(...xs);
+  const minY = Math.min(...ys);
+  return { x: item.x + minX, y: item.y + minY, width: Math.max(...xs) - minX, height: Math.max(...ys) - minY };
+}
+
 // The Item view of the Board (spec 3.4): no deleted elements, numbers only where needed.
 // @purity pure
 function toItems(elements) {
@@ -83,6 +107,13 @@ function toItems(elements) {
     if (LINEAR_TYPES.includes(element.type)) {
       item.startId = boundId(element.startBinding);
       item.endId = boundId(element.endBinding);
+      const points = pointsOf(element);
+      if (points) {
+        item.points = points;
+        const box = boundsOf(item);
+        item.width = box.width;
+        item.height = box.height;
+      }
     }
     items.push(Object.freeze(item));
   }
@@ -95,4 +126,4 @@ function pruneDeleted(list, nowMs, keepMs) {
   return list.filter((element) => !(element.isDeleted && nowMs - (Number(element.updated) || 0) > keepMs));
 }
 
-module.exports = { ANSWER_MARK, CLAUDE_MARK, isElement, isByClaude, isNewer, mergeElements, toItems, pruneDeleted };
+module.exports = { ANSWER_MARK, CLAUDE_MARK, isElement, isByClaude, isNewer, mergeElements, toItems, boundsOf, pruneDeleted };

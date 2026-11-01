@@ -24,6 +24,10 @@ const ANSWER_MARK = "answer";
 const CLAUDE_MARK = "claude";
 const SHOT_BOX = Object.freeze({ width: 1600, height: 1000 });
 const SHOT_MAX_PX = 2000;
+// A small board is drawn at up to twice its size, as before 0.5.2 (maxWidthOrHeight made it SHOT_MAX_PX wide).
+const SHOT_MAX_SCALE = 2;
+// Room around the drawing, so rough strokes and labels at the edge are not cut (FR-118).
+const SHOT_PADDING_PX = 40;
 // The fonts of Answers: Excalifont, and Xiaolai for Chinese and Japanese characters.
 const ANSWER_FONT = `${ANSWER_FONT_SIZE}px Excalifont, Xiaolai`;
 // The Server sends "ping" every 20 s. Without any message for this long, open the stream again (FR-023a).
@@ -357,9 +361,29 @@ async function writeAnswer(job) {
   return { elements: [element] };
 }
 
+// The box of an Element on the Board. Arrows and lines count by their points: their width and height can be old (FR-118).
+function elementBox(element) {
+  const [minX, minY, maxX, maxY] = getCommonBounds([element]);
+  return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+}
+
 function overlaps(element, box) {
-  return element.x < box.x + box.width && element.x + element.width > box.x
-    && element.y < box.y + box.height && element.y + element.height > box.y;
+  const own = elementBox(element);
+  return own.x < box.x + box.width && own.x + own.width > box.x
+    && own.y < box.y + box.height && own.y + own.height > box.y;
+}
+
+// The Elements in `box`, with the labels of their shapes and arrows and the shapes of their labels,
+// so that no shape is shown without its label (FR-118).
+function inShotBox(elements, box) {
+  const ids = new Set(elements.filter((element) => overlaps(element, box)).map((element) => element.id));
+  for (const element of elements) {
+    if (element.type === "text" && element.containerId && ids.has(element.id)) ids.add(element.containerId);
+  }
+  for (const element of elements) {
+    if (element.type === "text" && element.containerId && ids.has(element.containerId)) ids.add(element.id);
+  }
+  return elements.filter((element) => ids.has(element.id));
 }
 
 function blobToBase64(blob) {
@@ -376,20 +400,29 @@ async function takeShot(job) {
   if (job.focusId) {
     const focus = elements.find((element) => element.id === job.focusId);
     if (!focus) throw new Error(`no item with id ${job.focusId}`);
+    const own = elementBox(focus);
     const box = {
-      x: focus.x + focus.width / 2 - SHOT_BOX.width / 2,
-      y: focus.y + focus.height / 2 - SHOT_BOX.height / 2,
+      x: own.x + own.width / 2 - SHOT_BOX.width / 2,
+      y: own.y + own.height / 2 - SHOT_BOX.height / 2,
       ...SHOT_BOX,
     };
-    elements = elements.filter((element) => overlaps(element, box));
+    elements = inShotBox(elements, box);
   }
   if (elements.length === 0) throw new Error("the board is empty");
+  // A text whose font is not loaded yet is drawn with nothing (FR-118).
+  await loadFonts(elements.filter((element) => element.type === "text").map((e) => ({ text: e.text, fontFamily: e.fontFamily, fontSize: e.fontSize })));
+  // job.scale in (0, 1] makes the PNG smaller (FR-123); the Server checks it.
+  const wanted = Number(job.scale) > 0 ? Number(job.scale) : 1;
   const blob = await exportToBlob({
     elements,
     appState: { ...api.getAppState(), exportBackground: true, viewBackgroundColor: "#ffffff" },
     files: api.getFiles(),
     mimeType: "image/png",
-    maxWidthOrHeight: SHOT_MAX_PX,
+    exportPadding: SHOT_PADDING_PX,
+    getDimensions: (width, height) => {
+      const scale = wanted * Math.min(SHOT_MAX_SCALE, SHOT_MAX_PX / Math.max(width, height, 1));
+      return { width: Math.max(1, Math.round(width * scale)), height: Math.max(1, Math.round(height * scale)), scale };
+    },
   });
   return { png: await blobToBase64(blob) };
 }
@@ -412,7 +445,15 @@ const FONT_NAMES = Object.freeze({ 1: "Virgil", 2: "Helvetica", 3: "Cascadia", 5
 const DEFAULT_FONT_FAMILY = 5;
 const SHAPE_TYPES = Object.freeze(["rectangle", "ellipse", "diamond"]);
 // securityLevel is set on purpose, so a new default cannot loosen it (FR-093a).
-const MERMAID_OPTIONS = Object.freeze({ securityLevel: "strict", themeVariables: { fontSize: "20px" }, maxTextSize: 20000 });
+// Mermaid measures the labels with the fonts of the board, so a box fits its label (FR-115).
+const MERMAID_FONTS = "Excalifont, Xiaolai, sans-serif";
+const MERMAID_OPTIONS = Object.freeze({
+  securityLevel: "strict", themeVariables: { fontSize: "20px", fontFamily: MERMAID_FONTS }, fontFamily: MERMAID_FONTS, maxTextSize: 20000,
+});
+// The default black of Mermaid lines and text becomes Claude's blue; a pie picture keeps its colors (FR-116, R-027).
+const MERMAID_BLACKS = Object.freeze(["#000", "#000000", "black", "#1e1e1e"]);
+// A line break in a Mermaid label ("A<br>B", "A<br/>B") is a new line on the board (FR-115).
+const MERMAID_LINE_BREAK = /<br\s*\/?>/gi;
 const MERMAID_PNG_MAX_PX = 2000;
 // Draw the picture at up to twice its size, so it stays sharp when a Person zooms in.
 const MERMAID_PNG_SCALE = 2;
@@ -442,6 +483,15 @@ async function loadFonts(texts) {
       // Measure with the fallback font.
     }
   }
+}
+
+// Excalidraw keeps the default width 100 and height 0 of an arrow or line made from a Skeleton with points;
+// the box of its points is the true size (FR-119).
+function sizeFromPoints(element) {
+  if ((element.type !== "arrow" && element.type !== "line") || !Array.isArray(element.points) || element.points.length < 2) return element;
+  const xs = element.points.map((p) => p[0]);
+  const ys = element.points.map((p) => p[1]);
+  return { ...element, width: Math.max(...xs) - Math.min(...xs), height: Math.max(...ys) - Math.min(...ys) };
 }
 
 function marked(element) {
@@ -488,7 +538,7 @@ async function drawSkeletons(job) {
   }));
   const made = convertToExcalidrawElements([...copies, ...skeletons], { regenerateIds: false });
   const targetIds = new Set(targets.map((shape) => shape.id));
-  const fresh = made.filter((element) => !targetIds.has(element.id)).map(marked);
+  const fresh = made.filter((element) => !targetIds.has(element.id)).map(sizeFromPoints).map(marked);
   const bound = targets.map((shape) => {
     const copy = made.find((element) => element.id === shape.id);
     const old = Array.isArray(shape.boundElements) ? shape.boundElements : [];
@@ -536,21 +586,73 @@ function layoutLabel(container, label, style) {
   return { container: grow, label: { x: text.x, y: text.y, width: text.width, height: text.height, lineHeight: text.lineHeight } };
 }
 
-// Moves the bound arrow ends of a shape that moved or changed size, as Excalidraw does on a drag (FR-098).
-function followShape(scene, oldBox, shape) {
+function boxOf(element) {
+  return { x: element.x, y: element.y, width: element.width, height: element.height };
+}
+
+function sameBox(a, b) {
+  return a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
+}
+
+// How far a point on the old box of a shape goes when the shape gets its new box.
+function shiftOf(move, [px, py]) {
+  if (!move) return [0, 0];
+  const nx = move.to.x + (px - move.from.x) * (move.from.width > 0 ? move.to.width / move.from.width : 1);
+  const ny = move.to.y + (py - move.from.y) * (move.from.height > 0 ? move.to.height / move.from.height : 1);
+  return [nx - px, ny - py];
+}
+
+// A segment that changes x or y by less than this is level or upright.
+const AXIS_PX = 1;
+
+function isLevel(a, b) {
+  return Math.abs(b[1] - a[1]) < AXIS_PX;
+}
+
+// True for three or more points joined only by level and upright segments.
+function isRightAngled(points) {
+  return points.length >= 3 && points.every((p, i) => i === 0 || isLevel(points[i - 1], p) || Math.abs(p[0] - points[i - 1][0]) < AXIS_PX);
+}
+
+// The new points (board coordinates) of an arrow whose start moves by atStart and whose end moves by atEnd (FR-117).
+// Both ends by the same amount: the whole arrow moves. A right-angled arrow stays right-angled: the point next to
+// a moved end follows it across its segment. Any other arrow: a point between the ends moves by its place along
+// the arrow, so the arrow keeps its form and no segment runs far away.
+function movePoints(old, atStart, atEnd) {
+  const last = old.length - 1;
+  const same = atStart[0] === atEnd[0] && atStart[1] === atEnd[1];
+  if (!same && isRightAngled(old)) {
+    const abs = old.map((p) => [...p]);
+    const moveEnd = (end, next, by) => {
+      abs[end] = [abs[end][0] + by[0], abs[end][1] + by[1]];
+      if (isLevel(old[end], old[next])) abs[next][1] += by[1];
+      else abs[next][0] += by[0];
+    };
+    moveEnd(0, 1, atStart);
+    moveEnd(last, last - 1, atEnd);
+    return abs;
+  }
+  const along = [0];
+  for (let i = 1; i <= last; i += 1) along.push(along[i - 1] + Math.hypot(old[i][0] - old[i - 1][0], old[i][1] - old[i - 1][1]));
+  return old.map(([px, py], i) => {
+    const t = along[last] > 0 ? along[i] / along[last] : i / last;
+    return [px + atStart[0] * (1 - t) + atEnd[0] * t, py + atStart[1] * (1 - t) + atEnd[1] * t];
+  });
+}
+
+// Moves the arrows bound to shapes that moved or changed size, as Excalidraw does on a drag (FR-098).
+// moves: Map shape id -> { from, to } (the old and the new box). skipIds: arrows that the Job moves itself,
+// so they do not move twice (FR-117). An end goes with its shape; movePoints moves the points between.
+function followShapes(scene, moves, skipIds = new Set()) {
   const changed = [];
-  const map = (px, py) => [
-    shape.x + (px - oldBox.x) * (oldBox.width > 0 ? shape.width / oldBox.width : 1),
-    shape.y + (py - oldBox.y) * (oldBox.height > 0 ? shape.height / oldBox.height : 1),
-  ];
-  for (const arrow of scene.values()) {
-    if (arrow.isDeleted || !Array.isArray(arrow.points) || arrow.points.length < 2) continue;
-    const atStart = arrow.startBinding && arrow.startBinding.elementId === shape.id;
-    const atEnd = arrow.endBinding && arrow.endBinding.elementId === shape.id;
-    if (!atStart && !atEnd) continue;
-    const abs = arrow.points.map((p) => [arrow.x + p[0], arrow.y + p[1]]);
-    if (atStart) abs[0] = map(...abs[0]);
-    if (atEnd) abs[abs.length - 1] = map(...abs[abs.length - 1]);
+  for (const arrow of [...scene.values()]) {
+    if (arrow.isDeleted || skipIds.has(arrow.id) || !Array.isArray(arrow.points) || arrow.points.length < 2) continue;
+    const startMove = arrow.startBinding ? moves.get(arrow.startBinding.elementId) : undefined;
+    const endMove = arrow.endBinding ? moves.get(arrow.endBinding.elementId) : undefined;
+    if (!startMove && !endMove) continue;
+    const old = arrow.points.map((p) => [arrow.x + p[0], arrow.y + p[1]]);
+    const last = old.length - 1;
+    const abs = movePoints(old, shiftOf(startMove, old[0]), shiftOf(endMove, old[last]));
     const [x0, y0] = abs[0];
     const points = abs.map(([px, py]) => [px - x0, py - y0]);
     const xs = points.map((p) => p[0]);
@@ -577,6 +679,12 @@ const EDIT_TEXT_FIELDS = Object.freeze(["text", "fontSize", "fontFamily", "textA
 async function editElements(job) {
   const original = new Map(api.getSceneElementsIncludingDeleted().map((element) => [element.id, element]));
   const scene = new Map(original);
+  // Arrows and lines that a change moves itself: their bound shapes do not move them again (FR-117).
+  const movedLines = new Set(job.changes
+    .filter((change) => ["x", "y", "dx", "dy"].some((field) => change[field] !== undefined))
+    .map((change) => change.id)
+    .filter((id) => original.has(id) && ["arrow", "line"].includes(original.get(id).type)));
+  const shapeIds = new Set();
   const texts = [];
   for (const change of job.changes) {
     const element = scene.get(change.id);
@@ -597,7 +705,6 @@ async function editElements(job) {
     if (!element) throw new Error(`no item with id ${change.id}`);
     // A label of a shape is changed through its shape.
     const container = element.type === "text" && element.containerId ? scene.get(element.containerId) : null;
-    const oldBox = { x: element.x, y: element.y, width: element.width, height: element.height };
     const patch = {};
     for (const field of EDIT_STYLE_FIELDS) if (change[field] !== undefined) patch[field] = change[field];
     if (change.x !== undefined) patch.x = change.x;
@@ -637,11 +744,16 @@ async function editElements(job) {
       for (const field of ["strokeColor", "opacity"]) if (labelStylePatch[field] !== undefined) colors[field] = labelStylePatch[field];
       put(newElementWith(label, { ...style, ...colors, text, originalText: text, ...placed.label }));
     }
-    if (nextShape.x !== oldBox.x || nextShape.y !== oldBox.y || nextShape.width !== oldBox.width || nextShape.height !== oldBox.height) {
-      const shapeBox = container ? { x: shape.x, y: shape.y, width: shape.width, height: shape.height } : oldBox;
-      for (const arrow of followShape(scene, shapeBox, nextShape)) touched.set(arrow.id, arrow);
-    }
+    shapeIds.add(shape.id);
   }
+  // Every shape moves its arrows once, from its box before the Job to its box after all changes.
+  const moves = new Map();
+  for (const id of shapeIds) {
+    const from = boxOf(original.get(id));
+    const to = boxOf(scene.get(id));
+    if (!sameBox(from, to)) moves.set(id, { from, to });
+  }
+  for (const arrow of followShapes(scene, moves, movedLines)) touched.set(arrow.id, arrow);
   const list = [...touched.values()];
   putInScene(list);
   return { elements: list, before: list.map((element) => original.get(element.id)).filter(Boolean) };
@@ -660,6 +772,7 @@ function lineCount(text) {
 
 function fitLabels(made) {
   const scene = new Map(made.map((element) => [element.id, element]));
+  const moves = new Map();
   for (const label of made) {
     if (label.type !== "text" || !label.containerId || lineCount(label.text) <= lineCount(label.originalText)) continue;
     const shape = scene.get(label.containerId);
@@ -681,13 +794,13 @@ function fitLabels(made) {
       width *= FIT_LABEL_GROW;
     }
     if (!wider) continue;
-    const oldBox = { x: shape.x, y: shape.y, width: shape.width, height: shape.height };
     const placed = layoutLabel(wider, { text: label.originalText }, style);
     const nextShape = { ...wider, ...placed.container };
     scene.set(shape.id, nextShape);
     scene.set(label.id, { ...label, text: label.originalText, ...placed.label });
-    followShape(scene, oldBox, nextShape);
+    moves.set(shape.id, { from: boxOf(shape), to: boxOf(nextShape) });
   }
+  followShapes(scene, moves);
   return made.map((element) => scene.get(element.id));
 }
 
@@ -731,6 +844,25 @@ async function svgToPng(svgDataURL, width, height) {
   }
 }
 
+function isDefaultBlack(color) {
+  return color === undefined || color === null || MERMAID_BLACKS.includes(String(color).toLowerCase());
+}
+
+// A Skeleton from Mermaid with real line breaks and with Claude's blue in place of the default black (FR-115).
+function boardSkeleton(skeleton) {
+  if (skeleton.type === "image") return skeleton;
+  const out = { ...skeleton };
+  if (typeof out.text === "string") out.text = out.text.replace(MERMAID_LINE_BREAK, "\n");
+  if (isDefaultBlack(out.strokeColor)) out.strokeColor = ANSWER_COLOR;
+  if (out.label) {
+    const label = { ...out.label };
+    if (typeof label.text === "string") label.text = label.text.replace(MERMAID_LINE_BREAK, "\n");
+    if (isDefaultBlack(label.strokeColor)) label.strokeColor = ANSWER_COLOR;
+    out.label = label;
+  }
+  return out;
+}
+
 async function drawMermaid(job) {
   let lib;
   try {
@@ -738,13 +870,15 @@ async function drawMermaid(job) {
   } catch (error) {
     throw new Error(`cannot load Mermaid from esm.sh: ${error && error.message}`);
   }
+  // Mermaid measures with these fonts, so they must be there first (FR-115).
+  await loadFonts([{ text: job.source, fontFamily: DEFAULT_FONT_FAMILY, fontSize: ANSWER_FONT_SIZE }]);
   let parsed;
   try {
     parsed = await lib.parseMermaidToExcalidraw(job.source, MERMAID_OPTIONS);
   } catch (error) {
     throw jobError("MermaidError", String((error && (error.message || error.str)) || error));
   }
-  const skeletons = (parsed.elements || []).filter((s) => s.type !== "frame" && s.type !== "magicframe");
+  const skeletons = (parsed.elements || []).filter((s) => s.type !== "frame" && s.type !== "magicframe").map(boardSkeleton);
   const files = [];
   for (const skeleton of skeletons) {
     if (skeleton.type !== "image") continue;

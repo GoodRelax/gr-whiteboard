@@ -173,7 +173,7 @@ test("draw, edit, mermaid, delete, and undo on the real Server (FR-087 to FR-109
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "wbc-ops-"));
   let server = await startServer(dataDir);
   try {
-    assert.equal(readLog(server.logPath).find((e) => e.event === "ServerReady").version, "0.5.1");
+    assert.equal(readLog(server.logPath).find((e) => e.event === "ServerReady").version, "0.5.2");
     const skeletons = [
       { id: "web", type: "rectangle", x: 0, y: 0, width: 160, height: 80, label: { text: "Web" } },
       { id: "db", type: "rectangle", x: 300, y: 0, width: 160, height: 80 },
@@ -184,6 +184,11 @@ test("draw, edit, mermaid, delete, and undo on the real Server (FR-087 to FR-109
     assert.deepEqual([(await control("/v1/draw", { elements: skeletons })).status, (await control("/v1/draw", { elements: skeletons })).json.error], [503, "NoPage"]);
     assert.equal((await control("/v1/mermaid", { source: "graph LR; A-->B" })).json.error, "NoPage");
     assert.equal((await control("/v1/status")).json.queueLength, 0);
+    // SC-109: a scale outside (0, 1] is refused before any Job.
+    for (const scale of [0, 2, "0.5"]) {
+      const bad = await control("/v1/shot", { scale });
+      assert.deepEqual([bad.status, bad.json.error], [400, "InvalidScale"]);
+    }
 
     const page = openPage(server.token, "pageOPS0001");
     const other = openPage(server.token, "pageOPS0002");
@@ -452,5 +457,57 @@ test("a Snapshot that cannot be written stops the Operation (FR-106, SC-086)", a
     await stopServer(server);
   } finally {
     server.child.kill();
+  }
+});
+
+test("client.js sent --brief, board --fields, and shot --scale keep the replies small (FR-121, FR-122, FR-123)", async () => {
+  const bodies = [];
+  const board = {
+    items: [
+      { id: "r1", type: "rectangle", x: 1, y: 2, width: 3, height: 4, text: null, strokeColor: "#1971c2" },
+      { id: "l1", type: "line", x: 5, y: 6, width: 0, height: 730, points: [[0, 0], [0, 730]], startId: null, endId: null },
+    ],
+    pageCount: 1,
+  };
+  const fake = http.createServer((req, res) => {
+    let raw = "";
+    req.on("data", (chunk) => { raw += chunk; });
+    req.on("end", () => {
+      bodies.push({ method: req.method, url: req.url, body: raw === "" ? null : JSON.parse(raw) });
+      res.writeHead(200, { "Content-Type": "application/json" });
+      res.end(JSON.stringify(req.url === "/v1/board" ? board : { path: "shot.png" }));
+    });
+  });
+  await new Promise((resolve) => fake.listen(0, "127.0.0.1", resolve));
+  try {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), "wbc-ops-brief-"));
+    const log = path.join(dir, "server.log");
+    const sent = {
+      v: 1, event: "MessagesSent", atMs: 7,
+      messages: [{ id: "m1", text: "draw it", x: 0, y: 0, inShape: false }],
+      changes: [
+        { kind: "edited", id: "t1", type: "text", x: 0, y: 50, text: "new words", oldText: "old words" },
+        { kind: "changed", id: "a1", type: "arrow", x: 9, y: 9, what: ["moved"], from: { x: 0, y: 0 }, byClaude: true },
+      ],
+    };
+    fs.writeFileSync(log, `${JSON.stringify(sent)}\n`);
+    const run = (args) => new Promise((resolve) => {
+      execFile(process.execPath, [CLIENT, ...args, "--port", String(fake.address().port), "--log", log],
+        { encoding: "utf8", timeout: 20000 }, (error, stdout) => resolve({ code: error ? error.code : 0, json: JSON.parse(stdout) }));
+    });
+    assert.deepEqual((await run(["sent", "--brief"])).json, {
+      v: 1, event: "MessagesSent", atMs: 7,
+      messages: [{ id: "m1", text: "draw it" }],
+      changes: [{ id: "t1", kind: "edited", type: "text", text: "new words" }, { id: "a1", kind: "changed", type: "arrow" }],
+    });
+    assert.deepEqual((await run(["sent"])).json, sent, "without --brief, sent prints the whole event");
+    assert.deepEqual((await run(["board", "--fields", "id,type,points"])).json, {
+      items: [{ id: "r1", type: "rectangle" }, { id: "l1", type: "line", points: [[0, 0], [0, 730]] }], pageCount: 1,
+    });
+    assert.equal((await run(["shot", "r1", "--scale", "0.5"])).code, 0);
+    assert.equal((await run(["shot"])).code, 0);
+    assert.deepEqual(bodies.filter((b) => b.url === "/v1/shot").map((b) => b.body), [{ focusId: "r1", scale: 0.5 }, {}]);
+  } finally {
+    fake.close();
   }
 });

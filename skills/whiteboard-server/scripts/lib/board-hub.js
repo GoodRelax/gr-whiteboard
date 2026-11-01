@@ -123,7 +123,7 @@ function createBoardHub({
       job.point = { x: Math.round(point.x), y: Math.round(point.y) };
       return Object.assign(payload, { text: job.text, x: job.point.x, y: job.point.y });
     }
-    if (job.kind === "shot") return Object.assign(payload, { focusId: job.focusId });
+    if (job.kind === "shot") return Object.assign(payload, { focusId: job.focusId, scale: job.scale });
     if (job.kind === "edit") return Object.assign(payload, { opId: job.opId, changes: job.changes });
     // draw and mermaid: the Origin (4.11.4).
     const items = toItems(elements);
@@ -278,9 +278,9 @@ function createBoardHub({
   }
 
   // @purity non-pure
-  function requestShot(focusId) {
+  function requestShot(focusId, scale = 1) {
     if (pages.size === 0) throw new AppError("NoPage", 503, "no page is open; open the Board URL in a browser");
-    return addJob({ kind: "shot", focusId: focusId || null });
+    return addJob({ kind: "shot", focusId: focusId || null, scale });
   }
 
   // Adds a draw, edit, or mermaid Job (FR-087, FR-093, FR-097). `job`: { kind, ... } checked by the caller.
@@ -358,6 +358,11 @@ function createBoardHub({
     }
     onAnswerWritten(written);
     const result = { jobId: current.id, ids: written.map((element) => element.id), x: current.point.x, y: current.point.y };
+    // The Agent asked for a place that an Item covers, so the Answer went lower (FR-120).
+    if (current.at) {
+      const requested = { x: Math.round(current.at.x), y: Math.round(current.at.y) };
+      Object.assign(result, { requested, moved: requested.x !== result.x || requested.y !== result.y });
+    }
     events.emit({ event: "AnswerPosted", ...result });
     // An Answer ends Claude's turn (FR-039).
     setSignal("waiting");

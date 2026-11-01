@@ -372,8 +372,8 @@ async function main() {
   const urls = boardUrls({ lan: config.lan, port: config.port, token, addresses });
 
   // @purity non-pure
-  async function takeShot(focusId) {
-    const { done } = hub.requestShot(focusId);
+  async function takeShot(focusId, scale) {
+    const { done } = hub.requestShot(focusId, scale);
     const { png } = await done;
     if (!png.startsWith(PNG_BASE64_HEAD)) throw new AppError("JobFailed", 502, "the page did not send a PNG image");
     fs.mkdirSync(config.shotDir, { recursive: true });

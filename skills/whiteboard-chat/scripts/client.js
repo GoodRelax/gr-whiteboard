@@ -4,14 +4,15 @@
 // Client for the Board Server (skill whiteboard-server). Works the same in bash, PowerShell, and cmd
 // (no curl, tail, grep, or heredoc).
 //   node scripts/client.js say [--file PATH] [--at X,Y]   text from PATH, or from stdin
-//   node scripts/client.js shot [ITEM_ID]
-//   node scripts/client.js board
+//   node scripts/client.js shot [ITEM_ID] [--scale S]   S in (0, 1]: a smaller PNG (default 1)
+//   node scripts/client.js board [--fields id,type,...]  only these fields of each Item
 //   node scripts/client.js signal reading|working|waiting|none   shows what Claude is doing on every page
 //   node scripts/client.js stop
 //   node scripts/client.js wait [--timeout-ms N]         waits for ServerReady or ServerFailed in the log
 //   node scripts/client.js watch                         prints new events from the log, one per line, forever
 //                                                        (MessagesSent as a short line; read it with `sent`)
-//   node scripts/client.js sent [--at-ms N]              prints the full MessagesSent with atMs N (default: the last one)
+//   node scripts/client.js sent [--at-ms N] [--brief]    prints the full MessagesSent with atMs N (default: the last one);
+//                                                        --brief: the new texts, and only id, kind, and type of each change
 //   node scripts/client.js draw [--file PATH] [--at X,Y]  draws Skeletons (JSON list, or {"elements": [...]})
 //   node scripts/client.js mermaid [--file PATH] [--at X,Y]   draws a Mermaid diagram
 //   node scripts/client.js edit [--file PATH]            changes Items (JSON list, or {"changes": [...]})
@@ -45,7 +46,7 @@ const WATCH_EVENTS = new Set([
 function parseArgs(argv) {
   const args = {
     command: argv[0], port: DEFAULT_PORT, log: DEFAULT_LOG, at: null, atMs: null, file: null, timeoutMs: null, rest: [],
-    confirm: false, force: false, all: false,
+    confirm: false, force: false, all: false, brief: false, fields: null, scale: null,
   };
   for (let i = 1; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -53,6 +54,9 @@ function parseArgs(argv) {
     else if (arg === "--confirm") args.confirm = true;
     else if (arg === "--force") args.force = true;
     else if (arg === "--all") args.all = true;
+    else if (arg === "--brief") args.brief = true;
+    else if (arg === "--fields") args.fields = String(argv[(i += 1)]).split(",").map((f) => f.trim()).filter(Boolean);
+    else if (arg === "--scale") args.scale = Number(argv[(i += 1)]);
     else if (arg === "--log") args.log = argv[(i += 1)];
     else if (arg === "--file") args.file = argv[(i += 1)];
     else if (arg === "--timeout-ms") args.timeoutMs = Number(argv[(i += 1)]);
@@ -92,6 +96,30 @@ function shortSent(event) {
     changeCount: Array.isArray(event.changes) ? event.changes.length : 0,
     read: `client.js sent --at-ms ${event.atMs}`,
   });
+}
+
+// MessagesSent with less in it (FR-121): the new texts as they are, and only id, kind, and type of each change.
+// An edited text keeps its new text, because it is the Person's words too.
+// @purity pure
+function briefSent(event) {
+  const messages = (Array.isArray(event.messages) ? event.messages : []).map((m) => ({ id: m.id, text: m.text }));
+  const changes = (Array.isArray(event.changes) ? event.changes : []).map((c) => {
+    const entry = { id: c.id, kind: c.kind, type: c.type };
+    if (c.kind === "edited" && typeof c.text === "string") entry.text = c.text;
+    return entry;
+  });
+  return { v: 1, event: "MessagesSent", atMs: event.atMs, messages, changes };
+}
+
+// The board reply with only `fields` of each Item (FR-122). An Item without a field leaves it out.
+// @purity pure
+function pickFields(reply, fields) {
+  const items = (Array.isArray(reply.items) ? reply.items : []).map((item) => {
+    const out = {};
+    for (const field of fields) if (Object.prototype.hasOwnProperty.call(item, field)) out[field] = item[field];
+    return out;
+  });
+  return { ...reply, items };
 }
 
 // @purity pure
@@ -233,7 +261,7 @@ function printSent(args) {
     process.stdout.write(JSON.stringify({ v: 1, error: "NoSent", message: `no MessagesSent in ${args.log}` }) + "\n");
     process.exit(1);
   }
-  process.stdout.write(found + "\n");
+  process.stdout.write((args.brief ? JSON.stringify(briefSent(JSON.parse(found))) : found) + "\n");
   process.exit(0);
 }
 
@@ -289,11 +317,15 @@ async function sendHttp(args) {
       reply = await request(args.port, "POST", "/v1/say", body);
       break;
     }
-    case "shot":
-      reply = await request(args.port, "POST", "/v1/shot", args.rest[0] ? { focusId: args.rest[0] } : {});
+    case "shot": {
+      const body = args.rest[0] ? { focusId: args.rest[0] } : {};
+      if (args.scale !== null) body.scale = args.scale;
+      reply = await request(args.port, "POST", "/v1/shot", body);
       break;
+    }
     case "board":
       reply = await request(args.port, "GET", "/v1/board");
+      if (args.fields && reply.status === 200) reply.text = JSON.stringify(pickFields(JSON.parse(reply.text), args.fields));
       break;
     case "signal":
       reply = await request(args.port, "POST", "/v1/signal", { state: args.rest[0] || "" });
@@ -303,7 +335,8 @@ async function sendHttp(args) {
       break;
     default:
       process.stderr.write("usage: client.js say|shot|board|signal|stop|wait|watch|sent|draw|mermaid|edit|delete|undo"
-        + " [--port N] [--log PATH] [--file PATH] [--at X,Y] [--at-ms N] [--timeout-ms N] [--confirm] [--all] [--force] [ID ...]\n");
+        + " [--port N] [--log PATH] [--file PATH] [--at X,Y] [--at-ms N] [--timeout-ms N] [--confirm] [--all] [--force]"
+        + " [--brief] [--fields F,...] [--scale S] [ID ...]\n");
       process.exit(2);
   }
   process.stdout.write(reply.text + "\n");

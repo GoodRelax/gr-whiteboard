@@ -4,7 +4,7 @@
 | -------- | --------------------------------------- |
 | Document | spec-en.md                              |
 | Template | ANMS v0.34 (gr-sw-maker process-rules)  |
-| Version  | 0.5.1 (draft)                           |
+| Version  | 0.5.2 (draft)                           |
 | Date     | 2026-11-01                              |
 | Status   | Draft. A person must review it.         |
 | License  | Apache-2.0                              |
@@ -179,7 +179,7 @@ How to check each requirement: T = test, I = inspection (a person reads it), A =
 | FR-028 | When the Leader gets an Answer Job, the Leader shall wait until the Answer font (Excalifont, and Xiaolai for Chinese and Japanese) is loaded for the text, then make one Text Item with `convertToExcalidrawElements` (font size 20, blue `#1971c2`, mark `customData.whiteboardChat = "answer"`), add it to its Board, and send it to the Server with the Job result. | D |
 | FR-029 | If an Item covers the Board Point of an Answer (with a 10 px margin), then the Server shall move the point down below that Item, again until no Item covers it. | T |
 | FR-030 | Where `say` has no `at`, the Server shall choose the Board Point by the rule in 4.6 (chat style: right below the newest Message, `answerIndentPx` to the left). On an empty Board it shall use (100, 100). | T |
-| FR-031 | When the Server receives `POST /v1/shot` and a Page is open, the Leader shall export the Board as PNG (at most 2000 px on the long side, white background), and the Server shall save it in `shotDir` and reply with the file path. If no Page is open, the Server shall reply 503 `NoPage`. | T, D |
+| FR-031 | When the Server receives `POST /v1/shot` and a Page is open, the Leader shall export the Board as PNG (at most 2000 px on the long side, white background; `scale` and the edges: FR-118, FR-123), and the Server shall save it in `shotDir` and reply with the file path. If no Page is open, the Server shall reply 503 `NoPage`. | T, D |
 | FR-032 | Where `shot` has `focusId`, the Leader shall export only Items that overlap a 1600 x 1000 box around the center of that Item. If no Item has that ID, the Job shall fail (`JobFailed`). | D |
 | FR-033 | If the Leader does not finish a Job within `jobTimeoutMs`, then the Server shall end the Job with `JobTimeout` and send `AnswerFailed` for an Answer Job. | T |
 | FR-034 | The Leader shall be the first Page that is on screen (FR-085), or the first Page when no Page is on screen. When the Leader leaves, the Server shall make the next Page the Leader and give it the running Job again. When the Leader changes, the Server shall send `role` to the old and the new Leader. | T |
@@ -236,7 +236,7 @@ Draw from Mermaid:
 | ------ | ------------------ | ----- |
 | FR-093 | When the Server receives `POST /v1/mermaid` with `source` of 1 to 20000 characters that is not blank, the Server shall add a `mermaid` Job and reply as FR-087 (also 503 `NoPage`). Other `source` values get 400 `InvalidSource`. | T |
 | FR-093a | If the first statement of `source` (statements end at a newline, `;`, `{`, or `}`; blank lines and `%%` comments do not count) does not start with `graph`, `flowchart`, `sequenceDiagram`, `classDiagram`, `stateDiagram`, `stateDiagram-v2`, `erDiagram`, or `pie`, or `source` contains `%%{` or `:::` (the short form that puts a class on a node), or a later statement starts with `classDef`, `class`, `cssClass`, `style`, `linkStyle`, or `click` (any letter case), then the Server shall reply 400 `InvalidSource` with the reason and add no Job. Reason: ruling R-022; `mermaid` 11.13.0 has open advisories in styles, classes, configuration, and other diagram types (A.3). The Page sets `securityLevel` "strict" itself (FR-094), so a new default of Mermaid or of the package cannot loosen it. Checked in Edge on 2026-10-31: Mermaid runs with `securityLevel` "strict", its sanitizer takes `<script>` and `<style>` out of labels, and the Content Security Policy (FR-048) blocks an `onerror` handler in a label; the label stays plain text in Excalidraw. | T |
-| FR-094 | When the Leader gets a `mermaid` Job, the Leader shall load `@excalidraw/mermaid-to-excalidraw` (NFR-009) once, at the first `mermaid` Job, call `parseMermaidToExcalidraw(source, {securityLevel: "strict", themeVariables: {fontSize: "20px"}, maxTextSize: 20000})`, make the Elements with `convertToExcalidrawElements` (new IDs), set `link` to null on every Element, move the drawing so that its top left corner is at the Origin, add the mark of FR-091, add the Elements to its Board, and send them to the Server with the Job result. If Mermaid cannot read the source, then the Job shall fail with `MermaidError` (422) and the first 300 characters of the Mermaid message. | T, D |
+| FR-094 | When the Leader gets a `mermaid` Job, the Leader shall load `@excalidraw/mermaid-to-excalidraw` (NFR-009) once, at the first `mermaid` Job, call `parseMermaidToExcalidraw(source, {securityLevel: "strict", themeVariables: {fontSize: "20px", fontFamily}, fontFamily, maxTextSize: 20000})` (`fontFamily`: FR-115), make the Elements (line breaks and colors: FR-115, FR-116) with `convertToExcalidrawElements` (new IDs), set `link` to null on every Element, move the drawing so that its top left corner is at the Origin, add the mark of FR-091, add the Elements to its Board, and send them to the Server with the Job result. If Mermaid cannot read the source, then the Job shall fail with `MermaidError` (422) and the first 300 characters of the Mermaid message. | T, D |
 | FR-095 | If the package gives a picture (an SVG image) instead of shapes, then the Leader shall draw the SVG on a canvas, make a PNG image file of it (at most 2000 px on the long side), and place it as one image Element; the Server shall check the file as FR-083. If the browser cannot make the PNG, then the Job shall fail with `MermaidUnsupported` (422). Reason: FR-083 refuses SVG files. | D |
 | FR-096 | The Server shall give a `mermaid` Job twice `jobTimeoutMs` (30 s by default), because the first `mermaid` Job on a Page loads Mermaid (about 3 MB). FR-086 (one more try on another Page) applies as for other Jobs. | T |
 
@@ -267,6 +267,21 @@ Pages, `board`, and `client.js`:
 | FR-107 | When any part of a new Claude Item lies outside the visible area of a Page, the Page shall scroll to the whole drawing (as FR-035). Reason: ruling R-024. | D |
 | FR-108 | Each Item of `GET /v1/board` shall also have `byClaude`, `angle`, `strokeColor`, `backgroundColor`, and, for arrows and lines, `startId` and `endId` (the bound shapes, or null). Reason: the Agent must see which shapes an arrow joins before it edits a diagram. | T |
 | FR-109 | `client.js` shall have the commands `draw`, `mermaid`, `edit`, `delete`, and `undo` (4.11.5). They read JSON or Mermaid text from `--file` or from standard input, post it to the Control API, print the reply, and exit with code 0 for HTTP 2xx and 1 otherwise. If the input is not JSON where JSON is needed, then the client shall print `InvalidJson` and exit with code 1 without a request. | T |
+
+Fixes and smaller replies (0.5.2, ruling R-031). The second BOSS of K gr-handover found these on the Board. The smaller replies come from the proposal on the context use of the Agent (cases a and b).
+
+| ID     | Requirement (EARS) | Check |
+| ------ | ------------------ | ----- |
+| FR-115 | When the Leader gets a `mermaid` Job, the Leader shall load the fonts of the Board (Excalifont, and Xiaolai for Chinese and Japanese characters) for the characters of the source, let Mermaid measure the labels with them (`fontFamily` "Excalifont, Xiaolai, sans-serif"), and change each `<br>` and `<br/>` in a label or text into a line break. Reason: `<br>` was shown as text, and Mermaid measured Japanese labels with its own font, so the boxes were too small and overlapped after FR-094 made them wider. | D |
+| FR-116 | When the Leader makes the Elements of a `mermaid` Job, the Leader shall change the default black of lines, shapes, and text (`#000`, `#000000`, `black`, `#1e1e1e`, or no color) to Claude's blue `#1971c2`. Other colors and the picture of a pie stay as they are. Reason: ruling R-027. | D |
+| FR-117 | When an `edit` Job moves or resizes shapes, every arrow bound to them shall move once, from the boxes of the shapes before the Job to their boxes after all changes. An arrow that the Job itself moves (`x`, `y`, `dx`, or `dy`) shall move only by its own change. When both ends of an arrow move by the same amount, the whole arrow shall move. When one end moves and the arrow is right-angled (three or more points, only level and upright segments), the point next to that end shall follow it across its segment, so the arrow stays right-angled. Any other arrow shall move each point between the ends by its place along the arrow. Reason: a shape and its arrow in one `edit` moved the arrow twice, and an arrow with three or more points got one long segment. | D |
+| FR-118 | When the Leader takes a Screenshot of one Item, the Leader shall choose the Elements by their boxes (arrows and lines by their points), add the labels of the chosen shapes and the shapes of the chosen labels, load the fonts of the texts, and leave 40 px around the drawing. Reason: Items and labels at the edge of the area were cut. | D |
+| FR-119 | Each arrow and line Item of `GET /v1/board` shall have `points` (relative to `x` and `y`, rounded to 0.1 px), and its `width` and `height` shall be the size of its points. The Leader shall set `width` and `height` of a new arrow or line of a `draw` Job from its points. 4.6 and the Origin (4.11.4) shall use the box of the points. Reason: a vertical line with points `[[0,0],[0,730]]` was `width` 100 and `height` 0, so an Answer was put on it. | T, D |
+| FR-120 | When `say` has `at`, the reply shall have `requested` (the asked place, rounded) and `moved` (true when an Item covered it and the Answer went lower, FR-029). 4.6 shall count a Chinese, Japanese, or Korean character, or a full-width form, as 1 em wide. Reason: the Agent could not see that its Answer went to another place, and Japanese Answers were wider than the Server thought. | T |
+| FR-121 | When `client.js sent` has `--brief`, the client shall print `atMs`, `messages` with only `id` and `text`, and `changes` with only `id`, `kind`, and `type` (an `edited` text also keeps `text`). Reason: the full event took much of the context of the Agent. | T |
+| FR-122 | When `client.js board` has `--fields F,F,...`, the client shall print each Item with only those fields (a field that an Item does not have is left out) and `pageCount`. | T |
+| FR-123 | When `POST /v1/shot` has `scale` (a number greater than 0 and at most 1; default 1), the Leader shall make the PNG `scale` times the size of FR-031. Other values shall get 400 `InvalidScale`. `client.js shot` shall send it with `--scale S`. | T, D |
+| FR-124 | The Skill shall tell the Agent to write `!=` for "not equal". Reason: the fonts of the Board have no not-equal sign (U+2260); it looked like `-` (the owner's order, R-031). | I |
 
 What the Skill tells the Agent (0.5.0):
 
@@ -439,6 +454,7 @@ Item (made from a not-deleted Element):
 | `angle` | number | Rotation in radians (0.5.0, FR-108). |
 | `strokeColor`, `backgroundColor` | string | Colors (0.5.0, FR-108). |
 | `startId`, `endId` | string or null | Arrows and lines only: the bound shapes (0.5.0, FR-108). |
+| `points` | list of [x, y] | Arrows and lines only: the points, relative to `x` and `y`; `width` and `height` are the size of the points (0.5.2, FR-119). |
 
 TrackerState: for each Text Item ID, `reportedText` (null if never reported), `pendingText` (null if the text equals `reportedText`), `pendingSinceMs`; plus `drawingCount` and `notBeforeMs`.
 
@@ -1061,6 +1077,67 @@ Feature: Talk with Claude Code on a local whiteboard
         | delete --all --confirm         | /v1/delete  | {"all": true, "confirm": true}        |
         | undo --force                   | /v1/undo    | {"force": true}                       |
 
+  Rule: Fixes and smaller replies (0.5.2)
+
+    Scenario: SC-105 Line breaks and Japanese labels in Mermaid (traces: FR-115)
+      When the Agent draws a flowchart with mermaid, with Japanese labels and the node "A[Web<br>browser]"
+      Then the label of A is "Web", a line break, and "browser", with no "<br>"
+      And no two shapes of the diagram overlap
+      And every label lies inside its shape
+
+    Scenario: SC-106 Mermaid in blue (traces: FR-116)
+      When the Agent draws a flowchart with mermaid
+      Then its lines, shapes, and text have strokeColor "#1971c2"
+      When the Agent draws a pie with mermaid
+      Then the pie is one picture with its own colors
+
+    Scenario: SC-107 A shape and its arrow move together (traces: FR-117)
+      Given shapes "s1" and "s2" and arrow "a12" from "s1" to "s2"
+      When the Agent edits [{"id": "s1", "dx": 50, "dy": 100}, {"id": "s2", "dx": 50, "dy": 100}, {"id": "a12", "dx": 50, "dy": 100}]
+      Then "a12" moves by 50, 100 once, and its points stay the same
+
+    Scenario Outline: SC-108 An arrow with three or more points follows its shape (traces: FR-117)
+      Given arrow "a" from "s1" to "s3" with points <points>
+      When the Agent edits <change>
+      Then <result>
+
+      Examples:
+        | points                                | change                              | result |
+        | [[0,0],[140,0],[140,290],[280,290]]   | "s1" dx 50, dy 100                  | the arrow stays right-angled |
+        | [[0,0],[140,0],[140,290],[280,290]]   | "s1" and "s3" dx -50, dy -100       | the whole arrow moves by -50, -100 and its points stay the same |
+        | [[0,0],[100,-60],[200,60],[300,100]]  | "s3" dx 600                         | every segment grows, and no single segment takes the whole 600 |
+
+    Scenario: SC-109 A smaller Screenshot (traces: FR-123, FR-118)
+      When the Agent runs client.js shot s3 --scale 0.5
+      Then the PNG is half the width and height of the PNG without --scale
+      And the PNG shows the labels of the shapes at its edges
+      When the Agent posts /v1/shot with scale 0, 2, or "0.5"
+      Then shot replies 400 InvalidScale
+
+    Scenario: SC-110 Points of arrows and lines (traces: FR-119)
+      When the Agent draws a line with points [[0,0],[0,730]]
+      Then board shows it with points [[0,0],[0,730]], width 0, and height 730
+      When the Agent writes an Answer at a place next to the line, on it
+      Then the Answer goes below the line
+
+    Scenario: SC-111 An Answer that had to move (traces: FR-120)
+      Given a text Item covers (10, 110)
+      When the Agent runs say --at 10,110
+      Then the reply has requested {"x": 10, "y": 110}, moved true, and the lower x and y
+      When the Agent runs say --at with a free place
+      Then the reply has moved false
+
+    Scenario: SC-112 Smaller replies for the Agent (traces: FR-121, FR-122)
+      Given a MessagesSent with a Message, an edited text, and a moved arrow
+      When the Agent runs client.js sent --brief
+      Then the client prints the Message with id and text, the edited text with id, kind, type, and text, and the arrow with id, kind, and type
+      When the Agent runs client.js board --fields id,type,points
+      Then each Item has only those fields that it has, and the reply keeps pageCount
+
+    Scenario: SC-113 Not equal (traces: FR-124)
+      When the Agent writes "not equal" in an Answer or a drawing
+      Then the Agent writes "!=" and never the not-equal sign
+
   Rule: What the Skill tells the Agent (0.5.0; checked by inspection and in the UAT)
 
     Scenario: SC-094 The Agent draws on request (traces: FR-110)
@@ -1137,8 +1214,8 @@ The Page and the Page script need no Token, because they have no Board data. Bod
 | `POST /v1/edit` | `{changes: [Change, ...]}` (4.11.2) | 200 `{v, opId, jobId, ids}` (`ids`: every Element that changed, bound text and arrows too) |
 | `POST /v1/delete` | `{ids: [id, ...], confirm?: true}` or `{all: true, confirm?: true}` | 200 `{v, opId, ids, count}` (`ids`: every deleted Element, bound text too; `count`: Items counted for FR-101) |
 | `POST /v1/undo` | `{force?: true}` | 200 `{v, opId, kind, restored}` |
-| `POST /v1/say` | `{text, at?: {x, y}}` | 200 `{v, jobId, ids, x, y}` or 202 `{v, queued: true, jobId, pageCount}` |
-| `POST /v1/shot` | `{focusId?}` | 200 `{v, path}` |
+| `POST /v1/say` | `{text, at?: {x, y}}` | 200 `{v, jobId, ids, x, y}` (with `at` also `requested` and `moved`, FR-120) or 202 `{v, queued: true, jobId, pageCount}` |
+| `POST /v1/shot` | `{focusId?, scale?}` (`scale`: FR-123) | 200 `{v, path}` |
 | `POST /v1/signal` | `{state}`: `reading`, `working`, `waiting`, or `none` | 200 `{v, state}` |
 | `POST /v1/stop` | - | 202 `{v}` |
 
@@ -1162,8 +1239,8 @@ Like a chat on a phone: the Person's text is on the right, Claude's Answers are 
 2. Else, if the Board has no Items: (100, 100).
 3. Else, the anchor is the newest Message (a Text Item that is not an Answer); if there is none, the newest Item that is not an Answer; if there is none, the newest Answer.
 4. Start at x = anchor x - `answerIndentPx` (no indent when the anchor is an Answer), y = anchor bottom + `answerGapPx`. On the Board, x may be below 0.
-5. The expected size of the Answer is about 0.55 x 20 px per character of its longest line, and 25 px per line.
-6. While an Item (with a 10 px margin) overlaps that box, move the box down to the bottom of that Item + `max(answerGapPx, 11)`. So a second Answer to the same Message goes below the first.
+5. The expected size of the Answer is about 0.55 x 20 px per character of its longest line (20 px for a Chinese, Japanese, or Korean character or a full-width form, FR-120), and 25 px per line.
+6. While an Item (with a 10 px margin; an arrow or line by the box of its points, FR-119) overlaps that box, move the box down to the bottom of that Item + `max(answerGapPx, 11)`. So a second Answer to the same Message goes below the first.
 
 ### 4.7 Events (output, one JSON object per line)
 
@@ -1197,6 +1274,7 @@ Every Event has `v: 1`, `event`, and `atMs`.
 | `InvalidText` | 400 | Text missing, blank, or too long. |
 | `InvalidAt` | 400 | `at` is not two numbers. |
 | `InvalidSignal` | 400 | Signal is not `reading`, `working`, `waiting`, or `none`. |
+| `InvalidScale` | 400 | `shot` has a `scale` that is not a number greater than 0 and at most 1 (FR-123). |
 | `BadPageId` | 400 | Page ID missing or wrong. |
 | `InvalidElements` | 400 | A `draw` list breaks a rule of 4.11.1. The reply has `index` and `field`. |
 | `InvalidChanges` | 400 | An `edit` list breaks a rule of 4.11.2. The reply has `index` and `field`. |
@@ -1370,7 +1448,7 @@ The client waits for the reply of `draw`, `edit`, and `mermaid` up to 65 s (two 
 | Integration test | `server.js` as a child process; `client.js wait` and `watch` | A fake Page (SSE and POST) and the Control API: sync, Messages, typing, Answers, Token, Origin, saving. | `node:test` | All pass |
 | Manual test      | The Page in real browsers | Two Pages: sync, Answers, Screenshot, Leader change, restart; LAN mode from a second computer. | Browser | Scenarios in 4.1 pass |
 | Inspection       | FR-050 to FR-064, FR-110 to FR-114, NFR-009, NFR-011, NFR-014 | A person reads both `SKILL.md` files, one full session log, `index.html`, and `package.json`. | Reading | No finding of High or higher |
-| Scenario check   | 4.1 (SC-070 to SC-104) against the tests | A test SUB maps each scenario to a test or a manual step. | Reading | Every scenario has a test or a UAT step |
+| Scenario check   | 4.1 (SC-070 to SC-113) against the tests | A test SUB maps each scenario to a test or a manual step. | Reading | Every scenario has a test or a UAT step |
 | User acceptance test | 5.1 | The owner and the BOSS, Sunday 2026-11-01 11:00-12:00 JST, PC (Edge) and iPad (Safari), LAN mode. | Browser, Claude Code | Every UAT scenario passes, or the owner accepts a listed gap |
 
 Tests do not depend on each other. They share no state. Their order does not matter. Unit tests do not wait for real time.
@@ -1525,6 +1603,7 @@ Gaps that the UAT does not cover: Firefox and macOS (NFR-008), and Mermaid types
 
 | Version | Date | Change |
 | ------- | ---- | ------ |
+| 0.5.2 | 2026-11-01 | Fixes from the Board use of K gr-handover and smaller replies (ruling R-031; the owner: "the proposal is fine; ship the fix today; use != for the not-equal sign"). Mermaid: `<br>` becomes a line break, labels are measured with the fonts of the Board so boxes do not overlap (FR-115), and the default black becomes `#1971c2`; a pie picture keeps its colors (FR-116, R-027). `edit`: bound arrows move once, an arrow in the Job moves only by its own change, and arrows with three or more points keep their form (FR-117). `shot`: Items and labels at the edge are no longer cut (FR-118), and `--scale` makes a smaller PNG (FR-123, new error `InvalidScale`). `board`: arrows and lines have `points` and the size of their points (FR-119), and `--fields` keeps only some fields (FR-122). `say --at` replies `requested` and `moved`; Japanese Answers are measured as 1 em per character (FR-120). `sent --brief` (FR-121). The Skill says `!=` (FR-124). New scenarios SC-105 to SC-113; new tests for SC-109 (the `InvalidScale` part), SC-110 (the Server part), SC-111, and SC-112; the Page parts were checked in headless Edge. |
 | 0.5.1 | 2026-11-01 | Fixes from the UAT of 0.5.0 and the Gherkin check (task 97, ruling R-027, option a). `undo` keeps the `updated` of an Element that comes back (FR-103): the Answer after an undo went to the top of the Board instead of below the newest Message (UAT-10; new SC-087a). FR-093a and FR-094 now say that the Page sets `securityLevel` "strict" itself, as the code does (C1). New scenarios SC-074a (DrawingAdded does not count Claude Items, G1) and SC-099 to SC-104 for FRs without one (A3). New tests for SC-074a, SC-087 (the Send count after undo, G2), SC-079 (a first Mermaid Job of 1.5 x `jobTimeoutMs`, G6), SC-087a, and SC-104 (the request bodies of every client command, G7). 5 now says that the UAT checks what the Leader Page does (G5). |
 | 0.5.0 | 2026-10-31 | Claude draws, changes, and deletes Items (FR-087 to FR-114, 4.11, ADR-009 to ADR-011). New `client.js` commands `draw` (Skeleton JSON, arrows bind by ID), `mermaid` (`@excalidraw/mermaid-to-excalidraw` 2.2.2 with `mermaid` 11.13.0 from esm.sh; six diagram types, no styles, FR-093a), `edit`, `delete` (`--confirm` above 20 Items, also checked by the Server), and `undo` (a Snapshot of the whole Board before each Operation; the last 20 Operations). Claude Items carry `customData.whiteboardChat = "claude"` and go into the Baseline at once, so Send does not report them. `board` Items gain `byClaude`, colors, angle, and arrow ends. New setting `--undo-depth`, new data folder `snapshots/`, new Events and errors, NFR-013, NFR-014, UAT for 0.4.1 and 0.5.0 (5.1). Reason: in the LAN test the owner asked Claude to erase the Board and to draw a network diagram, and Claude could only write text. Rulings of 2026-10-31: R-013, R-014, R-015 (option b), R-016 (option a). Ruling R-022 (2026-10-31, option a): `mermaid` 11.13.0 instead of 11.17.2, because with 11.14.0 and later the package turns state, class, and ER diagrams into one picture (checked in Edge for 11.12.0 to 11.17.2). 11.13.0 lacks the fixes of nine advisories; each entry point is closed as follows: CVE-2026-41149 (HTML injection through `classDef` in state diagrams, fixed in 11.15.0): `classDef` refused (FR-093a). CVE-2026-41148 (CSS injection through `classDefs`, 11.15.0): `classDef` and every way to put a class on a node refused (`class`, `:::`, `cssClass`). CVE-2026-41159 (CSS injection through configuration, 11.15.0): `%%{` directives and front matter (`---`, not a diagram type) refused; the Page passes only fixed options (FR-094). CVE-2026-50159 (CSS injection on sibling elements, 11.16.1): `style`, `linkStyle`, `classDef`, `class`, `:::`, `cssClass`, and `%%{` refused. CVE-2026-71438 (prototype pollution through the configuration APIs, 11.16.1): `%%{` and front matter refused; fixed options only. CVE-2026-71437 (prototype pollution in architecture diagrams, 11.16.1), CVE-2026-41150 (infinite loop in gantt, 11.15.0), CVE-2026-71436 (infinite loop in XY charts, 11.16.1), CVE-2026-71439 (DoS in radar diagrams, 11.16.1): those types are not among the six (FR-093a). `click` is refused too, and the Page sets `link` to null (FR-094); the Content Security Policy stays as it is (FR-048). Rulings R-023 to R-025 (2026-11-01, option a each, after the Gherkin check): an undone opId is never given again (FR-105); the Page scrolls when any part of a Claude Item is outside the view (FR-107, SC-091a); the UAT checks a pie chart (UAT-05a). Later version: evaluate `@excalidraw/mermaid-to-excalidraw` 3.x with a fixed `mermaid` as the lasting fix (lowest priority, as the owner asked). |
 | 0.4.1 | 2026-10-31 | The Leader is the first Page on screen (FR-034, FR-085), and a Job that times out goes once to another Page (FR-086). Reason: in the LAN test, Edge froze the Leader in a hidden tab, and Answers timed out while the iPad page was awake. The owner chose this fix from four options (R-012). |

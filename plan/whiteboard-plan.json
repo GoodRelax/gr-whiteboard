@@ -12,9 +12,9 @@
       "manager": null,
       "author": null,
       "creationDate": "2026-10-31T04:40:00",
-      "revision": 61,
+      "revision": 66,
       "startDate": "2026-10-29T22:44:00",
-      "statusDate": "2026-11-01T07:49:00",
+      "statusDate": "2026-11-01T09:47:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 98,
+      "uidHighWaterMark": 102,
       "importSequence": 0,
       "outlineBase": 1,
       "carry": {},
@@ -1888,6 +1888,14 @@
             "lagFormat": 7,
             "carry": {},
             "carryElements": []
+          },
+          {
+            "predecessorUid": 100,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
           }
         ],
         "carry": {},
@@ -2193,19 +2201,19 @@
         "uid": 97,
         "parentTaskUid": null,
         "wbsOrder": 63,
-        "name": "🌖 0.5.1: 戻した後の答えの場所・Mermaid の図の色を直す、仕様書の書き漏れ 6 件と足りない試験を直す",
+        "name": "🌕 0.5.1: 戻した後の答えの場所・Mermaid の図の色を直す、仕様書の書き漏れ 6 件と足りない試験を直す",
         "start": "2026-11-02T10:00:00",
         "finish": "2026-11-02T12:00:00",
         "milestone": false,
         "deadline": null,
-        "notes": "【SUB が止まった 07:49】進み具合は約 85%。終えた: 戻した後の答えの場所、Gherkin の 6 件と G5、0.5.1 への版上げ。試験 111 件すべて通った、点検 0 件。残り: Mermaid の色（青にすると決めた。まだコードを変えていない）。そのあと commit とインストール。変更は commit せずに作業ツリーに残してある。11-02 10:00 の仮置きはそのまま。🌖 のまま。\nオーナーの言葉:『UATで見つかった問題は後で直そう。』（R-030、07:46）。0.5.1 は後に回す。SUB には作業を止めるよう伝えた。変更は commit せずに残す。再開の日時は未定で、PMO が 11-02（月）10:00〜12:00 に仮置きした（日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない）。オーナーが K gr-handover の BOSS の頼みで、しばらくボードを使うため、C チームはボードを止めない。\n担当 wb-050-impl のモデルは Opus 5.5・medium（0.5.0 を作ったときと同じセッション。BOSS の知らせ）。決まり 7 の表の high とは違う。\n【始めた】07:41。担当: wb-050-impl（session local_ba3f62d7-8251-41c6-bc65-114961af1a78）。見積もりは 2 時間で、日時を 07:41〜09:41 に引き直した（12:00 の仮置きより前倒し）。問 4（矢印の数を比べる機能）は、オーナーの答えが出てから足すかどうかを決める。\nR-027（問 3、a）: 「戻した後の答えの場所」と「Mermaid の図の色」は今日 0.5.1 で直す。上の名前に足した。BOSS が 0.5.1 を始める時刻を知らせる。問 4（Mermaid の矢印の数を、ボードの矢印の数と比べるか）の答えも、この版に入るかもしれない。\n担当: BOSS。優先度は中。Gherkin の確かめの指摘のうち、オーナーの裁定が要らない 6 件（仕様書の書き漏れと、足りない試験）。UAT の後に直す。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "notes": "【0.5.2 に統合して閉じた】R-031（09:41）。残りの Mermaid の色は、タスク 100（0.5.2）で行う。実績の時刻は知らせが届いた時刻で、作業の完了ではない。\n【インストール済み 08:30】オーナーの指示（「それをインストールしろ。」）で、bbc3fc9 をインストールした（26 ファイル、cmp の差 0）。ボードは 0.5.1 として LAN で動いている。残りは Mermaid の色だけ。進み具合 90% は PMO の目安。K gr-handover の BOSS（2 代目）が、これからオーナーとボードを使う。🌖 のまま。\n【commit と push 08:11】オーナーの指示（「コミット&Pushはしておけ。」）で、0.5.1 の途中までを commit して push した: bbc3fc9、origin/main は d954194..bbc3fc9。試験 111 件通過。点検は名前・パス 0、メール 0、秘密 0。計画ファイルも、この commit に入った。インストールはまだ（オーナーがボードを使っている）。残り: Mermaid の色と、インストール。🌖 のまま。\n【SUB が止まった 07:49】進み具合は約 85%。終えた: 戻した後の答えの場所、Gherkin の 6 件と G5、0.5.1 への版上げ。試験 111 件すべて通った、点検 0 件。残り: Mermaid の色（青にすると決めた。まだコードを変えていない）。そのあと commit とインストール。変更は commit せずに作業ツリーに残してある。11-02 10:00 の仮置きはそのまま。🌖 のまま。\nオーナーの言葉:『UATで見つかった問題は後で直そう。』（R-030、07:46）。0.5.1 は後に回す。SUB には作業を止めるよう伝えた。変更は commit せずに残す。再開の日時は未定で、PMO が 11-02（月）10:00〜12:00 に仮置きした（日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない）。オーナーが K gr-handover の BOSS の頼みで、しばらくボードを使うため、C チームはボードを止めない。\n担当 wb-050-impl のモデルは Opus 5.5・medium（0.5.0 を作ったときと同じセッション。BOSS の知らせ）。決まり 7 の表の high とは違う。\n【始めた】07:41。担当: wb-050-impl（session local_ba3f62d7-8251-41c6-bc65-114961af1a78）。見積もりは 2 時間で、日時を 07:41〜09:41 に引き直した（12:00 の仮置きより前倒し）。問 4（矢印の数を比べる機能）は、オーナーの答えが出てから足すかどうかを決める。\nR-027（問 3、a）: 「戻した後の答えの場所」と「Mermaid の図の色」は今日 0.5.1 で直す。上の名前に足した。BOSS が 0.5.1 を始める時刻を知らせる。問 4（Mermaid の矢印の数を、ボードの矢印の数と比べるか）の答えも、この版に入るかもしれない。\n担当: BOSS。優先度は中。Gherkin の確かめの指摘のうち、オーナーの裁定が要らない 6 件（仕様書の書き漏れと、足りない試験）。UAT の後に直す。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
         "calendarUid": null,
         "actualStart": "2026-11-01T07:41:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-01T09:42:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 85,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -2243,6 +2251,134 @@
         "dependencies": [
           {
             "predecessorUid": 83,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 99,
+        "parentTaskUid": null,
+        "wbsOrder": 65,
+        "name": "🌕 ㉘ オーナーが CGQA の進め方の問 1 に答える（0.5.1: K チームが使って見つけたこと）",
+        "start": "2026-11-01T09:30:00",
+        "finish": "2026-11-01T10:30:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】オーナーが問 1 に a と答えた（09:41、R-031）。オーナーの言葉:「提案通りでよい。  今日中に対策版を出そう！ ≠ は != を使うようにしておけ。」\n【オーナーの返事待ち】K gr-handover の BOSS（2 代目）がボードを使って見つけたこと（不具合 6 件、文脈を減らす頼み 4 件、オーナーの「MCPにする方針で検討したらどうかな？」）。問 1 の案 a: 0.5.2 と MCP の設計を並べて進める。答えが出たら BOSS が 0.5.2 と 0.6.0 のタスクを知らせる。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-11-01T09:30:00",
+        "stop": null,
+        "actualFinish": "2026-11-01T09:41:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 97,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 100,
+        "parentTaskUid": null,
+        "wbsOrder": 66,
+        "name": "🌒 0.5.2（今日中）: 不具合 1〜5、頼み 7〜9、Mermaid の色、≠ は != を使う決まり",
+        "start": "2026-11-01T09:42:00",
+        "finish": "2026-11-01T11:42:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "担当: ホワイトボード 0.5.0 の実装の SUB（wb-050-impl、session local_ba3f62d7-8251-41c6-bc65-114961af1a78、Opus 5.5・medium）、09:42 に始めた。タスク 97 の残り（Mermaid の色）を、ここに合わせた。そのあと BOSS が commit・push・インストールする。オーナーの目標は今日中。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-11-01T09:42:00",
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 99,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 101,
+        "parentTaskUid": null,
+        "wbsOrder": 67,
+        "name": "🌕 0.6.0 の設計（MCP の道具）",
+        "start": "2026-11-01T09:42:00",
+        "finish": "2026-11-01T11:42:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】09:45。設計書: docs/design-060-mcp-en.md（commit はまだ）。CGQA に「0.6.0: MCP の設計」の章を足し、問 1〜6 をオーナーに聞いた。\n担当: ホワイトボード 0.6.0 の MCP 設計の SUB（wb-060-mcp-design、session local_adb1d8ec-791e-4575-a544-750a22386f83、Opus 5.5）、09:42 に始めた。設計を GQA でオーナーに見せてから作る。作る段は、設計の答えが出てから足す。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-11-01T09:42:00",
+        "stop": null,
+        "actualFinish": "2026-11-01T09:45:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 99,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 102,
+        "parentTaskUid": null,
+        "wbsOrder": 68,
+        "name": "🌖 ㉙ オーナーが CGQA の 0.6.0 の問 1〜6 に答える（MCP の設計）",
+        "start": "2026-11-01T09:45:00",
+        "finish": "2026-11-01T11:45:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【オーナーの返事待ち】設計書 docs/design-060-mcp-en.md への問 1〜6。答えが出てから、BOSS が 0.6.0 を作る段を足す。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-11-01T09:45:00",
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 101,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -2638,6 +2774,22 @@
       },
       {
         "taskUid": 98,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 99,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 100,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
+      },
+      {
+        "taskUid": 101,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
+      },
+      {
+        "taskUid": 102,
         "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
       }
     ],
@@ -3161,6 +3313,38 @@
         "fillColor": null,
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 99,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 100,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 101,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 102,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -3189,7 +3373,7 @@
       {
         "id": "7c0e0000-0000-4000-8000-0000000000c2",
         "leaderShapeKind": "calloutBox",
-        "text": "★オーナーがすること（優先順）\n① 長い通知の件は、直すと決まった（R-011）。0.3.1 で直した\n② 公開した（R-010）。旧リポジトリも消した（R-003）\n③ ボードをいつも通り使い、切れたらバッジの写しを送る（不具合 2 の確認）\n④ 記事の書き直しを頼む（最後の記事とまとめて。日は未定）\nW1 を満たした（10:51）: 0.3.1 は main にある\nW2 11-02（月）18:00: 不具合 2 の確認を終える\n⑩ 0.4.0 で、実際のボードに画像を貼ってみる\n⑬ 0.5.0（図とテキストの編集・削除）の GQA の問 2〜4 に答える（土 18:00 から）\n⑭ 0.5.0 の実地の試験（日 11:00 から）\n⑮ 0.4.1 の入れ直しを OK する\n⑯ 0.4.1 を push する\n⑰ 0.4.1 を PC と iPad で試す（PC のタブを裏にする）\n⑱ Hyper-V の新しい仮想マシンで新規インストールを試す\n⑲ 0.5.0 の仕様 SUB を始める OK を出す\n⑳ GQA の問 5〜8 に答える\n㉑ 0.5.0 の実装 SUB を始める OK を出す\n㉒ CGQA 問 1: Mermaid の版の裁定（今夜 22:00 の目安）\n㉓ 0.5.0 を commit・インストールするか決める（a/b/c）\n㉔ 段 4 の SUB を始める OK を出す\n㉕ 0.5.0 を push する OK を出す\n㉖ CGQA の問 1〜3 に答える（UAT の前）\n㉗ CGQA の「UAT の後」の問 1〜3 に答える",
+        "text": "★オーナーがすること（優先順）\n① 長い通知の件は、直すと決まった（R-011）。0.3.1 で直した\n② 公開した（R-010）。旧リポジトリも消した（R-003）\n③ ボードをいつも通り使い、切れたらバッジの写しを送る（不具合 2 の確認）\n④ 記事の書き直しを頼む（最後の記事とまとめて。日は未定）\nW1 を満たした（10:51）: 0.3.1 は main にある\nW2 11-02（月）18:00: 不具合 2 の確認を終える\n⑩ 0.4.0 で、実際のボードに画像を貼ってみる\n⑬ 0.5.0（図とテキストの編集・削除）の GQA の問 2〜4 に答える（土 18:00 から）\n⑭ 0.5.0 の実地の試験（日 11:00 から）\n⑮ 0.4.1 の入れ直しを OK する\n⑯ 0.4.1 を push する\n⑰ 0.4.1 を PC と iPad で試す（PC のタブを裏にする）\n⑱ Hyper-V の新しい仮想マシンで新規インストールを試す\n⑲ 0.5.0 の仕様 SUB を始める OK を出す\n⑳ GQA の問 5〜8 に答える\n㉑ 0.5.0 の実装 SUB を始める OK を出す\n㉒ CGQA 問 1: Mermaid の版の裁定（今夜 22:00 の目安）\n㉓ 0.5.0 を commit・インストールするか決める（a/b/c）\n㉔ 段 4 の SUB を始める OK を出す\n㉕ 0.5.0 を push する OK を出す\n㉖ CGQA の問 1〜3 に答える（UAT の前）\n㉗ CGQA の「UAT の後」の問 1〜3 に答える\n㉘ CGQA の進め方の問 1 に答える（0.5.2 と MCP）\n㉙ CGQA の 0.6.0 の問 1〜6 に答える",
         "anchorDate": "2026-10-31T09:00:00",
         "anchorTaskGroupId": "7c0e0000-0000-4000-8000-000000000001",
         "anchorBandFraction": null,
@@ -3495,10 +3679,10 @@
     "zoomY": 1
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-10-31T22:49:44Z",
+    "scheduleUpdatedAt": "2026-11-01T00:47:43Z",
     "lastEditedBy": "pmo-claude",
     "settingsUpdatedAt": "2026-10-30T19:40:00Z",
-    "fileSavedAt": "2026-10-31T22:49:44Z"
+    "fileSavedAt": "2026-11-01T00:47:43Z"
   },
   "changeLog": [
     {
@@ -3860,6 +4044,36 @@
       "editedBy": "pmo-claude",
       "explanation": "BOSS note: task 97 (0.5.1) SUB stopped at ~85% (111 tests pass; Mermaid color left); stays waiting, placeholder 11-02 10:00 kept.",
       "changedAt": "2026-10-31T22:49:44Z"
+    },
+    {
+      "ordinal": 60,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: 0.5.1 partial work committed and pushed (bbc3fc9, plan file included); task 97 still waiting; Mermaid color and install left.",
+      "changedAt": "2026-10-31T23:11:52Z"
+    },
+    {
+      "ordinal": 61,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: bbc3fc9 installed (26 files, cmp diff 0), board runs 0.5.1 on LAN; task 97 only Mermaid color left.",
+      "changedAt": "2026-10-31T23:30:37Z"
+    },
+    {
+      "ordinal": 62,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: owner task 99 added (answer CGQA Q1 on how to proceed with K team findings: 0.5.2 and MCP design).",
+      "changedAt": "2026-11-01T00:30:34Z"
+    },
+    {
+      "ordinal": 63,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 99 done 09:41 (R-031); added task 100 (0.5.2, today) and 101 (0.6.0 MCP design) started 09:42; task 97 closed merged into 0.5.2; task 87 follows 0.5.2.",
+      "changedAt": "2026-11-01T00:42:30Z"
+    },
+    {
+      "ordinal": 64,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 101 done 09:45 (0.6.0 MCP design, docs/design-060-mcp-en.md); owner task 102 added (answer CGQA 0.6.0 Q1-6).",
+      "changedAt": "2026-11-01T00:47:43Z"
     }
   ]
 }

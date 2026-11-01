@@ -6,7 +6,7 @@
 // the clock value and the random versionNonce.
 
 const { AppError } = require("./app-error");
-const { CLAUDE_MARK, isElement } = require("./board-store");
+const { CLAUDE_MARK, isElement, boundsOf } = require("./board-store");
 const { anchorPoint } = require("./answer-placement");
 
 const SHAPE_TYPES = Object.freeze(["rectangle", "ellipse", "diamond"]);
@@ -440,7 +440,10 @@ function chooseOrigin(items, at, ownIds, indentPx) {
   if (at) return Object.freeze({ x: Math.round(at.x), y: Math.round(at.y) });
   if (items.length === 0) return EMPTY_BOARD_ORIGIN;
   const x = anchorPoint(items, ownIds, 0, indentPx).x;
-  const bottom = Math.max(...items.map((item) => item.y + item.height));
+  const bottom = Math.max(...items.map((item) => {
+    const box = boundsOf(item);
+    return box.y + box.height;
+  }));
   return Object.freeze({ x: Math.round(x), y: Math.round(bottom + ORIGIN_GAP_PX) });
 }
 

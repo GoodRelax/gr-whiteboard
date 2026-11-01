@@ -166,13 +166,13 @@ test("a reply from the wrong page or for another job is refused", () => {
   assert.throws(() => hub.finishJob("page-0001", { jobId: 7, ok: true }), { code: "UnknownJob" });
 });
 
-test("a Screenshot needs an open page (FR-031)", async () => {
+test("a Screenshot needs an open page; its scale goes to the page (FR-031, FR-123)", async () => {
   const { hub } = setup();
   assert.throws(() => hub.requestShot(null), { code: "NoPage" });
   const leader = fakePage();
   hub.addPage("page-0001", leader.send);
-  const shot = hub.requestShot("a");
-  assert.deepEqual(leader.last("job").data, { jobId: 1, kind: "shot", focusId: "a" });
+  const shot = hub.requestShot("a", 0.5);
+  assert.deepEqual(leader.last("job").data, { jobId: 1, kind: "shot", focusId: "a", scale: 0.5 });
   hub.finishJob("page-0001", { jobId: 1, ok: true, png: "iVBORw0KGgo" });
   assert.deepEqual(await shot.done, { png: "iVBORw0KGgo" });
 });
@@ -248,4 +248,18 @@ test("a job that times out goes once to another page, then fails (FR-086)", asyn
   assert.throws(() => hub.finishJob("page-frz1", { jobId: job.data.jobId, ok: true, elements: [] }), { code: "UnknownJob" });
   clock.fireAll();
   await assert.rejects(queued.done, { code: "JobTimeout" });
+});
+
+test("an Answer asked for at a covered place says where it went (FR-029, FR-120)", async () => {
+  const { hub } = setup([text("msg", 1, { x: 0, y: 100, width: 200, height: 40 })]);
+  const leader = fakePage();
+  hub.addPage("page-0001", leader.send);
+  const covered = hub.queueAnswer("hi", { x: 10, y: 110 });
+  const job = leader.last("job").data;
+  hub.finishJob("page-0001", { jobId: job.jobId, ok: true, elements: [answer("ans1")] });
+  assert.deepEqual(await covered.done, { jobId: 1, ids: ["ans1"], x: 10, y: 180, requested: { x: 10, y: 110 }, moved: true });
+  const free = hub.queueAnswer("hi", { x: 900.4, y: 0 });
+  hub.finishJob("page-0001", { jobId: leader.last("job").data.jobId, ok: true, elements: [answer("ans2")] });
+  const result = await free.done;
+  assert.deepEqual([result.requested, result.moved], [{ x: 900, y: 0 }, false]);
 });

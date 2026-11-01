@@ -50,3 +50,12 @@ test("the whole expected box of the Answer must be free, not only its corner", (
 test("estimateSize counts the longest line and the lines", () => {
   assert.deepEqual(estimateSize("ab\nabcd", 20), { width: 44, height: 50 });
 });
+
+test("estimateSize counts a Chinese or Japanese character as one em (FR-120)", () => {
+  assert.deepEqual(estimateSize("ab\n\u65e5\u672c\u8a9e", 20), { width: 60, height: 50 });
+});
+
+test("a vertical line covers the place of an Answer by its points, not its old width and height (FR-119, FR-120)", () => {
+  const line = { id: "v", type: "line", x: 500, y: 0, width: 100, height: 0, points: [[0, 0], [0, 730]], updatedMs: 1 };
+  assert.deepEqual(clearOfItems({ x: 450, y: 300 }, [line], 10, { width: 100, height: 25 }), { x: 450, y: 741 });
+});

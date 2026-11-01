@@ -43,7 +43,7 @@ function within(promise, ms, clock) {
   });
 }
 
-// handlers: { status(), board(), say(text, at) -> { jobId, done }, shot(focusId) -> Promise<{ path }>,
+// handlers: { status(), board(), say(text, at) -> { jobId, done }, shot(focusId, scale) -> Promise<{ path }>,
 //             signal(state), stop(),
 //             draw(body), mermaid(body), edit(body) -> Promise<reply>, delete(body), undo(body) -> reply (0.5.0, spec 4.4) }
 // @purity non-pure
@@ -71,7 +71,11 @@ function createControlApi({ handlers, maxTextChars, sayWaitMs, redact, clock }) 
       }
       case "POST /v1/shot": {
         const request = parseJsonBody(await readBody(req, MAX_BODY_BYTES), true);
-        return [200, await handlers.shot(request.focusId)];
+        const scale = request.scale === undefined ? 1 : request.scale;
+        if (typeof scale !== "number" || !(scale > 0 && scale <= 1)) {
+          throw new AppError("InvalidScale", 400, "scale must be a number greater than 0 and at most 1");
+        }
+        return [200, await handlers.shot(request.focusId, scale)];
       }
       case "POST /v1/signal": {
         const request = parseJsonBody(await readBody(req, MAX_BODY_BYTES), false);

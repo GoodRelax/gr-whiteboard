@@ -2,7 +2,7 @@
 
 const test = require("node:test");
 const assert = require("node:assert/strict");
-const { isElement, isNewer, mergeElements, toItems, pruneDeleted } = require("../../skills/whiteboard-server/scripts/lib/board-store");
+const { isElement, isNewer, mergeElements, toItems, boundsOf, pruneDeleted } = require("../../skills/whiteboard-server/scripts/lib/board-store");
 
 // @purity pure
 function element(id, version, versionNonce, extra = {}) {
@@ -54,4 +54,14 @@ test("toItems leaves out deleted elements and marks Answers (FR-014)", () => {
 test("pruneDeleted drops only old deleted elements", () => {
   const list = [element("a", 1, 1, { isDeleted: true, updated: 0 }), element("b", 1, 1, { isDeleted: true, updated: 900 }), element("c", 1, 1, { updated: 0 })];
   assert.deepEqual(pruneDeleted(list, 1000, 500).map((e) => e.id), ["b", "c"]);
+});
+
+test("toItems gives arrows and lines their points and the size of their points (FR-119)", () => {
+  const line = element("v", 1, 1, { type: "line", x: 5, y: 6, width: 100, height: 0, points: [[0, 0], [0.04, 730.06]], text: undefined });
+  const arrow = element("a", 1, 1, { type: "arrow", width: 1, height: 1, points: [[0, 0], [-40, 20]], text: undefined });
+  const [v, a] = toItems(new Map([["v", line], ["a", arrow]]));
+  assert.deepEqual([v.points, v.width, v.height, v.x, v.y], [[[0, 0], [0, 730.1]], 0, 730.1, 5, 6]);
+  assert.deepEqual([a.points, a.width, a.height], [[[0, 0], [-40, 20]], 40, 20]);
+  assert.deepEqual(boundsOf(a), { x: -39, y: 2, width: 40, height: 20 });
+  assert.equal("points" in toItems(new Map([["t", element("t", 1, 1)]]))[0], false, "only arrows and lines have points");
 });
