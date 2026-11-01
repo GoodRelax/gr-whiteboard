@@ -1,5 +1,12 @@
 # gr-whiteboard (GRWB)
 
+> **Alpha (0.7.3).** It works for its author every day, but it is young. Known limits:
+> - The page needs internet access: it loads Excalidraw, React, and Mermaid from esm.sh.
+> - It is tested on Windows 11 with Edge, and on an iPad and an iPhone with Safari. Other systems and browsers may work but are untested.
+> - Names and tools may still change before 1.0.
+>
+> Tell us what you think, or what you miss, in [GitHub Issues](https://github.com/GoodRelax/gr-whiteboard/issues).
+
 Talk with Claude Code on a whiteboard.
 
 You write text on a whiteboard in your browser. Claude Code reads it and writes its answer on the same board.
