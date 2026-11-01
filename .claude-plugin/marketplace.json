@@ -1,0 +1,17 @@
+{
+  "name": "goodrelax",
+  "owner": {
+    "name": "GoodRelax"
+  },
+  "metadata": {
+    "description": "Whiteboard Chat: talk and draw with Claude on a local whiteboard."
+  },
+  "plugins": [
+    {
+      "name": "whiteboard-chat",
+      "source": "./",
+      "description": "Talk and draw with Claude on a local whiteboard (Excalidraw component).",
+      "version": "0.6.0"
+    }
+  ]
+}

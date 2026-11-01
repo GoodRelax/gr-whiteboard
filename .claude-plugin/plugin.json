@@ -1,0 +1,16 @@
+{
+  "name": "whiteboard-chat",
+  "version": "0.6.0",
+  "description": "Talk and draw with Claude on a local whiteboard (Excalidraw component).",
+  "author": {
+    "name": "GoodRelax"
+  },
+  "repository": "https://github.com/GoodRelax/whiteboard-chat-for-claude",
+  "license": "Apache-2.0",
+  "keywords": [
+    "whiteboard",
+    "excalidraw",
+    "mermaid",
+    "mcp"
+  ]
+}

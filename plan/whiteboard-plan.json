@@ -12,9 +12,9 @@
       "manager": null,
       "author": null,
       "creationDate": "2026-10-31T04:40:00",
-      "revision": 66,
+      "revision": 72,
       "startDate": "2026-10-29T22:44:00",
-      "statusDate": "2026-11-01T09:47:00",
+      "statusDate": "2026-11-01T10:41:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 102,
+      "uidHighWaterMark": 108,
       "importSequence": 0,
       "outlineBase": 1,
       "carry": {},
@@ -1862,7 +1862,7 @@
         "finish": "2026-11-02T14:30:00",
         "milestone": false,
         "deadline": null,
-        "notes": "97 が後ろに回ったので、PMO が 11-02（月）13:00〜14:30 に仮置きし直した。\nR-017: ほかの試しが全部済んでから行う（段 5 の後）。\n【オーナーの言葉待ち】オーナーの依頼（BOSSBOSS 経由）: 案内役の SUB（Sonnet 5.5・medium の予定）が、Hyper-V の新しい仮想マシンへの新規インストールを案内する。BOSS が SUB を作ろうとしたとき、アプリの安全の判定が止めた。オーナーが SUB の作成を言葉で認めるまで、SUB は動かない。オーナーの手作業が要るので、GRSMD の時間帯（土 13:00〜18:00、日 08:00〜11:00）を避けた。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "notes": "0.5.2 は済んだ。残りは 0.6.0（タスク 102 のオーナーの答え待ち）で、R-017 のとおり、それが済んでから行う。\n97 が後ろに回ったので、PMO が 11-02（月）13:00〜14:30 に仮置きし直した。\nR-017: ほかの試しが全部済んでから行う（段 5 の後）。\n【オーナーの言葉待ち】オーナーの依頼（BOSSBOSS 経由）: 案内役の SUB（Sonnet 5.5・medium の予定）が、Hyper-V の新しい仮想マシンへの新規インストールを案内する。BOSS が SUB を作ろうとしたとき、アプリの安全の判定が止めた。オーナーが SUB の作成を言葉で認めるまで、SUB は動かない。オーナーの手作業が要るので、GRSMD の時間帯（土 13:00〜18:00、日 08:00〜11:00）を避けた。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
         "calendarUid": null,
         "actualStart": null,
         "stop": null,
@@ -1891,6 +1891,14 @@
           },
           {
             "predecessorUid": 100,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 108,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -2297,19 +2305,19 @@
         "uid": 100,
         "parentTaskUid": null,
         "wbsOrder": 66,
-        "name": "🌒 0.5.2（今日中）: 不具合 1〜5、頼み 7〜9、Mermaid の色、≠ は != を使う決まり",
+        "name": "🌕 0.5.2（今日中）: 不具合 1〜5、頼み 7〜9、Mermaid の色、≠ は != を使う決まり",
         "start": "2026-11-01T09:42:00",
         "finish": "2026-11-01T11:42:00",
         "milestone": false,
         "deadline": null,
-        "notes": "担当: ホワイトボード 0.5.0 の実装の SUB（wb-050-impl、session local_ba3f62d7-8251-41c6-bc65-114961af1a78、Opus 5.5・medium）、09:42 に始めた。タスク 97 の残り（Mermaid の色）を、ここに合わせた。そのあと BOSS が commit・push・インストールする。オーナーの目標は今日中。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "notes": "【済み】commit 4b9ca93（0.6.0 の設計書も入れた）。オーナーの OK（「push とインストール」）で push した（bbc3fc9..4b9ca93）。インストール済み（26 ファイル、cmp の差 0）。ボードは 0.5.2 として LAN で動いている。試験 116 件すべて通った。点検は名前・パス 0、メール 0、秘密 0。実績の終わりは BOSS の知らせが届いた時刻。\n担当: ホワイトボード 0.5.0 の実装の SUB（wb-050-impl、session local_ba3f62d7-8251-41c6-bc65-114961af1a78、Opus 5.5・medium）、09:42 に始めた。タスク 97 の残り（Mermaid の色）を、ここに合わせた。そのあと BOSS が commit・push・インストールする。オーナーの目標は今日中。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
         "calendarUid": null,
         "actualStart": "2026-11-01T09:42:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-01T10:08:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -2361,14 +2369,110 @@
         "uid": 102,
         "parentTaskUid": null,
         "wbsOrder": 68,
-        "name": "🌖 ㉙ オーナーが CGQA の 0.6.0 の問 1〜6 に答える（MCP の設計）",
+        "name": "🌕 ㉙ オーナーが CGQA の 0.6.0 の問 1〜6 に答える（MCP の設計）",
         "start": "2026-11-01T09:45:00",
         "finish": "2026-11-01T11:45:00",
         "milestone": false,
         "deadline": null,
-        "notes": "【オーナーの返事待ち】設計書 docs/design-060-mcp-en.md への問 1〜6。答えが出てから、BOSS が 0.6.0 を作る段を足す。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "notes": "【済み】オーナーが問 1-3 に a と答えた（10:33）。R-037: プラグインにする。CGQA は閉じた。決まりの一覧: R-032 写しは画像で返す、R-033 CLI はデバッグ用、R-034 ≠ を != に置き換える、R-035 図は Mermaid で描き表だけ board_table を足す、R-036 返事の形は保留、R-037 プラグインにする。\n【途中経過 10:31】オーナーが 10:30 に答えた。R-035（図は Mermaid で描き、表だけ board_table を足す。4 つの道具のうち board_states・board_sequence・board_boxes は要らなくなる見込み）、R-036（返事の形は保留、設計書の案で作り始める）。残りは問 1-3（登録の仕方: プラグインにするか）の 1 問。🌖 のまま。\n【途中経過 10:21】オーナーが 10:19 に答えた。R-032（写しは画像で返す）、R-033（CLI はデバッグ用、利用者には MCP だけを見せる）、R-034（≠ を != に置き換える）が決まった。問 1〜3 には問い返しがあり、問 1-2（インストールからの使い方と登録の仕方）、問 2-2（4 つの道具の中身）、問 3-2（複雑な構造の渡し方と返事の形）を聞き直した。残り 3 問。🌖 のまま。\n【オーナーの返事待ち】設計書 docs/design-060-mcp-en.md への問 1〜6。答えが出てから、BOSS が 0.6.0 を作る段を足す。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
         "calendarUid": null,
         "actualStart": "2026-11-01T09:45:00",
+        "stop": null,
+        "actualFinish": "2026-11-01T10:33:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 101,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 103,
+        "parentTaskUid": null,
+        "wbsOrder": 69,
+        "name": "🌕 0.6.0 の設計書を R-032〜R-037 に合わせて直す",
+        "start": "2026-11-01T10:34:00",
+        "finish": "2026-11-01T11:34:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】10:36（draft 2）。裁定から出た 5 つの決め事（P-1〜P-5）を、CGQA の問 2 でオーナーに確かめている。\n担当: ホワイトボード 0.6.0 の MCP 設計の SUB（wb-060-mcp-design、session local_adb1d8ec-791e-4575-a544-750a22386f83）、10:34 に始めた。約 1 時間。その後に「0.6.0 を作る」を足す（担当と時刻は、設計書が直ってから BOSS が知らせる）。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-11-01T10:34:00",
+        "stop": null,
+        "actualFinish": "2026-11-01T10:36:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 102,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 104,
+        "parentTaskUid": null,
+        "wbsOrder": 70,
+        "name": "🌕 ㉚ オーナーが CGQA の 0.6.0 の問 2 に答える（P-1〜P-5 の確かめ）",
+        "start": "2026-11-01T10:36:00",
+        "finish": "2026-11-01T12:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】オーナーが問 2 に a と答えた（10:40、R-038: P-1〜P-5 は設計書の案のとおり）。CGQA は閉じた。\n【オーナーの返事待ち】裁定から出た 5 つの決め事（P-1〜P-5）の確かめ。答えが出たら、BOSS が「0.6.0 を作る」を始め、PMO がタスクを足す。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-11-01T10:36:00",
+        "stop": null,
+        "actualFinish": "2026-11-01T10:40:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 103,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 105,
+        "parentTaskUid": null,
+        "wbsOrder": 71,
+        "name": "🌒 0.6.0 を作る（MCP のプラグイン）",
+        "start": "2026-11-01T10:41:00",
+        "finish": "2026-11-01T14:41:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "担当: ホワイトボード 0.5.0 の実装の SUB（wb-050-impl、session local_ba3f62d7-8251-41c6-bc65-114961af1a78、Opus 5.5・medium）、10:41 に始めた。見積もり約 4 時間。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-11-01T10:41:00",
         "stop": null,
         "actualFinish": null,
         "resume": null,
@@ -2378,7 +2482,103 @@
         "fadeOutDays": null,
         "dependencies": [
           {
-            "predecessorUid": 101,
+            "predecessorUid": 104,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 106,
+        "parentTaskUid": null,
+        "wbsOrder": 72,
+        "name": "🌑 0.6.0 の BOSS のレビュー",
+        "start": "2026-11-01T14:41:00",
+        "finish": "2026-11-01T15:11:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "担当: BOSS。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 105,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 107,
+        "parentTaskUid": null,
+        "wbsOrder": 73,
+        "name": "🌑 ㉛ 裁定: オーナーが 0.6.0 の commit・push・プラグインの登録を OK する",
+        "start": "2026-11-01T15:11:00",
+        "finish": "2026-11-01T15:41:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "BOSS がオーナーに聞く。OK が出たら commit・push・プラグインの登録（オーナーに聞く）を行う。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 106,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 108,
+        "parentTaskUid": null,
+        "wbsOrder": 74,
+        "name": "🌑 ㉜ オーナーが 0.6.0 の MCP を実際に確かめる",
+        "start": "2026-11-01T15:41:00",
+        "finish": "2026-11-01T16:41:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "オーナーが、登録したプラグインの MCP の道具でボードに描かせて確かめる。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 107,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -2790,6 +2990,30 @@
       },
       {
         "taskUid": 102,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 103,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
+      },
+      {
+        "taskUid": 104,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 105,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
+      },
+      {
+        "taskUid": 106,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
+      },
+      {
+        "taskUid": 107,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 108,
         "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
       }
     ],
@@ -3345,6 +3569,54 @@
         "fillColor": null,
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 103,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 104,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 105,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 106,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 107,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 108,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -3373,7 +3645,7 @@
       {
         "id": "7c0e0000-0000-4000-8000-0000000000c2",
         "leaderShapeKind": "calloutBox",
-        "text": "★オーナーがすること（優先順）\n① 長い通知の件は、直すと決まった（R-011）。0.3.1 で直した\n② 公開した（R-010）。旧リポジトリも消した（R-003）\n③ ボードをいつも通り使い、切れたらバッジの写しを送る（不具合 2 の確認）\n④ 記事の書き直しを頼む（最後の記事とまとめて。日は未定）\nW1 を満たした（10:51）: 0.3.1 は main にある\nW2 11-02（月）18:00: 不具合 2 の確認を終える\n⑩ 0.4.0 で、実際のボードに画像を貼ってみる\n⑬ 0.5.0（図とテキストの編集・削除）の GQA の問 2〜4 に答える（土 18:00 から）\n⑭ 0.5.0 の実地の試験（日 11:00 から）\n⑮ 0.4.1 の入れ直しを OK する\n⑯ 0.4.1 を push する\n⑰ 0.4.1 を PC と iPad で試す（PC のタブを裏にする）\n⑱ Hyper-V の新しい仮想マシンで新規インストールを試す\n⑲ 0.5.0 の仕様 SUB を始める OK を出す\n⑳ GQA の問 5〜8 に答える\n㉑ 0.5.0 の実装 SUB を始める OK を出す\n㉒ CGQA 問 1: Mermaid の版の裁定（今夜 22:00 の目安）\n㉓ 0.5.0 を commit・インストールするか決める（a/b/c）\n㉔ 段 4 の SUB を始める OK を出す\n㉕ 0.5.0 を push する OK を出す\n㉖ CGQA の問 1〜3 に答える（UAT の前）\n㉗ CGQA の「UAT の後」の問 1〜3 に答える\n㉘ CGQA の進め方の問 1 に答える（0.5.2 と MCP）\n㉙ CGQA の 0.6.0 の問 1〜6 に答える",
+        "text": "★オーナーがすること（優先順）\n① 長い通知の件は、直すと決まった（R-011）。0.3.1 で直した\n② 公開した（R-010）。旧リポジトリも消した（R-003）\n③ ボードをいつも通り使い、切れたらバッジの写しを送る（不具合 2 の確認）\n④ 記事の書き直しを頼む（最後の記事とまとめて。日は未定）\nW1 を満たした（10:51）: 0.3.1 は main にある\nW2 11-02（月）18:00: 不具合 2 の確認を終える\n⑩ 0.4.0 で、実際のボードに画像を貼ってみる\n⑬ 0.5.0（図とテキストの編集・削除）の GQA の問 2〜4 に答える（土 18:00 から）\n⑭ 0.5.0 の実地の試験（日 11:00 から）\n⑮ 0.4.1 の入れ直しを OK する\n⑯ 0.4.1 を push する\n⑰ 0.4.1 を PC と iPad で試す（PC のタブを裏にする）\n⑱ Hyper-V の新しい仮想マシンで新規インストールを試す\n⑲ 0.5.0 の仕様 SUB を始める OK を出す\n⑳ GQA の問 5〜8 に答える\n㉑ 0.5.0 の実装 SUB を始める OK を出す\n㉒ CGQA 問 1: Mermaid の版の裁定（今夜 22:00 の目安）\n㉓ 0.5.0 を commit・インストールするか決める（a/b/c）\n㉔ 段 4 の SUB を始める OK を出す\n㉕ 0.5.0 を push する OK を出す\n㉖ CGQA の問 1〜3 に答える（UAT の前）\n㉗ CGQA の「UAT の後」の問 1〜3 に答える\n㉘ CGQA の進め方の問 1 に答える（0.5.2 と MCP）\n㉙ CGQA の 0.6.0 の問 1〜6 に答える\n㉚ CGQA の 0.6.0 の問 2 に答える（P-1〜P-5）\n㉛ 0.6.0 の commit・push・登録を OK する\n㉜ 0.6.0 の MCP を確かめる",
         "anchorDate": "2026-10-31T09:00:00",
         "anchorTaskGroupId": "7c0e0000-0000-4000-8000-000000000001",
         "anchorBandFraction": null,
@@ -3679,10 +3951,10 @@
     "zoomY": 1
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-01T00:47:43Z",
+    "scheduleUpdatedAt": "2026-11-01T01:41:31Z",
     "lastEditedBy": "pmo-claude",
     "settingsUpdatedAt": "2026-10-30T19:40:00Z",
-    "fileSavedAt": "2026-11-01T00:47:43Z"
+    "fileSavedAt": "2026-11-01T01:41:31Z"
   },
   "changeLog": [
     {
@@ -4074,6 +4346,42 @@
       "editedBy": "pmo-claude",
       "explanation": "BOSS note: task 101 done 09:45 (0.6.0 MCP design, docs/design-060-mcp-en.md); owner task 102 added (answer CGQA 0.6.0 Q1-6).",
       "changedAt": "2026-11-01T00:47:43Z"
+    },
+    {
+      "ordinal": 65,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 100 (0.5.2) done (4b9ca93 pushed and installed, 116 tests, privacy 0/0/0); task 87 waits for 0.6.0.",
+      "changedAt": "2026-11-01T01:08:45Z"
+    },
+    {
+      "ordinal": 66,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 102 progress (R-032..R-034 decided; 3 follow-up questions 1-2, 2-2, 3-2 open); stays waiting.",
+      "changedAt": "2026-11-01T01:21:04Z"
+    },
+    {
+      "ordinal": 67,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 102 progress (R-035, R-036 decided; 1 question 1-3 left); stays waiting.",
+      "changedAt": "2026-11-01T01:31:06Z"
+    },
+    {
+      "ordinal": 68,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 102 done 10:33 (R-032..R-037, CGQA closed); task 103 added (fix 0.6.0 design to R-032..R-037, started 10:34).",
+      "changedAt": "2026-11-01T01:33:42Z"
+    },
+    {
+      "ordinal": 69,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 103 done 10:36 (design draft 2); owner task 104 added (answer CGQA 0.6.0 Q2, P-1..P-5).",
+      "changedAt": "2026-11-01T01:37:43Z"
+    },
+    {
+      "ordinal": 70,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 104 done 10:40 (R-038); added 0.6.0 build 105 (started 10:41), review 106, owner tasks 107 (commit/push/register OK) and 108 (owner check); task 87 follows 108.",
+      "changedAt": "2026-11-01T01:41:31Z"
     }
   ]
 }

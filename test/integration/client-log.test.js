@@ -79,7 +79,7 @@ function sentLine(atMs, changeCount) {
   return eventLine("MessagesSent", { messages: [{ id: "m1", text: JAPANESE_TEXT }], changes, atMs });
 }
 
-test("watch prints MessagesSent as a short line, and sent prints it in full (FR-078)", async () => {
+test("watch prints MessagesSent as a short line that names board_inbox, and sent prints it in full (FR-078, FR-145)", async () => {
   const log = tempLog();
   fs.writeFileSync(log, "");
   const run = runClient(["watch", "--log", log]);
@@ -91,7 +91,7 @@ test("watch prints MessagesSent as a short line, and sent prints it in full (FR-
   await run.done;
   const short = run.output().trim().split("\n").map((line) => JSON.parse(line));
   assert.deepEqual(short[0], {
-    v: 1, event: "MessagesSent", atMs: 1000, messageCount: 1, changeCount: 200, read: "client.js sent --at-ms 1000",
+    v: 1, event: "MessagesSent", atMs: 1000, messageCount: 1, changeCount: 200, read: "board_inbox atMs=1000",
   });
   assert.ok(run.output().split("\n")[0].length < 200);
 
@@ -109,4 +109,26 @@ test("sent says NoSent with exit code 1 when the log has no MessagesSent", async
   const { code, out } = await runClient(["sent", "--log", log]).done;
   assert.equal(code, 1);
   assert.equal(JSON.parse(out).error, "NoSent");
+});
+
+test("watch without --log follows the log that the Server names, also when it appears later (FR-131, FR-146)", async () => {
+  const log = tempLog();
+  const http = require("http");
+  const fake = http.createServer((req, res) => {
+    res.writeHead(200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({ v: 1, logPath: log }));
+  });
+  await new Promise((resolve) => fake.listen(0, "127.0.0.1", resolve));
+  try {
+    const run = runClient(["watch", "--port", String(fake.address().port)]);
+    await delay(700);
+    fs.writeFileSync(log, eventLine("MessageReceived", { text: "first" }));
+    await delay(700);
+    run.child.kill();
+    await run.done;
+    const lines = run.output().trim().split("\n").map((line) => JSON.parse(line));
+    assert.deepEqual(lines.map((e) => e.text), ["first"]);
+  } finally {
+    fake.close();
+  }
 });

@@ -9,6 +9,8 @@ This product is not made by, endorsed by, or connected with Excalidraw.
 At run time the web page of this product loads, from esm.sh:
 - @excalidraw/excalidraw (MIT License, Copyright (c) 2020 Excalidraw)
 - React and React DOM (MIT License, Copyright (c) Meta Platforms, Inc. and affiliates)
+- @excalidraw/mermaid-to-excalidraw with mermaid (MIT License, Copyright (c) Excalidraw and the Mermaid authors)
+- qrcode-generator, in LAN mode only (MIT License, Copyright (c) 2009 Kazuhiko Arase)
 In LAN mode, the setup script installs node-forge from npm
 (BSD-3-Clause License, chosen from its dual license; Copyright (c) 2010, Digital Bazaar, Inc.).
 None of them are included in this repository.

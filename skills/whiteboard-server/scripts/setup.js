@@ -5,7 +5,8 @@
 //   node scripts/setup.js --check   no network; reports what is there
 //   node scripts/setup.js --lan     only for LAN mode: installs node-forge (fixed version) and makes
 //                                   the self-signed certificate for this computer's LAN addresses
-// Optional: --data DIR (default <skill folder>/.data).
+// Optional: --data DIR (default <skill folder>/.data), --forge-dir DIR (where node-forge goes; default the skill
+// folder). The plugin (0.6.0) passes its data folder, because the plugin folder changes at each update (FR-131).
 // Prints one JSON line. Exit code 0 if ok, 1 if not.
 
 const fs = require("fs");
@@ -32,10 +33,13 @@ function tail(text, lines) {
   return String(text || "").split(/\r?\n/).filter((line) => line.trim() !== "").slice(-lines);
 }
 
+let forgeDir = SKILL_DIR;
+const FORGE_VERSION = require("../package.json").dependencies["node-forge"];
+
 // @purity semi-pure-b
 function loadForge() {
   try {
-    return require(require.resolve("node-forge", { paths: [SKILL_DIR] }));
+    return require(require.resolve("node-forge", { paths: [forgeDir, SKILL_DIR] }));
   } catch (error) {
     return null;
   }
@@ -61,7 +65,7 @@ function check(paths) {
 // npm is a .cmd file on Windows, so it needs a shell there. Its arguments have no spaces.
 // @purity non-pure
 function runNpm(args) {
-  return spawnSync("npm", args, { cwd: SKILL_DIR, encoding: "utf8", shell: process.platform === "win32" });
+  return spawnSync("npm", args, { cwd: forgeDir, encoding: "utf8", shell: process.platform === "win32" });
 }
 
 // @purity non-pure
@@ -70,7 +74,10 @@ function setupLan(paths) {
     return { v: 1, ok: false, step: "node", tail: [`Node.js ${process.version} is too old; version ${MIN_NODE_MAJOR} or later is needed`] };
   }
   if (loadForge() === null) {
-    const npm = runNpm(["install", "--omit=dev", "--no-audit", "--no-fund"]);
+    // In the skill folder: its package.json pins the version. Elsewhere: the same fixed version, by name.
+    const npm = forgeDir === SKILL_DIR
+      ? runNpm(["install", "--omit=dev", "--no-audit", "--no-fund"])
+      : runNpm(["install", `node-forge@${FORGE_VERSION}`, "--prefix", ".", "--no-save", "--no-package-lock", "--omit=dev", "--no-audit", "--no-fund"]);
     if (npm.status !== 0 || loadForge() === null) {
       return { v: 1, ok: false, step: "npm", tail: tail(`${npm.stdout}\n${npm.stderr}\n${npm.error || ""}`, TAIL_LINES) };
     }
@@ -96,6 +103,10 @@ function setupLan(paths) {
 function main() {
   const argv = process.argv.slice(2);
   const flags = readFlags(argv);
+  if (flags.get("--forge-dir")) {
+    forgeDir = path.resolve(flags.get("--forge-dir"));
+    fs.mkdirSync(forgeDir, { recursive: true });
+  }
   const paths = dataPaths(path.resolve(flags.get("--data") || path.join(SKILL_DIR, ".data")));
   let result;
   if (argv.includes("--check")) result = check(paths);

@@ -1,15 +1,13 @@
 ---
 name: whiteboard-server
-description: Start, stop, or check the local whiteboard (Board Server) that Claude Code can read and write. The board runs on this computer (or on the LAN with --lan) and uses the Excalidraw component (MIT). Use when the user asks to start, stop, restart, or open the whiteboard, to open it to the LAN, or asks for the board link. To talk with Claude on the board, use the whiteboard-chat skill.
+description: Check Node.js for the whiteboard, and debug the local Board Server (start, status, stop, logs) with its command-line tools. For normal use (open the board, talk, draw, stop), use the whiteboard-chat skill and its board_* tools instead. Use when the user asks to check Node.js for the whiteboard, or to debug the Board Server.
 ---
 
-# Whiteboard Server
+# Whiteboard Server (checks and debugging)
 
-This skill runs the board. It does not talk on the board; the skill `whiteboard-chat` does that.
+Normal use goes through the `board_*` tools and the skill `whiteboard-chat`: `board_open` starts the board (also for the LAN, with `lan: true`), and `board_close` stops it. Do not give the user the commands below for normal use (R-033).
 
-`SKILL_DIR` below means the folder of this file. Claude Code shows it as the base directory of the skill. In every command, replace `SKILL_DIR` with that full path and keep the double quotes, because the path may contain spaces.
-
-Every command is a plain `node` command. It works the same in bash, PowerShell, and cmd. Each command prints one JSON line.
+`SKILL_DIR` below means the folder of this file. Claude Code shows it as the base directory of the skill. Replace it with the full path and keep the double quotes, because the path may contain spaces. Every command is a plain `node` command and prints one JSON line.
 
 Spec: `docs/spec-en.md` in the repository.
 
@@ -22,62 +20,26 @@ node "SKILL_DIR/scripts/setup.js" --check
 If `node` is not found, or the result has `"nodeOk": false`: Node.js 20 or later is needed. Show the user the official install command for their OS (Windows: `winget install OpenJS.NodeJS.LTS`, macOS: `brew install node`, Linux: see https://nodejs.org/). Run it only after the user says yes in this chat.
 
 - Before you run it, tell the user: "Windows will ask for administrator approval (a window with a blue and yellow shield). It may open behind other windows. If nothing happens, look for a flashing icon on the taskbar and click Yes." On macOS, `brew` may ask for the user's password in the terminal.
-- After the install, `node` may still not be found, because Windows gives the new PATH only to programs started later. Then use the full path of node (Windows: `"C:\Program Files\nodejs\node.exe"`) in place of `node` for the rest of this session. If that also fails, ask the user to restart Claude Code.
+- After the install, `node` may still not be found, because Windows gives the new PATH only to programs started later. Then ask the user to restart Claude Code.
 
-## Start
+## Debug
 
-Only this computer (the default):
+These commands are for developers and for tests. With the plugin, the board data is in the folder `board` of the plugin data folder, so pass it with `--data DIR`.
 
-```
-node "SKILL_DIR/scripts/board.js" start
-```
+| Command | What it does |
+| ------- | ------------ |
+| `node "SKILL_DIR/scripts/board.js" status` | The state of the running Server (`pageCount`, `logPath`, `dataDir`). |
+| `node "SKILL_DIR/scripts/board.js" start --data DIR` | Starts the Server in the background. Add `--lan` for the LAN (after `setup.js --lan --data DIR`). |
+| `node "SKILL_DIR/scripts/board.js" stop` | Saves the board and stops the Server. |
+| `node "SKILL_DIR/scripts/setup.js" --lan --data DIR --forge-dir DIR2` | Installs node-forge into DIR2 and makes the LAN certificate in DIR. |
 
-The Server keeps running in the background after the command ends. The result has `url`. Show it to the user as a link and say: "Open this link in your browser. It works only on this computer. Anyone who has the link can see and change the board, so do not share it."
-
-### Open to the LAN
-
-Only when the user asks for other computers to join.
-
-1. Run `node "SKILL_DIR/scripts/setup.js" --check`. If `"lanReady": false`, tell the user: "I will download node-forge (about 2 MB, into the skill folder) and make a self-signed certificate." Then run:
-
-   ```
-   node "SKILL_DIR/scripts/setup.js" --lan
-   ```
-
-   If the result has `"ok": false`, show the user `step` and `tail`, and stop.
-2. If the Server is running without LAN, stop it first (see "Stop").
-3. Start it:
-
-   ```
-   node "SKILL_DIR/scripts/board.js" start --lan
-   ```
-
-4. Show the user `url` (for this computer) and `lanUrls` (for other computers) and say:
-   - "The browser will warn that the connection is not private, because the certificate is self-signed. Click **Advanced**, then **Proceed** (or **Continue**). Do this once on each computer."
-   - "Windows may ask whether Node.js can use the network. Allow it for private networks only."
-   - "Anyone on your network who has this link can see and change the board, and can write messages to me."
-
-## Status
-
-```
-node "SKILL_DIR/scripts/board.js" status
-```
-
-`pageCount` is the number of open browser pages. `url` is the board link.
-
-## Stop
-
-```
-node "SKILL_DIR/scripts/board.js" stop
-```
-
-The board is saved in `SKILL_DIR/.data/board.json` and comes back at the next start. To clear the board, the user can select everything in the browser and delete it.
+The results of `start` and `status` have the board link with its Token. Never paste it into the chat or onto the board.
 
 ## Errors
 
 | `error` | What to do |
 | ------- | ---------- |
-| `PortInUse` | Another program uses port 47830 or 47831. Start with `--port N --control-port M` (other free ports), and tell the user. |
+| `PortInUse` | Another program uses port 47830 or 47831. Tell the user. |
 | `RunningInOtherMode` | Stop the Server, then start it again in the mode the user wants. |
 | `CertMissing` | Run `setup.js --lan` first. |
 | `StartTimeout` | Read the log (`logPath`) and tell the user. |

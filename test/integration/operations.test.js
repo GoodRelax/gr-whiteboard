@@ -173,7 +173,7 @@ test("draw, edit, mermaid, delete, and undo on the real Server (FR-087 to FR-109
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "wbc-ops-"));
   let server = await startServer(dataDir);
   try {
-    assert.equal(readLog(server.logPath).find((e) => e.event === "ServerReady").version, "0.5.2");
+    assert.equal(readLog(server.logPath).find((e) => e.event === "ServerReady").version, "0.6.0");
     const skeletons = [
       { id: "web", type: "rectangle", x: 0, y: 0, width: 160, height: 80, label: { text: "Web" } },
       { id: "db", type: "rectangle", x: 300, y: 0, width: 160, height: 80 },
@@ -460,7 +460,7 @@ test("a Snapshot that cannot be written stops the Operation (FR-106, SC-086)", a
   }
 });
 
-test("client.js sent --brief, board --fields, and shot --scale keep the replies small (FR-121, FR-122, FR-123)", async () => {
+test("client.js sent --brief, board --fields, and shot --scale keep the replies small (FR-121, FR-122, FR-123, FR-152)", async () => {
   const bodies = [];
   const board = {
     items: [
@@ -498,7 +498,10 @@ test("client.js sent --brief, board --fields, and shot --scale keep the replies 
     assert.deepEqual((await run(["sent", "--brief"])).json, {
       v: 1, event: "MessagesSent", atMs: 7,
       messages: [{ id: "m1", text: "draw it" }],
-      changes: [{ id: "t1", kind: "edited", type: "text", text: "new words" }, { id: "a1", kind: "changed", type: "arrow" }],
+      changes: [
+        { id: "t1", kind: "edited", type: "text", text: "new words", old: "old words" },
+        { id: "a1", kind: "changed", type: "arrow", what: ["moved"], by: [9, 9], byClaude: true, shot: true },
+      ],
     });
     assert.deepEqual((await run(["sent"])).json, sent, "without --brief, sent prints the whole event");
     assert.deepEqual((await run(["board", "--fields", "id,type,points"])).json, {

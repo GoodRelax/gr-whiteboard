@@ -2,7 +2,8 @@
 "use strict";
 
 // Client for the Board Server (skill whiteboard-server). Works the same in bash, PowerShell, and cmd
-// (no curl, tail, grep, or heredoc).
+// (no curl, tail, grep, or heredoc). From 0.6.0 the Agent uses the MCP tools (mcp.js); this CLI is for
+// debugging, for tests, and for the board watch that the skill starts with the Monitor tool (spec 4.12, R-033).
 //   node scripts/client.js say [--file PATH] [--at X,Y]   text from PATH, or from stdin
 //   node scripts/client.js shot [ITEM_ID] [--scale S]   S in (0, 1]: a smaller PNG (default 1)
 //   node scripts/client.js board [--fields id,type,...]  only these fields of each Item
@@ -10,6 +11,7 @@
 //   node scripts/client.js stop
 //   node scripts/client.js wait [--timeout-ms N]         waits for ServerReady or ServerFailed in the log
 //   node scripts/client.js watch                         prints new events from the log, one per line, forever
+//                                                        (the log of the running Server, unless --log is given)
 //                                                        (MessagesSent as a short line; read it with `sent`)
 //   node scripts/client.js sent [--at-ms N] [--brief]    prints the full MessagesSent with atMs N (default: the last one);
 //                                                        --brief: the new texts, and only id, kind, and type of each change
@@ -24,8 +26,10 @@
 // HTTP commands print the JSON reply; exit code 0 for HTTP 2xx, 1 otherwise.
 
 const fs = require("fs");
-const http = require("http");
 const path = require("path");
+
+const { request, requestJson } = require("./lib/control-client");
+const { briefSent, pickFields } = require("./lib/brief");
 
 const DEFAULT_PORT = 47831;
 const DEFAULT_LOG = path.join(__dirname, "..", "..", "whiteboard-server", ".data", "server.log");
@@ -33,6 +37,7 @@ const DEFAULT_WAIT_MS = 90000;
 // Two tries of a mermaid Job with the default jobTimeoutMs, plus 5 s (spec 4.11.5).
 const DEFAULT_OPERATION_MS = 65000;
 const POLL_MS = 300;
+const STATUS_TIMEOUT_MS = 3000;
 // An older log may still be there when `wait` starts; ignore events older than this.
 const WAIT_LOOKBACK_MS = 5000;
 // Some editors on Windows put this mark at the start of UTF-8 files.
@@ -46,7 +51,7 @@ const WATCH_EVENTS = new Set([
 function parseArgs(argv) {
   const args = {
     command: argv[0], port: DEFAULT_PORT, log: DEFAULT_LOG, at: null, atMs: null, file: null, timeoutMs: null, rest: [],
-    confirm: false, force: false, all: false, brief: false, fields: null, scale: null,
+    confirm: false, force: false, all: false, brief: false, fields: null, scale: null, logGiven: false,
   };
   for (let i = 1; i < argv.length; i += 1) {
     const arg = argv[i];
@@ -57,7 +62,10 @@ function parseArgs(argv) {
     else if (arg === "--brief") args.brief = true;
     else if (arg === "--fields") args.fields = String(argv[(i += 1)]).split(",").map((f) => f.trim()).filter(Boolean);
     else if (arg === "--scale") args.scale = Number(argv[(i += 1)]);
-    else if (arg === "--log") args.log = argv[(i += 1)];
+    else if (arg === "--log") {
+      args.log = argv[(i += 1)];
+      args.logGiven = true;
+    }
     else if (arg === "--file") args.file = argv[(i += 1)];
     else if (arg === "--timeout-ms") args.timeoutMs = Number(argv[(i += 1)]);
     else if (arg === "--at-ms") args.atMs = Number(argv[(i += 1)]);
@@ -85,7 +93,8 @@ function listBody(raw, key) {
   return null;
 }
 
-// A Monitor cuts long lines, so `watch` prints MessagesSent as a short line (FR-078).
+// A Monitor cuts long lines, so `watch` prints MessagesSent as a short line (FR-078). `read` names the
+// MCP tool that reads the whole event (FR-145).
 // @purity pure
 function shortSent(event) {
   return JSON.stringify({
@@ -94,32 +103,8 @@ function shortSent(event) {
     atMs: event.atMs,
     messageCount: Array.isArray(event.messages) ? event.messages.length : 0,
     changeCount: Array.isArray(event.changes) ? event.changes.length : 0,
-    read: `client.js sent --at-ms ${event.atMs}`,
+    read: `board_inbox atMs=${event.atMs}`,
   });
-}
-
-// MessagesSent with less in it (FR-121): the new texts as they are, and only id, kind, and type of each change.
-// An edited text keeps its new text, because it is the Person's words too.
-// @purity pure
-function briefSent(event) {
-  const messages = (Array.isArray(event.messages) ? event.messages : []).map((m) => ({ id: m.id, text: m.text }));
-  const changes = (Array.isArray(event.changes) ? event.changes : []).map((c) => {
-    const entry = { id: c.id, kind: c.kind, type: c.type };
-    if (c.kind === "edited" && typeof c.text === "string") entry.text = c.text;
-    return entry;
-  });
-  return { v: 1, event: "MessagesSent", atMs: event.atMs, messages, changes };
-}
-
-// The board reply with only `fields` of each Item (FR-122). An Item without a field leaves it out.
-// @purity pure
-function pickFields(reply, fields) {
-  const items = (Array.isArray(reply.items) ? reply.items : []).map((item) => {
-    const out = {};
-    for (const field of fields) if (Object.prototype.hasOwnProperty.call(item, field)) out[field] = item[field];
-    return out;
-  });
-  return { ...reply, items };
 }
 
 // @purity pure
@@ -145,24 +130,6 @@ function readStdin() {
 // @purity non-pure
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-// @purity non-pure
-function request(port, method, urlPath, body, timeoutMs = DEFAULT_WAIT_MS) {
-  return new Promise((resolve, reject) => {
-    const data = body === undefined ? "" : JSON.stringify(body);
-    const req = http.request({
-      host: "127.0.0.1", port, method, path: urlPath,
-      headers: { "content-type": "application/json; charset=utf-8", "content-length": Buffer.byteLength(data) },
-    }, (res) => {
-      const chunks = [];
-      res.on("data", (chunk) => chunks.push(chunk));
-      res.on("end", () => resolve({ status: res.statusCode, text: Buffer.concat(chunks).toString("utf8") }));
-    });
-    req.on("error", reject);
-    req.setTimeout(timeoutMs, () => req.destroy(new Error(`no reply within ${timeoutMs} ms`)));
-    req.end(data);
-  });
 }
 
 // @purity pure
@@ -234,7 +201,18 @@ async function waitForReady(args) {
 
 // @purity non-pure
 async function watchEvents(args) {
-  await followLog(args.log, false, (line) => {
+  // Without --log, the running Server says where its log is (the plugin keeps it in its data folder, FR-131).
+  // A log that does not exist yet is followed when it appears (FR-146).
+  let logPath = args.log;
+  if (!args.logGiven) {
+    try {
+      const reply = await requestJson(args.port, "GET", "/v1/status", undefined, STATUS_TIMEOUT_MS);
+      if (reply.status === 200 && reply.json && reply.json.logPath) logPath = reply.json.logPath;
+    } catch (error) {
+      // No Server yet: the default log.
+    }
+  }
+  await followLog(logPath, false, (line) => {
     const event = parseEventLine(line);
     if (!event || !WATCH_EVENTS.has(event.event)) return false;
     process.stdout.write((event.event === "MessagesSent" ? shortSent(event) : line) + "\n");

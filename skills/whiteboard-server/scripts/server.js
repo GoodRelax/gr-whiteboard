@@ -145,6 +145,8 @@ async function main() {
   const clock = { setTimeout, clearTimeout, setInterval, clearInterval };
   const hub = createBoardHub({
     elements, events, clock, jobTimeoutMs: config.jobTimeoutMs, gapPx: config.answerGapPx, indentPx: config.answerIndentPx,
+    // The LAN Board URLs for the "Join from another device" button (FR-154). `urls` is set before any page joins.
+    joinUrls: () => (config.lan ? urls.lan : []),
     onBoardChanged: (changed) => {
       dirty = true;
       const now = Date.now();

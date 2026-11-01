@@ -58,7 +58,7 @@ let flushTimer = null;
 let source = null;
 let lastStreamMs = 0;
 let reopenTimer = null;
-let status = { online: false, leader: false, signal: "none", unsent: 0, autoSend: false };
+let status = { online: false, leader: false, signal: "none", unsent: 0, autoSend: false, joinUrls: [] };
 let sending = false;
 let showStatus = () => {};
 // id -> the version that the Server has (sent by us or received from it).
@@ -260,7 +260,8 @@ function onHello(data) {
   if (firstHello && data.elements.length > 0) api.scrollToContent(undefined, { fitToContent: true });
   firstHello = false;
   const inbox = data.inbox || { unsent: 0, autoSend: false };
-  setStatus({ ...status, online: true, leader: isLeader, signal: data.signal || "none", ...inbox });
+  const joinUrls = Array.isArray(data.joinUrls) ? data.joinUrls.filter((url) => typeof url === "string") : [];
+  setStatus({ ...status, online: true, leader: isLeader, signal: data.signal || "none", ...inbox, joinUrls });
 }
 
 // A timer, not requestAnimationFrame: animation frames stop while the page is not drawn
@@ -1014,8 +1015,70 @@ function setStatus(next) {
   showStatus(next);
 }
 
+// ---- Join from another device (0.6.0, FR-154) ----
+// In LAN mode the Server sends the LAN Board URLs in hello. The page draws a QR code of each one itself, with
+// qrcode-generator from esm.sh (pinned in the import map). The URL never leaves the page.
+const QR_CELL_PX = 4;
+const QR_MARGIN_CELLS = 4;
+let qrModule = null;
+
+function loadQr() {
+  if (qrModule === null) {
+    qrModule = import("qrcode-generator").catch((error) => {
+      qrModule = null;
+      throw error;
+    });
+  }
+  return qrModule;
+}
+
+function QrCode({ text }) {
+  const ref = React.useRef(null);
+  const [failed, setFailed] = React.useState(false);
+  React.useEffect(() => {
+    let live = true;
+    loadQr().then((lib) => {
+      if (!live || !ref.current) return;
+      const make = lib.default || lib.qrcode;
+      const qr = make(0, "M");
+      qr.addData(text);
+      qr.make();
+      const count = qr.getModuleCount();
+      const size = (count + 2 * QR_MARGIN_CELLS) * QR_CELL_PX;
+      const canvas = ref.current;
+      canvas.width = size;
+      canvas.height = size;
+      const context = canvas.getContext("2d");
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, size, size);
+      context.fillStyle = "#000000";
+      for (let row = 0; row < count; row += 1) {
+        for (let col = 0; col < count; col += 1) {
+          if (qr.isDark(row, col)) context.fillRect((col + QR_MARGIN_CELLS) * QR_CELL_PX, (row + QR_MARGIN_CELLS) * QR_CELL_PX, QR_CELL_PX, QR_CELL_PX);
+        }
+      }
+    }).catch(() => live && setFailed(true));
+    return () => {
+      live = false;
+    };
+  }, [text]);
+  return failed ? h("div", null, "The QR code could not be made. Type the link instead.") : h("canvas", { ref, "aria-label": "QR code of the link" });
+}
+
+function JoinDialog({ urls, onClose }) {
+  return h("div", { className: "wbc-join-dialog", onClick: onClose },
+    h("div", { className: "wbc-join-box", onClick: (event) => event.stopPropagation() },
+      h("strong", null, "Join from another device"),
+      h("div", null, "Scan the code with the camera of the other device, on the same network. Anyone with this link can see and change the board."),
+      ...urls.map((url) => h("div", { key: url, style: { display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" } },
+        h(QrCode, { text: url }),
+        h("div", { className: "wbc-join-url" }, url))),
+      h("button", { type: "button", className: "wbc-send", onClick: onClose }, "Close")));
+}
+
 function StatusBadge() {
   const [shown, update] = React.useState(status);
+  const [joinOpen, setJoinOpen] = React.useState(false);
   React.useEffect(() => {
     showStatus = update;
     update(status);
@@ -1035,7 +1098,12 @@ function StatusBadge() {
   const auto = h("label", { className: "wbc-auto", title: "Send each text by itself, 1.5 s after you stop typing" },
     h("input", { type: "checkbox", checked: shown.autoSend, onChange: (event) => setAutoSend(event.target.checked) }),
     "auto");
+  const join = shown.joinUrls && shown.joinUrls.length > 0
+    ? h("button", { type: "button", className: "wbc-send", title: "Show the link and a QR code for a phone or tablet", onClick: () => setJoinOpen(true) }, "Join from another device")
+    : null;
   return h("div", { className: "wbc-bar" },
+    joinOpen ? h(JoinDialog, { urls: shown.joinUrls, onClose: () => setJoinOpen(false) }) : null,
+    join,
     send,
     signal ? h("div", { className: `wbc-signal wbc-${shown.signal}` }, signal) : null,
     h("div", { className: shown.online ? "wbc-status" : "wbc-status off" }, text),

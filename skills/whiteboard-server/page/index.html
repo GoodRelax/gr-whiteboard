@@ -22,8 +22,14 @@
   .wbc-send.wbc-has { background: #1971c2; border-color: #1971c2; color: #fff; }
   .wbc-auto { font: 12px/1.4 system-ui, sans-serif; display: flex; align-items: center; gap: 2px; color: #495057;
     background: rgba(255, 255, 255, 0.9); padding: 3px 6px; border-radius: 6px; cursor: pointer; white-space: nowrap; }
+  .wbc-join-dialog { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.4); display: flex; align-items: center;
+    justify-content: center; z-index: 20; }
+  .wbc-join-box { background: #fff; color: #1e1e1e; border-radius: 10px; padding: 16px 20px; max-width: 90vw; max-height: 90vh;
+    overflow: auto; font: 14px/1.5 system-ui, sans-serif; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+  .wbc-join-url { font: 12px/1.4 ui-monospace, monospace; word-break: break-all; user-select: all; text-align: center; }
+  .wbc-join-box canvas { image-rendering: pixelated; }
 </style>
-<script type="importmap">{"imports":{"react":"https://esm.sh/react@19.2.8","react/jsx-runtime":"https://esm.sh/react@19.2.8/jsx-runtime","react-dom":"https://esm.sh/react-dom@19.2.8","react-dom/client":"https://esm.sh/react-dom@19.2.8/client","@excalidraw/excalidraw":"https://esm.sh/@excalidraw/excalidraw@0.18.1/dist/prod/index.js?external=react,react-dom","@excalidraw/mermaid-to-excalidraw":"https://esm.sh/@excalidraw/mermaid-to-excalidraw@2.2.2?deps=mermaid@11.13.0"}}</script>
+<script type="importmap">{"imports":{"react":"https://esm.sh/react@19.2.8","react/jsx-runtime":"https://esm.sh/react@19.2.8/jsx-runtime","react-dom":"https://esm.sh/react-dom@19.2.8","react-dom/client":"https://esm.sh/react-dom@19.2.8/client","@excalidraw/excalidraw":"https://esm.sh/@excalidraw/excalidraw@0.18.1/dist/prod/index.js?external=react,react-dom","@excalidraw/mermaid-to-excalidraw":"https://esm.sh/@excalidraw/mermaid-to-excalidraw@2.2.2?deps=mermaid@11.13.0","qrcode-generator":"https://esm.sh/qrcode-generator@2.0.4"}}</script>
 </head>
 <body>
 <div id="root"></div>

@@ -47,7 +47,7 @@ function isAnswerElement(element) {
 // @purity non-pure
 function createBoardHub({
   elements, events, clock, jobTimeoutMs, gapPx, indentPx = 0, onBoardChanged, onAnswerWritten = () => {},
-  files = new Map(), onFilesAdded = () => {}, applyOperation = null,
+  files = new Map(), onFilesAdded = () => {}, applyOperation = null, joinUrls = () => [],
 }) {
   // pageId -> { send(type, data), editingId, visible }. A Map keeps the order in which pages joined.
   const pages = new Map();
@@ -202,7 +202,7 @@ function createBoardHub({
     const before = leaderId();
     pages.set(pageId, { send, editingId: null, visible: visible !== false });
     const isLeader = leaderId() === pageId;
-    send("hello", { pageId, leader: isLeader, signal, inbox, elements: [...elements.values()], files: [...files.values()] });
+    send("hello", { pageId, leader: isLeader, signal, inbox, elements: [...elements.values()], files: [...files.values()], joinUrls: joinUrls() });
     events.emit({ event: "PageJoined", pageCount: pages.size });
     announceLeader(before, pageId);
     pump();
