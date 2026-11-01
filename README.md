@@ -17,11 +17,14 @@ This repository is one [Claude Code](https://claude.com/claude-code) plugin, `gr
 
 ## What you need
 
-- Claude Code
-- Node.js 20 or later (if you do not have it, Claude Code tells you how to install it)
-- A web browser with internet access (the page loads the Excalidraw component from esm.sh)
+- Claude Desktop (its Code tab) or Claude Code
+- Node.js 20 or later
+- Git (Claude Code uses it to get the plugin)
+- Internet access (the page loads the Excalidraw component from esm.sh)
 
-Nothing else to install. Only the LAN mode downloads one small package (node-forge, about 2 MB) to make a certificate.
+If Node.js or Git is missing, Claude finds it and installs it with winget after your yes. The Node.js installer asks once for administrator rights: press "Yes" in the Windows window. Only the LAN mode downloads one more small package (node-forge, about 2 MB) to make a certificate.
+
+If you installed Claude Code with the PowerShell installer (`install.ps1`), it may say that `~/.local/bin` is not in your PATH. Add it as it says, then open the terminal again.
 
 ## Install
 
@@ -35,7 +38,9 @@ claude plugin marketplace add GoodRelax/gr-whiteboard
 claude plugin install gr-whiteboard@goodrelax --scope user
 ```
 
-Then type `/reload-plugins` in Claude Code (or start a new session).
+Then close Claude Desktop and start it again (or type `/reload-plugins` in Claude Code). The restart also lets Claude find a Node.js or Git that it has just installed.
+
+On a new Windows computer, the three steps (install, restart, "open the whiteboard") take about 15 minutes.
 
 If you used an older version (the plugin `whiteboard-chat@goodrelax`, or the two folders in `~/.claude/skills/`), remove it after the install, so each skill loads once. The new plugin starts with an empty board; open your old board in the old version first and save it with Excalidraw's own menu if you want to keep it.
 
@@ -51,9 +56,9 @@ Turn on **auto** to send each text by itself, 1.5 seconds after you stop typing.
 
 Ask for a diagram, for example "show the state machine of 3.4.1 of the spec". Claude draws the Mermaid block of that file.
 
-To end, say "stop" in the chat. The board is saved and comes back next time.
+To end, say "stop" in the chat. The board is saved and comes back next time. A "stop" written on the board does not close it, because anyone with the link can write there; Claude answers that you should ask in the chat.
 
-To use the board on an iPad or another computer, say "I want to use the board on my iPad". After your yes, the board opens to your network and shows a **Join from another device** button with a QR code. Scan it with the iPad. The same dialog has a second QR code and the steps to trust the board's own certificate authority on the iPad, so Safari stops saying "Not secure". On this computer, Claude shows you one command to run yourself for the same (Claude never changes your security settings).
+To use the board on an iPad or another computer, say "I want to use the board on my iPad". After your yes, the board opens to your network and shows a **Join** button (a QR code glyph) in the palette. Scan it with the iPad. The same dialog has a second QR code and the steps to trust the board's own certificate authority on the iPad, so Safari stops saying "Not secure". On this computer, Claude shows you one command to run yourself for the same (Claude never changes your security settings).
 
 ## How it works
 

@@ -1222,7 +1222,8 @@ function Palette() {
     ? "Auto send: on. Each text goes by itself, 1.5 s after you stop typing"
     : "Auto send: off. Press to send each text by itself, 1.5 s after you stop typing";
   const connection = shown.online ? (shown.leader ? "leader" : "member") : "off";
-  const activity = SIGNAL_TEXT[shown.signal]
+  // R-060 (0.7.3): while not connected, the Signal is old news; only the broken chain stays.
+  const activity = shown.online && SIGNAL_TEXT[shown.signal]
     ? h("div", { className: `wbp-btn wbp-${shown.signal}`, role: "status", tabIndex: 0, ...tip(SIGNAL_TEXT[shown.signal]) },
       h(Glyph, { name: shown.signal }))
     : null;

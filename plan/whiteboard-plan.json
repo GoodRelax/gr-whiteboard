@@ -12,9 +12,9 @@
       "manager": null,
       "author": null,
       "creationDate": "2026-10-31T04:40:00",
-      "revision": 94,
+      "revision": 103,
       "startDate": "2026-10-29T22:44:00",
-      "statusDate": "2026-11-01T16:38:00",
+      "statusDate": "2026-11-01T17:54:00",
       "minutesPerDay": 1440,
       "minutesPerWeek": 10080,
       "daysPerMonth": 30,
@@ -24,7 +24,7 @@
       "defaultFinishTime": "23:59:00",
       "themeHue": 214,
       "parentTaskProgressToleranceDays": 1,
-      "uidHighWaterMark": 120,
+      "uidHighWaterMark": 126,
       "importSequence": 0,
       "outlineBase": 1,
       "carry": {},
@@ -1857,19 +1857,19 @@
         "uid": 87,
         "parentTaskUid": null,
         "wbsOrder": 53,
-        "name": "🌑 ⑱ オーナーが Hyper-V の新しい仮想マシンで、新規インストールを試す（案内役の SUB つき）",
-        "start": "2026-11-02T13:00:00",
-        "finish": "2026-11-02T14:30:00",
+        "name": "🌕 ⑱ オーナーが Hyper-V の新しい仮想マシンで、新規インストールを試す（案内役の SUB つき）",
+        "start": "2026-11-01T17:14:00",
+        "finish": "2026-11-01T18:44:00",
         "milestone": false,
         "deadline": null,
-        "notes": "グリフのパレットの見本（タスク 118）と 0.7.2 の後ろへ回す（BOSS の知らせ）。\n0.5.2 は済んだ。残りは 0.6.0（タスク 102 のオーナーの答え待ち）で、R-017 のとおり、それが済んでから行う。\n97 が後ろに回ったので、PMO が 11-02（月）13:00〜14:30 に仮置きし直した。\nR-017: ほかの試しが全部済んでから行う（段 5 の後）。\n【オーナーの言葉待ち】オーナーの依頼（BOSSBOSS 経由）: 案内役の SUB（Sonnet 5.5・medium の予定）が、Hyper-V の新しい仮想マシンへの新規インストールを案内する。BOSS が SUB を作ろうとしたとき、アプリの安全の判定が止めた。オーナーが SUB の作成を言葉で認めるまで、SUB は動かない。オーナーの手作業が要るので、GRSMD の時間帯（土 13:00〜18:00、日 08:00〜11:00）を避けた。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "notes": "【済み】NG 0 件。1 文から入れ終わるまで約 15 分。気づき 3 つ（NG ではない）: 切断の後もパレットに「読む」の目が残る、VM の Claude がボードの文「Close the board.」に従って閉じた（決まりとのずれ）、Excalidraw などを esm.sh から読むのでネットが要る（オーナーの問い「esm って積んでないの？」）。README に足す案 4 つ: 要るもの、再起動、install.ps1 の PATH、約 15 分。これらは CGQA で聞いてから 0.7.3 のタスクにする。実績の終わりは BOSS の知らせが届いた時刻。\n【始めた 17:14】オーナーが次に Hyper-V の試しをすると決めた（R-059、「Hyper-Vをやる！」）。CGQA の [next] は閉じた。ナビ: ホワイトボード 0.5.0 の実装の SUB（wb-050-impl、session local_ba3f62d7-8251-41c6-bc65-114961af1a78）。今から 1.5 時間に引き直した。\nグリフのパレットの見本（タスク 118）と 0.7.2 の後ろへ回す（BOSS の知らせ）。\n0.5.2 は済んだ。残りは 0.6.0（タスク 102 のオーナーの答え待ち）で、R-017 のとおり、それが済んでから行う。\n97 が後ろに回ったので、PMO が 11-02（月）13:00〜14:30 に仮置きし直した。\nR-017: ほかの試しが全部済んでから行う（段 5 の後）。\n【オーナーの言葉待ち】オーナーの依頼（BOSSBOSS 経由）: 案内役の SUB（Sonnet 5.5・medium の予定）が、Hyper-V の新しい仮想マシンへの新規インストールを案内する。BOSS が SUB を作ろうとしたとき、アプリの安全の判定が止めた。オーナーが SUB の作成を言葉で認めるまで、SUB は動かない。オーナーの手作業が要るので、GRSMD の時間帯（土 13:00〜18:00、日 08:00〜11:00）を避けた。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
         "calendarUid": null,
-        "actualStart": null,
+        "actualStart": "2026-11-01T17:14:00",
         "stop": null,
-        "actualFinish": null,
+        "actualFinish": "2026-11-01T17:49:00",
         "resume": null,
         "resumeValid": null,
-        "percentComplete": 0,
+        "percentComplete": 100,
         "fadeInDays": null,
         "fadeOutDays": null,
         "dependencies": [
@@ -1947,6 +1947,14 @@
           },
           {
             "predecessorUid": 120,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 122,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -3001,14 +3009,110 @@
         "uid": 120,
         "parentTaskUid": null,
         "wbsOrder": 86,
-        "name": "🌒 0.7.2（パレット）を作る",
+        "name": "🌕 0.7.2（パレット）を作る",
         "start": "2026-11-01T16:38:00",
         "finish": "2026-11-01T19:38:00",
         "milestone": false,
         "deadline": null,
-        "notes": "【始めた 16:38】担当: ホワイトボード 0.5.0 の実装の SUB（wb-050-impl、session local_ba3f62d7-8251-41c6-bc65-114961af1a78）。見積もり 3 時間で、今から 3 時間に引き直した。\nグリフが決まってから作る。担当と時刻は BOSS が知らせる。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "notes": "【済み】commit 6e0643c（git log で読んだ）。試験 142 件通過。点検は名前・パス 0、メール 0、秘密 0、LAN の IP 0。実績の終わりは BOSS の知らせが届いた時刻。\n【始めた 16:38】担当: ホワイトボード 0.5.0 の実装の SUB（wb-050-impl、session local_ba3f62d7-8251-41c6-bc65-114961af1a78）。見積もり 3 時間で、今から 3 時間に引き直した。\nグリフが決まってから作る。担当と時刻は BOSS が知らせる。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
         "calendarUid": null,
         "actualStart": "2026-11-01T16:38:00",
+        "stop": null,
+        "actualFinish": "2026-11-01T16:49:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 119,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 121,
+        "parentTaskUid": null,
+        "wbsOrder": 87,
+        "name": "🌕 ㊴ 裁定: オーナーが 0.7.2（6e0643c）の push とプラグインの更新を OK する",
+        "start": "2026-11-01T16:49:00",
+        "finish": "2026-11-01T17:19:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】オーナーの答え「push と更新」。push b25f01f..6e0643c。プラグインを 0.7.1 から 0.7.2 に更新した（中身はリポジトリと差 0）。効くのは Claude Code を開き直した後。実績の終わりは BOSS の知らせが届いた時刻。\n【オーナーの返事待ち】BOSS がオーナーに聞く。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-11-01T16:49:00",
+        "stop": null,
+        "actualFinish": "2026-11-01T16:54:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 120,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 122,
+        "parentTaskUid": null,
+        "wbsOrder": 88,
+        "name": "🌕 ㊵ オーナーが 0.7.2 を Edge と iPad で確かめる",
+        "start": "2026-11-01T17:00:00",
+        "finish": "2026-11-01T18:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】NG 0 件。ボードは閉じた。気づき 1 つ（NG ではない）: Windows のアニメーション効果がオフの PC では「作業中」の弧が止まり、回らないように見える。オーナーの言葉「直すのは急ぎじゃない」。実績の終わりは BOSS の知らせが届いた時刻。\n【始めた 17:00】オーナーが Claude Code を開き直し（プラグインは 0.7.2）、確かめを始めた。ナビ: ホワイトボード 0.5.0 の実装の SUB（wb-050-impl、session local_ba3f62d7-8251-41c6-bc65-114961af1a78）。今から 1 時間に引き直した。\nオーナーが Claude Code を開き直した後に始まる（プラグインの更新が効く）。\nパレットの位置、auto 入りの Send、畳む、スマホの見え方を確かめる。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-11-01T17:00:00",
+        "stop": null,
+        "actualFinish": "2026-11-01T17:10:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 121,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 123,
+        "parentTaskUid": null,
+        "wbsOrder": 89,
+        "name": "🌑 アニメーションが止まるときの「作業中」の印（優先度は低）",
+        "start": "2026-11-04T10:00:00",
+        "finish": "2026-11-04T11:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "Windows のアニメーション効果がオフの PC では「作業中」の弧が止まり、回らないように見える。オーナーの言葉「直すのは急ぎじゃない」。優先度は低。担当と時期は BOSS が決める。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
         "stop": null,
         "actualFinish": null,
         "resume": null,
@@ -3018,7 +3122,103 @@
         "fadeOutDays": null,
         "dependencies": [
           {
-            "predecessorUid": 119,
+            "predecessorUid": 122,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 124,
+        "parentTaskUid": null,
+        "wbsOrder": 90,
+        "name": "🌕 ㊶ オーナーが CGQA の [hyperv] の問 4 つに答える（切断後の状態のグリフ、ボードの文で閉じること、部品を積むか、README の案）",
+        "start": "2026-11-01T17:50:00",
+        "finish": "2026-11-01T19:50:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "【済み】オーナーが [hyperv] に答えた（17:53）。R-060 切断したら状態のグリフを消す、R-061 閉じるのはチャットで頼まれたときだけ、R-062 0.8.0 で部品を積む（先に、ネットから読む物を測る）、R-063 README に 4 つ足す。\n【オーナーの返事待ち 17:50】BOSS が CGQA に分野 [hyperv] を足し、問 4 つを聞いた。答えが出たら 0.7.3 のタスクを足す。\nBOSS が CGQA に問を書いて、オーナーに聞く。聞いた知らせが来たら 🌖 にする。答えが出たら 0.7.3 のタスクを足す。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-11-01T17:50:00",
+        "stop": null,
+        "actualFinish": "2026-11-01T17:53:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 87,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 125,
+        "parentTaskUid": null,
+        "wbsOrder": 91,
+        "name": "🌒 0.7.3（R-060・R-061・R-063 と、0.8.0 のための測定）",
+        "start": "2026-11-01T17:55:00",
+        "finish": "2026-11-01T19:55:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "担当: ホワイトボード 0.5.0 の実装の SUB（wb-050-impl、session local_ba3f62d7-8251-41c6-bc65-114961af1a78）、17:55 に始めた。見積もり 2 時間。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": "2026-11-01T17:55:00",
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 124,
+            "linkType": 1,
+            "linkLag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 126,
+        "parentTaskUid": null,
+        "wbsOrder": 92,
+        "name": "🌑 0.8.0（部品を積む、R-062）",
+        "start": "2026-11-01T19:55:00",
+        "finish": "2026-11-01T23:55:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": "0.7.3 の後。先に、ネットから読む物を測る（0.7.3 の測定の結果で決める）。担当と時刻は BOSS が知らせる。W2（11-02 18:00）は動かさない。日時は仮置き。【見積もり】予定の日時は見積もりで、確定ではない。",
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": null,
+        "fadeOutDays": null,
+        "dependencies": [
+          {
+            "predecessorUid": 125,
             "linkType": 1,
             "linkLag": 0,
             "lagFormat": 7,
@@ -3502,6 +3702,30 @@
       },
       {
         "taskUid": 120,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
+      },
+      {
+        "taskUid": 121,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 122,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 123,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000006"
+      },
+      {
+        "taskUid": 124,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000001"
+      },
+      {
+        "taskUid": 125,
+        "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
+      },
+      {
+        "taskUid": 126,
         "taskGroupId": "7c0e0000-0000-4000-8000-000000000003"
       }
     ],
@@ -4201,6 +4425,54 @@
         "fillColor": null,
         "strokeColor": null,
         "strokeWidthPx": null
+      },
+      {
+        "taskUid": 121,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 122,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 123,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 124,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 125,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 126,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": null,
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
       }
     ],
     "commentBoxes": [
@@ -4229,7 +4501,7 @@
       {
         "id": "7c0e0000-0000-4000-8000-0000000000c2",
         "leaderShapeKind": "calloutBox",
-        "text": "★オーナーがすること（優先順）\n① 長い通知の件は、直すと決まった（R-011）。0.3.1 で直した\n② 公開した（R-010）。旧リポジトリも消した（R-003）\n③ ボードをいつも通り使い、切れたらバッジの写しを送る（不具合 2 の確認）\n④ 記事の書き直しを頼む（最後の記事とまとめて。日は未定）\nW1 を満たした（10:51）: 0.3.1 は main にある\nW2 11-02（月）18:00: 不具合 2 の確認を終える\n⑩ 0.4.0 で、実際のボードに画像を貼ってみる\n⑬ 0.5.0（図とテキストの編集・削除）の GQA の問 2〜4 に答える（土 18:00 から）\n⑭ 0.5.0 の実地の試験（日 11:00 から）\n⑮ 0.4.1 の入れ直しを OK する\n⑯ 0.4.1 を push する\n⑰ 0.4.1 を PC と iPad で試す（PC のタブを裏にする）\n⑱ Hyper-V の新しい仮想マシンで新規インストールを試す\n⑲ 0.5.0 の仕様 SUB を始める OK を出す\n⑳ GQA の問 5〜8 に答える\n㉑ 0.5.0 の実装 SUB を始める OK を出す\n㉒ CGQA 問 1: Mermaid の版の裁定（今夜 22:00 の目安）\n㉓ 0.5.0 を commit・インストールするか決める（a/b/c）\n㉔ 段 4 の SUB を始める OK を出す\n㉕ 0.5.0 を push する OK を出す\n㉖ CGQA の問 1〜3 に答える（UAT の前）\n㉗ CGQA の「UAT の後」の問 1〜3 に答える\n㉘ CGQA の進め方の問 1 に答える（0.5.2 と MCP）\n㉙ CGQA の 0.6.0 の問 1〜6 に答える\n㉚ CGQA の 0.6.0 の問 2 に答える（P-1〜P-5）\n㉛ 0.6.0 の commit・push・登録を OK する\n㉜ 0.6.0 の MCP を確かめる\n㉝ CGQA の [rename] に答える\n㉞ 0.6.1 の push・プラグインの更新を OK する\n㉟ GitHub でリポジトリ名を gr-whiteboard に変える\n㊱ 0.7.1 を直す時期を決める\n㊲ 0.7.1 の push・プラグインの更新を OK する\n㊳ 0.7.1 を iPad で確かめる",
+        "text": "★オーナーがすること（優先順）\n① 長い通知の件は、直すと決まった（R-011）。0.3.1 で直した\n② 公開した（R-010）。旧リポジトリも消した（R-003）\n③ ボードをいつも通り使い、切れたらバッジの写しを送る（不具合 2 の確認）\n④ 記事の書き直しを頼む（最後の記事とまとめて。日は未定）\nW1 を満たした（10:51）: 0.3.1 は main にある\nW2 11-02（月）18:00: 不具合 2 の確認を終える\n⑩ 0.4.0 で、実際のボードに画像を貼ってみる\n⑬ 0.5.0（図とテキストの編集・削除）の GQA の問 2〜4 に答える（土 18:00 から）\n⑭ 0.5.0 の実地の試験（日 11:00 から）\n⑮ 0.4.1 の入れ直しを OK する\n⑯ 0.4.1 を push する\n⑰ 0.4.1 を PC と iPad で試す（PC のタブを裏にする）\n⑱ Hyper-V の新しい仮想マシンで新規インストールを試す\n⑲ 0.5.0 の仕様 SUB を始める OK を出す\n⑳ GQA の問 5〜8 に答える\n㉑ 0.5.0 の実装 SUB を始める OK を出す\n㉒ CGQA 問 1: Mermaid の版の裁定（今夜 22:00 の目安）\n㉓ 0.5.0 を commit・インストールするか決める（a/b/c）\n㉔ 段 4 の SUB を始める OK を出す\n㉕ 0.5.0 を push する OK を出す\n㉖ CGQA の問 1〜3 に答える（UAT の前）\n㉗ CGQA の「UAT の後」の問 1〜3 に答える\n㉘ CGQA の進め方の問 1 に答える（0.5.2 と MCP）\n㉙ CGQA の 0.6.0 の問 1〜6 に答える\n㉚ CGQA の 0.6.0 の問 2 に答える（P-1〜P-5）\n㉛ 0.6.0 の commit・push・登録を OK する\n㉜ 0.6.0 の MCP を確かめる\n㉝ CGQA の [rename] に答える\n㉞ 0.6.1 の push・プラグインの更新を OK する\n㉟ GitHub でリポジトリ名を gr-whiteboard に変える\n㊱ 0.7.1 を直す時期を決める\n㊲ 0.7.1 の push・プラグインの更新を OK する\n㊳ 0.7.1 を iPad で確かめる\n㊴ 0.7.2 の push・プラグインの更新を OK する\n㊵ 0.7.2 を Edge と iPad で確かめる\n㊶ CGQA の Hyper-V の気づきと README の案に答える",
         "anchorDate": "2026-10-31T09:00:00",
         "anchorTaskGroupId": "7c0e0000-0000-4000-8000-000000000001",
         "anchorBandFraction": null,
@@ -4535,10 +4807,10 @@
     "zoomY": 1
   },
   "documentStamp": {
-    "scheduleUpdatedAt": "2026-11-01T07:38:59Z",
+    "scheduleUpdatedAt": "2026-11-01T08:54:47Z",
     "lastEditedBy": "pmo-claude",
     "settingsUpdatedAt": "2026-10-30T19:40:00Z",
-    "fileSavedAt": "2026-11-01T07:38:59Z"
+    "fileSavedAt": "2026-11-01T08:54:47Z"
   },
   "changeLog": [
     {
@@ -5098,6 +5370,60 @@
       "editedBy": "pmo-claude",
       "explanation": "BOSS note: task 119 done (R-058 glyph set); task 120 (0.7.2 palette) started, re-timed to 3 hours from now.",
       "changedAt": "2026-11-01T07:38:59Z"
+    },
+    {
+      "ordinal": 93,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 120 done (0.7.2 palette, 6e0643c, 142 tests); owner tasks 121 (push/update OK) and 122 (Edge and iPad check) added; task 87 follows 122.",
+      "changedAt": "2026-11-01T07:49:36Z"
+    },
+    {
+      "ordinal": 94,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 121 done (push 6e0643c; plugin 0.7.2); next task 122 (owner Edge and iPad check) after Claude Code restart.",
+      "changedAt": "2026-11-01T07:54:09Z"
+    },
+    {
+      "ordinal": 95,
+      "editedBy": "pmo-claude",
+      "explanation": "PMO stop before the owner restarts Claude Code for 0.7.2; plan saved and re-read; resume from task 122 (owner Edge and iPad check of 0.7.2).",
+      "changedAt": "2026-11-01T07:55:04Z"
+    },
+    {
+      "ordinal": 96,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 122 (owner Edge and iPad check of 0.7.2) started; re-timed to one hour from now.",
+      "changedAt": "2026-11-01T08:00:35Z"
+    },
+    {
+      "ordinal": 97,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 122 done (0 NG, 1 low-priority note); added task 123 (working-mark when animations are off, low priority); next is task 87 (Hyper-V).",
+      "changedAt": "2026-11-01T08:10:04Z"
+    },
+    {
+      "ordinal": 98,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 87 (Hyper-V fresh-install test) started 17:14 (R-059); re-timed to 1.5 hours; navigator wb-050-impl.",
+      "changedAt": "2026-11-01T08:14:00Z"
+    },
+    {
+      "ordinal": 99,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 87 done (Hyper-V fresh install, 0 NG, ~15 min, 3 notes); owner task 124 added (answer CGQA on notes and README ideas); 0.7.3 comes after.",
+      "changedAt": "2026-11-01T08:49:09Z"
+    },
+    {
+      "ordinal": 100,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 124 now waiting (CGQA [hyperv] Q1-4 asked).",
+      "changedAt": "2026-11-01T08:50:55Z"
+    },
+    {
+      "ordinal": 101,
+      "editedBy": "pmo-claude",
+      "explanation": "BOSS note: task 124 done 17:53 (R-060..R-063); added task 125 (0.7.3, started 17:55) and 126 (0.8.0 bundle parts, after 0.7.3).",
+      "changedAt": "2026-11-01T08:54:47Z"
     }
   ]
 }
