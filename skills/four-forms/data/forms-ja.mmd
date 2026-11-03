@@ -1,0 +1,33 @@
+graph TB
+    subgraph F1 ["Lv1 分ける(Divide)"]
+        direction TB
+        F1a["分割(Divide)<br/>全体を要素に"]
+        F1b["分類(Classify)<br/>要素を種別に"]
+        F1c["命名(Name)<br/>対象に記号を"]
+    end
+    S1(["分けた要素を比べる"])
+
+    subgraph F2 ["Lv2 比べる(Compare)"]
+        direction TB
+        F2a["類比(Analogy)<br/>正の相関"]
+        F2b["対比(Contrast)<br/>負の相関"]
+        F2c["直交(Orthogonal)<br/>無相関"]
+    end
+    S2(["比べた関係を察する"])
+
+    subgraph F3 ["Lv3 察する(Infer)"]
+        direction TB
+        F3a["帰納(Induction)<br/>法則を導く"]
+        F3b["演繹(Deduction)<br/>結果を導く"]
+        F3c["遡及(Abduction)<br/>原因を導く"]
+    end
+    S3(["察した法則を手に"])
+
+    subgraph F4 ["Lv4 操る(Transform)"]
+        direction TB
+        F4a["具体(Concrete)<br/>属性を増やす"]
+        F4b["抽象(Abstract)<br/>属性を減らす"]
+        F4c["合成(Synthesis)<br/>抽象を組み直す"]
+    end
+
+    F1 --> S1 --> F2 --> S2 --> F3 --> S3 --> F4

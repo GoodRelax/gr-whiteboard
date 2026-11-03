@@ -1,0 +1,13 @@
+{
+  "about": "The eight steps of the Issue-Driven Framework, in order, with the Japanese label used on the board.",
+  "steps": [
+    {"en": "Background", "ja": "背景"},
+    {"en": "Purpose", "ja": "目的"},
+    {"en": "Analysis", "ja": "分析"},
+    {"en": "Issue", "ja": "要問(イシュー)"},
+    {"en": "Challenge", "ja": "課題"},
+    {"en": "Measure", "ja": "施策"},
+    {"en": "Task", "ja": "作業"},
+    {"en": "Answer", "ja": "答え"}
+  ]
+}
