@@ -7,7 +7,7 @@ description: Run the Issue-Driven Framework (by GoodRelax) with the person. It w
 
 Use the Issue-Driven Framework and the board to find, with the person, the one question worth answering, and to lead them step by step to its answer.
 
-Talk in the chat first, one step at a time in short bullets. Open the board only when the person asks for it, or when a picture would make it clearer and you ask "Shall we sort this out on the whiteboard?" and they agree; then run it as the skill `talk-on-board` says. Draw the person's words, not your own ideas, and validate them, as `consult-on-board` says.
+Talk in the chat first, one step at a time in short bullets. Open the board only when the person asks for it, or when a picture would make it clearer and you ask "Shall we sort this out on the whiteboard?" and they agree; then run it as the skill `talk-on-board` says. After `open_board`, start the watch Monitor of `talk-on-board` (Open step 2, `client.js watch`) at once, or you miss every Send. Draw the person's words, not your own ideas, and validate them, as `consult-on-board` says.
 
 ## The eight steps
 

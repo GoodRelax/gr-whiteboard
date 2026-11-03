@@ -1738,7 +1738,7 @@ From 0.6.0 the Agent uses the MCP tools of this section; the user never types a 
 
 | Tool | Input (JSON Schema, short) | Reply |
 | ---- | -------------------------- | ----- |
-| `open_board` | `{lan?}` | `ok open pages=N lan=B version=V browser=opened (or skipped) [serverVersion=.. pluginVersion=.. restart=needed]` |
+| `open_board` | `{lan?}` | `ok open pages=N lan=B version=V browser=opened (or skipped) [serverVersion=.. pluginVersion=.. restart=needed]` and the line `next: start the watch Monitor now ...` (R-192) |
 | `close_board` | `{}` | `ok close wasRunning=B` |
 | `read_status` | `{}` | `state=running version= lan= pageCount= queueLength= unsent= itemCount= undoCount= signal= [pluginVersion= restart=needed]` |
 | `read_messages` | `{atMs?, page?}` | 4.12.4 |
@@ -1952,6 +1952,7 @@ The rows below 0.7.0 keep the names of their time (whiteboard-chat, board_* tool
 | Version | Date | Change |
 | ------- | ---- | ------ |
 | 0.7.3 | 2026-11-01 | After the Hyper-V fresh install test (task 87; CGQA [hyperv], R-060, R-061, R-063): no Signal glyph while the Page is not connected (FR-177); the Agent closes the board only when the user asks in the chat and answers a board text that asks for it (FR-178; server instructions, close_board, Skill); the README lists what is needed, the winget installs, the restart, the PATH note, and the 15 minutes (FR-179). New scenarios SC-138 and SC-139. |
+| 0.7.12 | 2026-11-04 | After the owner's five-whys (CGQA [trywhys], R-192 interim, R-195): the `open_board` reply has a `next:` line to start the watch Monitor; the skills say so too. |
 | 0.7.11 | 2026-11-03 | After the 0.7.10 test (CGQA [whys2], R-183, R-184): the ID of a deleted Element can be drawn again; the new Element gets a version above the deleted one (FR-088, FR-090). After the 0.7.11 test (CGQA [try0711], R-185, R-189): the first view waits for the canvas size and keeps 100% when the fit is not finite; `write_answer` returns the IDs of its texts. |
 | 0.7.6 | 2026-11-03 | After the 0.7.5 test (CGQA [try075], R-129): `read_messages` sets the Signal `reading` by itself, and the Skill no longer asks for `show_activity` first (FR-180). |
 | 0.7.2 | 2026-11-01 | The palette (CGQA [palette], R-052 to R-058): the bar of 0.7.1 becomes one vertical palette of glyph buttons at the right, under the Library button, and under the right column in the phone layout (FR-171, FR-172). Glyphs after gr-scheduler FR-029: paper plane, stopwatch, eye, turning arc, coffee cup, chain (thick for the Leader), broken chain, QR code, and IC-53 and IC-75 of gr-scheduler (FR-173). Full texts as tooltips (FR-174). Send is pale while auto send is on; the palette folds into one button and does not move (FR-175). Colors of the Excalidraw theme, and QR codes no longer inverted in the dark theme (FR-176; 0.7.1 UAT). Checked in headless Edge on the real Excalidraw 0.18.1 at 375, 730, 820, 1024, 1097, 1280, and 1920 px: no Excalidraw control covered. New scenarios SC-136 and SC-137. |

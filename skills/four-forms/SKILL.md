@@ -7,7 +7,7 @@ description: Think a subject through with the Four Forms of Thinking (by GoodRel
 
 Use the Four Forms of Thinking and the board to help the person look at a subject from new angles, one form at a time.
 
-Talk in the chat first, one form at a time in short bullets. Open the board only when the person asks for it, or when a picture would make it clearer and you ask "Shall we sort this out on the whiteboard?" and they agree; then run it as the skill `talk-on-board` says. Draw the person's words, not your own ideas, and validate them, as `consult-on-board` says.
+Talk in the chat first, one form at a time in short bullets. Open the board only when the person asks for it, or when a picture would make it clearer and you ask "Shall we sort this out on the whiteboard?" and they agree; then run it as the skill `talk-on-board` says. After `open_board`, start the watch Monitor of `talk-on-board` (Open step 2, `client.js watch`) at once, or you miss every Send. Draw the person's words, not your own ideas, and validate them, as `consult-on-board` says.
 
 ## The forms
 

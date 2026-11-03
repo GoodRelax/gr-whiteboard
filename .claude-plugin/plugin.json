@@ -1,6 +1,6 @@
 {
   "name": "gr-whiteboard",
-  "version": "0.7.11",
+  "version": "0.7.12",
   "description": "Talk and draw with Claude on a local whiteboard (Excalidraw component).",
   "author": {
     "name": "GoodRelax"

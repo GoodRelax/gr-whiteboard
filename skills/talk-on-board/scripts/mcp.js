@@ -313,6 +313,8 @@ async function openBoard(args) {
   }
   let line = `ok open pages=${status.pageCount} lan=${status.lan} version=${status.version || "?"} browser=${browser}`;
   if (status.version && status.version !== VERSION) line += ` serverVersion=${status.version} pluginVersion=${VERSION} restart=needed`;
+  // A skill that opens the board must also start the watch, or every Send goes unnoticed (R-192).
+  line += "\nnext: start the watch Monitor now (talk-on-board, Open step 2), or no Send reaches you";
   if (status.lan) {
     line += "\nnext: the page shows a \"Join\" button: step 1 trusts the CA of the board (QR code), step 2 opens the board (QR code of the recommended address)";
     // The user trusts the CA of the board once on this computer; Claude never runs this (FR-157, R-040).

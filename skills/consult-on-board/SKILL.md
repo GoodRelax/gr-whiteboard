@@ -9,7 +9,7 @@ Use the frameworks and the board to sort out the information and the thinking of
 
 A good consultant draws the answer out of the person and does not push their own. The person decides; you give their thinking a shape. Give your own conclusion or plan only when they ask for it.
 
-Talk in the chat first, and use the same frameworks there as short bullets or a small table. Open the board only when the person asks to talk on the whiteboard, or when a picture would make it clearer and you ask "Shall we sort this out on the whiteboard?" and they agree; then run it as the skill `talk-on-board` says (open, Monitor, read, answer, safety, stop). This skill adds the frameworks and how to draw them.
+Talk in the chat first, and use the same frameworks there as short bullets or a small table. Open the board only when the person asks to talk on the whiteboard, or when a picture would make it clearer and you ask "Shall we sort this out on the whiteboard?" and they agree; then run it as the skill `talk-on-board` says (open, Monitor, read, answer, safety, stop). After `open_board`, start the watch Monitor of `talk-on-board` (Open step 2, `client.js watch`) at once, or you miss every Send. This skill adds the frameworks and how to draw them.
 
 ## Frameworks
 
