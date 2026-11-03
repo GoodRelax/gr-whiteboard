@@ -7,20 +7,20 @@ description: Run the Issue-Driven Framework (by GoodRelax) on the local whiteboa
 
 Use the Issue-Driven Framework and the board to find, with the person, the one question worth answering, and to lead them step by step to its answer.
 
-Open and run the board as the skill `talk-on-board` says. Draw the person's words, not your own ideas, as `consult-on-board` says.
+Open and run the board as the skill `talk-on-board` says. Draw the person's words, not your own ideas, and validate them, as `consult-on-board` says.
 
 ## The eight steps
 
-| Step | What it holds |
-|---|---|
-| Background | The situation as it is |
-| Purpose | What the work is for |
-| Analysis | Facts sorted, compared, and read |
-| Issue | The one question worth answering; write it as a question |
-| Challenge | What to overcome to answer it (strategy) |
-| Measure | How to overcome each challenge (tactics) |
-| Task | The concrete work of each measure |
-| Answer | The answer to the Issue, reached through the steps |
+| Step | What it holds | It holds when |
+|---|---|---|
+| Background | The situation as it is | Free form |
+| Purpose | What the work is for | A verb phrase |
+| Analysis | Facts sorted, compared, and read | Free form; it leads to the Issue |
+| Issue | The one question worth answering | One question that can be answered, is worth answering, and is essential. Do not go on to Challenge until it is a question |
+| Challenge | What to overcome to answer it (strategy) | A verb phrase; a strategy to solve the Issue |
+| Measure | How to overcome each challenge (tactics) | A verb phrase; the tactics for its Challenge |
+| Task | The concrete work of each measure | A verb phrase; the concrete work of its Measure |
+| Answer | The answer to the Issue, reached through the steps | A statement that answers the Issue, or says it is not reached yet and why |
 
 The Japanese labels of the steps are in `data/labels.json` (SKILL_DIR is the folder of this file).
 

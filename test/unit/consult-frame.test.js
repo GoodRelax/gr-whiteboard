@@ -36,6 +36,17 @@ test("every framework in the data builds a drawable frame", () => {
   }
 });
 
+test("every entry with a frame has 1 to 3 English checks; skill entries have none", () => {
+  for (const f of DATA.frameworks) {
+    if (f.skill) {
+      assert.equal(f.checks, undefined, f.id);
+      continue;
+    }
+    assert.ok(Array.isArray(f.checks) && f.checks.length >= 1 && f.checks.length <= 3, `${f.id}: checks`);
+    for (const s of f.checks) assert.match(s, /^[\x20-\x7e]+\.$/, `${f.id}: ${s}`);
+  }
+});
+
 test("an entry with skill points to a skill of the plugin and has no frame", () => {
   const withSkill = DATA.frameworks.filter((e) => e.skill);
   assert.deepEqual(withSkill.map((e) => e.skill).sort(), ["four-forms", "issue-driven"]);

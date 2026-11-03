@@ -1,6 +1,6 @@
 # gr-whiteboard (GRWB)
 
-> **Alpha (0.7.6).** It works for its author every day, but it is young. Known limits:
+> **Alpha (0.7.7).** It works for its author every day, but it is young. Known limits:
 > - The page needs internet access: it loads Excalidraw, React, and Mermaid from esm.sh.
 > - It is tested on Windows 11 with Edge, and on an iPad and an iPhone with Safari. Other systems and browsers may work but are untested.
 > - Names and tools may still change before 1.0.
@@ -20,7 +20,7 @@ This repository is one [Claude Code](https://claude.com/claude-code) plugin, `gr
 | Skill | What it does |
 | ----- | ------------ |
 | `talk-on-board` | Talk and draw with Claude on the board. |
-| `consult-on-board` | Talk a worry through with Claude as a consultant, sorted with about 120 business frameworks drawn on the board. |
+| `consult-on-board` | Talk a worry through with Claude as a consultant, sorted with 125 business frameworks drawn on the board. |
 | `issue-driven` | Find the one question worth answering, then walk down to its answer, with the Issue-Driven Framework. |
 | `four-forms` | Think a subject through with the Four Forms of Thinking: divide, compare, infer, transform. |
 | `debug-board-server` | Check Node.js, and debug the board server. |

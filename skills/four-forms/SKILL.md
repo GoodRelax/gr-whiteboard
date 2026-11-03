@@ -7,16 +7,16 @@ description: Think a subject through with the Four Forms of Thinking (by GoodRel
 
 Use the Four Forms of Thinking and the board to help the person look at a subject from new angles, one form at a time.
 
-Open and run the board as the skill `talk-on-board` says. Draw the person's words, not your own ideas, as `consult-on-board` says.
+Open and run the board as the skill `talk-on-board` says. Draw the person's words, not your own ideas, and validate them, as `consult-on-board` says.
 
 ## The forms
 
-| Form | Core moves | Optional move |
-|---|---|---|
-| Lv1 Divide | Divide (whole into parts), Name (a sign for each) | Classify (parts into kinds) |
-| Lv2 Compare | Analogy (alike), Contrast (opposite) | Orthogonal (unrelated) |
-| Lv3 Infer | Induction (find the rule), Deduction (find the result) | Abduction (find the cause) |
-| Lv4 Transform | Concrete (add attributes), Abstract (remove attributes) | Synthesis (recombine abstractions) |
+| Form | Core moves | Optional move | It holds when |
+|---|---|---|---|
+| Lv1 Divide | Divide (whole into parts), Name (a sign for each) | Classify (parts into kinds) | The parts do not overlap and make the whole. One rule sorts the parts into kinds, each part in one kind. One sign for each object |
+| Lv2 Compare | Analogy (alike), Contrast (opposite) | Orthogonal (unrelated) | Analogy points the same way, Contrast the opposite way, Orthogonal shows no relation |
+| Lv3 Infer | Induction (find the rule), Deduction (find the result) | Abduction (find the cause) | Induction: a law from two or more cases (conjecture). Deduction: a result from a cause and a law (certain). Abduction: the cause that best explains the result (selection) |
+| Lv4 Transform | Concrete (add attributes), Abstract (remove attributes) | Synthesis (recombine abstractions) | Concrete adds attributes and Abstract removes them. Synthesis recombines several abstractions with weights into one |
 
 ## Run
 

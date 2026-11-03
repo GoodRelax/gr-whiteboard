@@ -13,7 +13,7 @@ Open and run the board as the skill `talk-on-board` says (open, Monitor, read, a
 
 ## Frameworks
 
-The data is `data/frameworks.json` (SKILL_DIR is the folder of this file). Each entry has `id`, `name`, `nameJa`, `summary`, `guideJa`, `whenToUse`, `purposes`, `shape`, and `cells`.
+The data is `data/frameworks.json` (SKILL_DIR is the folder of this file). Each entry has `id`, `name`, `nameJa`, `summary`, `guideJa`, `whenToUse`, `purposes`, `shape`, `cells`, and `checks`.
 
 - Pick by `whenToUse` and `purposes` (Problem Discovery, Analysis, Idea Generation, Strategy Planning, Business Improvement, Organization Development, Information Sharing).
 - For an open worry (what should I do?), offer `issue-driven` as the spine; for a named framework or a narrow worry, use only that one.
@@ -39,7 +39,7 @@ Frames are lines, not boxes, so the person can write anywhere. A 2-axis framewor
 Every frame has a gray guide under the title and gray examples in its empty places. Keep the two apart:
 
 - The guide explains: what the frame is for and what goes in each place ("Can: what you are able to do").
-- An example is a sample answer, the kind of content that goes in that place, written as the person would write it ("e.g. good at drawing" in Can, not "e.g. what people praise you for"). Check that it reads right in its place: "I can <example>". Take it from a scene other than the person's own, so it shows the form without giving the answer. Keep it short, start it with "e.g." in the person's language, and do not let it steer the person's answer.
+- An example is a sample answer, the kind of content that goes in that place, written as the person would write it ("e.g. good at drawing" in Can, not "e.g. what people praise you for"). Check that it reads right in its place: "I can <example>", and that it meets the `checks`. Take it from a scene other than the person's own, so it shows the form without giving the answer. Keep it short, start it with "e.g." in the person's language, and do not let it steer the person's answer.
 
 When the person has written in a place, or says they understand, delete the example of that place (`delete_items`, id `<prefix>-exN`).
 
@@ -68,4 +68,5 @@ To change a frame ("add a level", "split this branch into three"), read what the
 ## Do not
 
 - Do not use `draw_table` for frames: it draws boxes.
-- Do not judge the person's answers as right or wrong.
+- When a place is filled and the person pauses, validate the logic: does each entry fit what that place of the framework asks for, do the entries hold together as the framework requires (the `checks` of the entry, what you know of the framework, and the web when unsure), and is anything important missing?
+- If something does not hold, lead as a top consultant would: pick the one point that matters most, ask one concrete question in the person's own words that lets them see it, teach the idea behind it in one sentence only when they need it, and offer a way forward (merge two entries, add a missing cut, or another framework). Put a small gray "?" beside that place. The person decides. Do not press the same point again right away; when the frame is filled or you sum up, list the points still open in one line.
