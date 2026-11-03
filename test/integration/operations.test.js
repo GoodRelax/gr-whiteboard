@@ -173,7 +173,7 @@ test("draw, edit, mermaid, delete, and undo on the real Server (FR-087 to FR-109
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "wbc-ops-"));
   let server = await startServer(dataDir);
   try {
-    assert.equal(readLog(server.logPath).find((e) => e.event === "ServerReady").version, "0.7.10");
+    assert.equal(readLog(server.logPath).find((e) => e.event === "ServerReady").version, "0.7.11");
     const skeletons = [
       { id: "web", type: "rectangle", x: 0, y: 0, width: 160, height: 80, label: { text: "Web" } },
       { id: "db", type: "rectangle", x: 300, y: 0, width: 160, height: 80 },
@@ -440,6 +440,53 @@ test("client.js posts the request bodies of draw, mermaid, edit, delete, and und
     ]);
   } finally {
     fake.close();
+  }
+});
+
+test("the id of a deleted Item can be drawn again, above the tombstone's version (FR-088, FR-090, R-184)", async () => {
+  const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "wbc-ops-reuse-"));
+  const server = await startServer(dataDir);
+  try {
+    const page = openPage(server.token, "pageOPS0004");
+    const other = openPage(server.token, "pageOPS0005");
+    await until(() => page.find("hello") && other.find("hello"), 5000, "hello");
+    const box = [{ id: "w5-r2", type: "rectangle", x: 0, y: 0, width: 160, height: 80 }];
+    const drawBox = async (version) => {
+      const drawing = control("/v1/draw", { elements: box });
+      let sent = null;
+      await answerJob(page, "draw", (job) => {
+        sent = job;
+        return [el("w5-r2", { x: job.x, y: job.y, version })];
+      });
+      return { reply: await drawing, job: sent };
+    };
+    assert.equal((await drawBox(1)).reply.status, 200);
+    assert.equal((await control("/v1/draw", { elements: box })).json.error, "DuplicateId", "a live id stays taken");
+    const removed = await control("/v1/delete", { ids: ["w5-r2"] });
+    assert.equal(removed.json.count, 1);
+
+    // The page must draw above the tombstone; the job tells it the tombstone's version.
+    const low = await drawBox(1);
+    assert.deepEqual([low.reply.status, low.reply.json.error], [502, "JobFailed"]);
+    assert.equal(low.job.reused["w5-r2"], 2, "the job carries the version of the tombstone");
+    const again = await drawBox(3);
+    assert.deepEqual([again.reply.status, again.reply.json.ids], [200, ["w5-r2"]]);
+    assert.deepEqual((await control("/v1/board")).json.items.map((i) => i.id), ["w5-r2"]);
+    const forOther = await until(() => other.received.filter((m) => m.type === "elements").map((m) => m.data.elements.find((e) => e.id === "w5-r2")).filter(Boolean).find((e) => e.version === 3), 5000, "the new box on the other page");
+    assert.equal(forOther.isDeleted, false);
+
+    // Undo goes last first: undo of the new drawing deletes it again, then undo of the delete brings back the first box.
+    const undoDraw = await control("/v1/undo", {});
+    assert.deepEqual([undoDraw.status, undoDraw.json.kind], [200, "draw"]);
+    assert.deepEqual((await control("/v1/board")).json.items, []);
+    const undoDelete = await control("/v1/undo", {});
+    assert.deepEqual([undoDelete.status, undoDelete.json.kind], [200, "delete"]);
+    assert.deepEqual((await control("/v1/board")).json.items.map((i) => i.id), ["w5-r2"]);
+    page.close();
+    other.close();
+    await stopServer(server);
+  } finally {
+    server.child.kill();
   }
 });
 

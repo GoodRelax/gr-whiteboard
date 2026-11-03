@@ -128,7 +128,7 @@ function createBoardHub({
     // draw and mermaid: the Origin (4.11.4).
     const items = toItems(elements);
     job.origin = chooseOrigin(items, job.at, ownIdsOf(items), indentPx);
-    const body = job.kind === "draw" ? { elements: job.elements, boardIds: job.boardTargets } : { source: job.source };
+    const body = job.kind === "draw" ? { elements: job.elements, boardIds: job.boardTargets, reused: job.reused || {} } : { source: job.source };
     return Object.assign(payload, { opId: job.opId, ...body, x: job.origin.x, y: job.origin.y });
   }
 

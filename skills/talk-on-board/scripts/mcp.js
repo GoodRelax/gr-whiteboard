@@ -398,7 +398,8 @@ async function writeAnswer(args) {
   if (args.at) body.at = args.at;
   const { status, json } = await control("POST", "/v1/say", body);
   if (status === 202) return textResult(`queued say pages=${json.pageCount}${extras({ replaced: done.replaced })}`);
-  let line = `ok say ids=${(json.ids || []).length} at=${json.x},${json.y}`;
+  // The real ids, so that edit_items can use them (R-189).
+  let line = `ok say ids=${listIds(json.ids || [], WRITE_BUDGET)} at=${json.x},${json.y}`;
   if (json.moved) line += ` moved=true requested=${json.requested.x},${json.requested.y}`;
   return textResult(line + extras({ replaced: done.replaced }));
 }

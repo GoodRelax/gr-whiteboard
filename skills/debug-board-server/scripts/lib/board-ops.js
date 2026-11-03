@@ -114,9 +114,10 @@ function invalid(code, index, field, message) {
 }
 
 // Checks a `draw` body (4.11.1). `elements`: Map id -> Element (the Board).
-// Returns { skeletons, at, boardTargets } or throws AppError
+// Returns { skeletons, at, boardTargets, reused } or throws AppError
 // (InvalidElements 400, InvalidAt 400, DuplicateId 409).
 // `boardTargets`: the IDs of Board Items that an arrow binds to (FR-090).
+// `reused`: { id: version } of the deleted Elements whose ids the list takes again (FR-088).
 // @purity pure
 function checkDraw(body, elements, maxTextChars) {
   const list = body && body.elements;
@@ -147,7 +148,8 @@ function checkDraw(body, elements, maxTextChars) {
       listIds.set(skeleton.id, skeleton.type);
     }
   });
-  const taken = [...listIds.keys()].filter((id) => elements.has(id));
+  // A deleted Element (a tombstone) does not hold its id: Claude may draw it again (R-184).
+  const taken = [...listIds.keys()].filter((id) => elements.has(id) && !elements.get(id).isDeleted);
   if (taken.length > 0) throw new AppError("DuplicateId", 409, `ids already on the Board: ${taken.join(", ")}`, { ids: taken });
   const boardTargets = new Set();
   list.forEach((skeleton, index) => {
@@ -165,7 +167,9 @@ function checkDraw(body, elements, maxTextChars) {
       boardTargets.add(id);
     }
   });
-  return { skeletons: list, at, boardTargets: [...boardTargets] };
+  const reused = {};
+  for (const id of listIds.keys()) if (elements.has(id)) reused[id] = elements.get(id).version;
+  return { skeletons: list, at, boardTargets: [...boardTargets], reused };
 }
 
 // @purity pure
@@ -479,6 +483,8 @@ function withMark(element, mark) {
 // Takes from a draw or mermaid result only the new Elements (marked "claudeItem", no link; FR-091, NFR-014)
 // and the Board shapes that got a new arrow end (their mark stays). Throws JobFailed for a bad result.
 // `boardTargets`: Board IDs that the Job's arrows bind to. `allowImage`: true for mermaid (FR-095).
+// An Element that takes the id of a deleted Element must have a higher version, or it would lose
+// the merge to the tombstone on every page (R-184).
 // Returns { added, targets }.
 // @purity pure
 function filterDrawResult(list, elements, boardTargets, allowImage) {
@@ -490,9 +496,12 @@ function filterDrawResult(list, elements, boardTargets, allowImage) {
   for (const element of list) {
     if (!isElement(element)) throw new AppError("JobFailed", 502, "the page sent a bad element");
     const current = elements.get(element.id);
-    if (current) {
+    if (current && !current.isDeleted) {
       if (targetSet.has(element.id)) targets.push({ ...element, customData: current.customData });
       continue;
+    }
+    if (current && element.version <= current.version) {
+      throw new AppError("JobFailed", 502, `the page drew ${element.id} with a version not above its deleted one`);
     }
     if (NEVER_IN_RESULT.includes(element.type) || (element.type === "image" && !allowImage)) {
       throw new AppError("JobFailed", 502, `the page made an element of type ${element.type}`);

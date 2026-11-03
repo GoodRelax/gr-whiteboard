@@ -342,7 +342,7 @@ ok op=13 kind=draw prefix=t3 n=24 box=100,1300,640,250
 ok op=14 kind=edit ids=4
 ok op=15 kind=delete count=3
 ok undo op=15 kind=delete restored=3
-ok say ids=1 at=-70,412
+ok say ids=Fh3kQ2xLr9 at=-70,412
 queued say pages=0
 ```
 

@@ -274,7 +274,7 @@ async function main() {
   // @purity non-pure
   function draw(body) {
     const checked = checkDraw(body, elements, config.maxTextChars);
-    return runOperation({ kind: "draw", elements: checked.skeletons, at: checked.at, boardTargets: checked.boardTargets });
+    return runOperation({ kind: "draw", elements: checked.skeletons, at: checked.at, boardTargets: checked.boardTargets, reused: checked.reused });
   }
 
   // @purity non-pure

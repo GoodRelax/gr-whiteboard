@@ -96,8 +96,9 @@ test("checkDraw: ids are unique, not on the Board, and arrows bind to shapes onl
   const box = { id: "web", type: "rectangle", x: 0, y: 0 };
   assert.equal(errorOf(() => ops.checkDraw({ elements: [box, box] }, new Map(), MAX)).field, "id");
   assert.deepEqual(errorOf(() => ops.checkDraw({ elements: [box] }, board([el("web")]), MAX)), { code: "DuplicateId", status: 409, ids: ["web"] });
-  // A deleted Element keeps its id on the Board.
-  assert.equal(errorOf(() => ops.checkDraw({ elements: [box] }, board([el("web", { isDeleted: true })]), MAX)).code, "DuplicateId");
+  // A deleted Element does not hold its id; the reply tells its version (R-184).
+  assert.deepEqual(ops.checkDraw({ elements: [box] }, board([el("web", { isDeleted: true, version: 4 })]), MAX).reused, { web: 4 });
+  assert.deepEqual(ops.checkDraw({ elements: [box] }, new Map(), MAX).reused, {});
   const arrow = (end) => ({ type: "arrow", x: 0, y: 0, end: { id: end } });
   const onBoard = board([el("line1", { type: "line" }), el("gone", { isDeleted: true }), el("pic", { type: "image" }), el("t", { type: "text" })]);
   assert.equal(errorOf(() => ops.checkDraw({ elements: [arrow("nope")] }, onBoard, MAX)).field, "end");
@@ -290,6 +291,10 @@ test("filterDrawResult marks new Elements, keeps Board targets as they are, and 
   assert.equal(ops.filterDrawResult([el("img", { type: "image" })], onBoard, [], true).added.length, 1, "mermaid may add an image");
   assert.equal(errorOf(() => ops.filterDrawResult([el("f", { type: "embeddable" })], onBoard, [], true)).code, "JobFailed");
   assert.equal(errorOf(() => ops.filterDrawResult([], onBoard, [], false)).code, "JobFailed");
+  // The id of a deleted Element: added only above the tombstone's version (R-184).
+  const gone = new Map([["g", el("g", { isDeleted: true, version: 3 })]]);
+  assert.equal(ops.filterDrawResult([el("g", { version: 4 })], gone, [], false).added.length, 1);
+  assert.equal(errorOf(() => ops.filterDrawResult([el("g", { version: 3 })], gone, [], false)).code, "JobFailed");
   assert.equal(errorOf(() => ops.filterDrawResult(new Array(5001).fill(el("a")), onBoard, [], false)).code, "JobFailed");
 });
 

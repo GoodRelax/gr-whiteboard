@@ -36,6 +36,8 @@ const WATCH_STREAM_MS = 5000;
 // Excalidraw lays out labels and bound arrows of new Elements again: at once, and after a font loads.
 // For this long after the page shows Elements from the Server, such changes are not sent (see settleLayout).
 const LAYOUT_SETTLE_MS = 2500;
+// How long the first fit waits for the canvas to get a size (R-185).
+const FIT_WAIT_MS = 3000;
 // Time for Excalidraw to finish the text after the editor loses focus.
 const BLUR_WAIT_MS = 50;
 const BLUR_TRIES = 20;
@@ -99,6 +101,10 @@ function randomId() {
   const bytes = new Uint8Array(12);
   crypto.getRandomValues(bytes);
   return btoa(String.fromCharCode(...bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+function randomNonce() {
+  return crypto.getRandomValues(new Uint32Array(1))[0] & 0x7fffffff;
 }
 
 function showNotice(text) {
@@ -270,6 +276,25 @@ function applyRemote(list, fromServer = false) {
   if (!firstHello && newDrawing.length > 0) showAllIfHidden(newDrawing);
 }
 
+// The first view shows the whole Board. Excalidraw takes the zoom from the canvas size and the bounds of
+// the Items, so it waits until the canvas has a size; with no Item, or a zoom that is not finite, it
+// keeps 100% (R-185: a fit at size 0 gave 10% or NaN%).
+function fitWhenSized(startMs) {
+  const state = api.getAppState();
+  if (!(state.width > 0 && state.height > 0) && Date.now() - startMs < FIT_WAIT_MS) {
+    requestAnimationFrame(() => fitWhenSized(startMs));
+    return;
+  }
+  const live = api.getSceneElements();
+  if (live.length > 0 && state.width > 0 && state.height > 0) api.scrollToContent(live, { fitToContent: true, animate: false });
+  requestAnimationFrame(() => {
+    const zoom = api.getAppState().zoom.value;
+    if (Number.isFinite(zoom) && zoom > 0) return;
+    api.updateScene({ appState: { zoom: { value: 1 } }, captureUpdate: CaptureUpdateAction.NEVER });
+    if (live.length > 0) api.scrollToContent(live, { fitToContent: false, animate: false });
+  });
+}
+
 function onHello(data) {
   isLeader = data.leader;
   // The Server may have restarted: it has exactly the files in this list.
@@ -280,7 +305,7 @@ function onHello(data) {
   // Elements and images made here while the Server was away go to the Server now.
   collectChanges();
   sendNewFiles();
-  if (firstHello && data.elements.length > 0) api.scrollToContent(undefined, { fitToContent: true });
+  if (firstHello) fitWhenSized(Date.now());
   firstHello = false;
   const inbox = data.inbox || { unsent: 0, autoSend: false };
   const join = Array.isArray(data.join) ? data.join.filter((target) => target && typeof target.url === "string") : [];
@@ -563,7 +588,8 @@ async function drawSkeletons(job) {
   }));
   const made = convertToExcalidrawElements([...copies, ...skeletons], { regenerateIds: false });
   const targetIds = new Set(targets.map((shape) => shape.id));
-  const fresh = made.filter((element) => !targetIds.has(element.id)).map(sizeFromPoints).map(marked);
+  const fresh = made.filter((element) => !targetIds.has(element.id)).map(sizeFromPoints).map(marked)
+    .map((element) => aboveTombstone(element, scene.get(element.id), (job.reused || {})[element.id]));
   const bound = targets.map((shape) => {
     const copy = made.find((element) => element.id === shape.id);
     const old = Array.isArray(shape.boundElements) ? shape.boundElements : [];
@@ -573,6 +599,13 @@ async function drawSkeletons(job) {
   putInScene([...fresh, ...bound]);
   showAllIfHidden(fresh);
   return { elements: [...fresh, ...bound], ids: skeletons.map((skeleton) => skeleton.id), before: targets };
+}
+
+// An Element that takes the id of a deleted one gets a higher version, so it wins the merge (FR-090).
+function aboveTombstone(element, old, serverVersion) {
+  const floor = Math.max(old && old.isDeleted ? old.version : 0, Number(serverVersion) || 0);
+  if (floor === 0 || element.version > floor) return element;
+  return { ...element, version: floor + 1, versionNonce: randomNonce() };
 }
 
 // The text of a container (its label), or null.
