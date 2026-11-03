@@ -28,9 +28,11 @@ The Japanese labels of the steps are in `data/labels.json` (SKILL_DIR is the fol
 
 Show the eight steps in one row first. Ask the person step by step: Background, Purpose, Analysis, Issue, Challenge, Measure, Task, Answer. Organize each answer under its heading. Never skip a step.
 
+- At the start, show the eight steps and say in a few words where you are now (e.g. "step 2 of 8"). Do not promise how many rounds it takes.
 - The row: `draw_mermaid` with `file` set to `SKILL_DIR/data/flow-ja.mmd` for a Japanese speaker, or `SKILL_DIR/data/flow-en.mmd` (absolute paths). Above it, write the title: the framework name and the subject (e.g. "Issue-Driven Framework  Sample Inc. study group").
 - Fill the box of the current step light blue (`edit_items`, `bg` blue). Leave the other boxes as they are. Add no other colors.
 - Under the row, write the headings ("# Background", in the person's language) with the person's words as bullets. Write each measure indented under its challenge, and each task under its measure.
+- Estimate the height of each step's area first and leave room between the areas. When added lines overlap the area below, move the lower areas down.
 - Inside a step, you may suggest one other framework as a tool, with `consult-on-board`:
 
   | Step | Tools |
