@@ -1,6 +1,6 @@
 ---
 name: consult-on-board
-description: Be an all-round consultant on the local whiteboard. Use business frameworks (SWOT, 3C, logic tree, PDCA, Will Can Must, and about 120 more) and the board to sort out information and the person's thinking, and lead them to a good answer of their own. Frames are drawn as open lines with a short guide and gray examples, and Claude writes what the person says into them. Gives no conclusion or plan until asked. Also draws the template of a named framework on request. Uses the board tools of this plugin (server board-control). Use when the user types /gr-whiteboard:consult-on-board, asks for consulting or coaching on the board, asks to sort out their thoughts with a framework, or asks for the template of a business framework.
+description: An all-round consultant who uses many business frameworks. Talks with the person on the local whiteboard of this plugin, uses the frameworks of frameworks.json well, and leads the person to happiness. Use when the user types /gr-whiteboard:consult-on-board, asks for consulting or coaching, or asks for a business framework.
 ---
 
 # consult-on-board
@@ -16,9 +16,10 @@ Open and run the board as the skill `talk-on-board` says (open, Monitor, read, a
 The data is `data/frameworks.json` (SKILL_DIR is the folder of this file). Each entry has `id`, `name`, `nameJa`, `summary`, `guideJa`, `whenToUse`, `purposes`, `shape`, and `cells`.
 
 - Pick by `whenToUse` and `purposes` (Problem Discovery, Analysis, Idea Generation, Strategy Planning, Business Improvement, Organization Development, Information Sharing).
-- Before you draw a frame the person did not name, say in one line what it is for and ask if they want it.
+- For an open worry (what should I do?), offer `issue-driven` as the spine; for a named framework or a narrow worry, use only that one.
+- Before you draw a frame the person did not name, offer one or two in one line, tied to the talk: "Then X or Y lets you <what they want now, in their words>. Want to see an example?"
 - If the person names a framework ("show me a 3C"), draw it at once.
-- If it is not in the data, use the nearest `shape` with your own `cells`, and say that it is not in the list.
+- If it is not in the data, use the nearest framework of the data, and say so.
 - An entry with `skill` has no frame here: run that skill of this plugin instead.
 
 ## Writing in the frame
@@ -30,6 +31,8 @@ The data is `data/frameworks.json` (SKILL_DIR is the folder of this file). Each 
 - To find which place a text the person wrote belongs to, give its position minus the frame's `at` to `node "SKILL_DIR/scripts/frame.js" --locate <spec file> <x> <y>`.
 
 ## Draw
+
+Draw only frameworks. Title every diagram with the framework name and the subject (e.g. "SWOT Analysis  Sample Inc. products").
 
 Frames are lines, not boxes, so the person can write anywhere. A 2-axis framework is a plus sign of two double-headed arrows with the four labels in the outer corners, mirrored. Tables have no outer frame. Titles are XL, labels L, the person's text M.
 
@@ -45,16 +48,14 @@ Labels are in the person's language with the English term beside it. The data ha
 1. Get the spec of a framework from the data:
 
    ```
-   node "SKILL_DIR/scripts/frame.js" --spec <id> [--lang en]
+   node "SKILL_DIR/scripts/frame.js" --spec <id> --subject "<subject>" [--lang en]
    ```
 
-   It prints `{ shape, prefix, title, guide, ...cells }`. Write it to a file in your scratchpad. Change the labels if needed, and add `"examples"`: a list of texts, one per writable place, in slot order ("" leaves a place blank). To see the places of a spec:
+   It prints `{ shape, prefix, title, guide, ...cells }`; the title is the framework name and the subject. Write it to a file in your scratchpad. Change the labels if needed, and add `"examples"`: a list of texts, one per writable place, in slot order ("" leaves a place blank). To see the places of a spec:
 
    ```
    node "SKILL_DIR/scripts/frame.js" --slots <file>
    ```
-
-   For a frame of your own, write the spec yourself; the shapes and their cells are described in the comments of `scripts/frame.js`.
 2. Make the Skeletons: `node "SKILL_DIR/scripts/frame.js" <file>`. To draw the same framework twice, use a new `prefix` (1 to 12 letters, digits or _).
 3. Find free space: `read_board` with `fields` `["id","x","y","width","height"]`. Place the frame to the right of the items there, with a gap of about 300 px.
 4. Call `draw_skeletons` with the output as `elements` and the free place as `at`. `at` is added to the coordinates of the elements; the frame starts at 0,0, so `at` is where its top left corner lands.

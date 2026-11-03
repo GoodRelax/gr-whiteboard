@@ -350,8 +350,15 @@ async function logPath() {
   return path.join(config.dataDir, "server.log");
 }
 
+// Reading what the person sent shows "reading" on every page by itself (FR-180, R-129), so the Agent needs no
+// show_activity call first. A board that does not answer does not stop the reading.
 // @purity non-pure
 async function readMessages(args) {
+  try {
+    await control("POST", "/v1/signal", { state: "reading" });
+  } catch (error) {
+    // The log is read either way.
+  }
   let text = "";
   try {
     text = fs.readFileSync(await logPath(), "utf8");

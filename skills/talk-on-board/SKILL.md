@@ -26,7 +26,7 @@ For an iPad or another computer: ask the user first (it downloads node-forge, ab
 
 Each Monitor line is one event.
 
-- `MessagesSent` (the person pressed Send): call `show_activity` with `reading`, then the `read` tool of the line (`read_messages` with that `atMs`). Read the `msg` lines first, then the `chg` lines. `shot=yes` marks a drawing to look at with `take_screenshot`. Then answer once with `write_answer`.
+- `MessagesSent` (the person pressed Send): call the `read` tool of the line (`read_messages` with that `atMs`; it shows `reading` by itself). Read the `msg` lines first, then the `chg` lines. `shot=yes` marks a drawing to look at with `take_screenshot`. Then answer once with `write_answer`.
 - `MessageReceived` or `MessageEdited` (auto sending): `show_activity` `reading`, then answer the text. Do not answer the same idea twice.
 - `DrawingAdded`: look with `take_screenshot` before you talk about it.
 - `ServerStopped` with `reason: "idle"`: nobody used the board for `idleMinutes` minutes, so it stopped by itself and saved a copy. Stop the Monitor and tell the user in the chat: "Nobody used the board for an hour, so I stopped it. The board is saved; a copy is here: `exportPath` (excalidraw.com opens it). Say so if you want it again." Use the real minutes and path. Call `open_board` again only when the user asks.

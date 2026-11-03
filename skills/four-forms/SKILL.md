@@ -20,7 +20,7 @@ Open and run the board as the skill `talk-on-board` says. Draw the person's word
 
 ## Run
 
-1. Show the whole flow first: `draw_mermaid` with `file` set to `SKILL_DIR/data/forms-ja.mmd` for a Japanese speaker, or `SKILL_DIR/data/forms-en.mmd` (absolute paths; SKILL_DIR is the folder of this file).
+1. Show the whole flow first: `draw_mermaid` with `file` set to `SKILL_DIR/data/forms-ja.mmd` for a Japanese speaker, or `SKILL_DIR/data/forms-en.mmd` (absolute paths; SKILL_DIR is the folder of this file). Above it, write the title: the framework name and the subject (e.g. "Four Forms of Thinking  Sample Inc. new product").
 2. After the drawing, make the optional moves gray (Classify, Orthogonal, Abduction, Synthesis: the box and its text, `edit_items` color gray), and make the frames of the three link boxes between the forms transparent (`strokeColor` "transparent"). Find the ids with `read_board` (`type` text gives each text with its box in `containerId`).
 3. Start with Lv1 Divide: define the words. If the person starts at Lv2 or later, skip Lv1, and come back to it when a term needs a definition.
 4. Go one form at a time. Use the optional moves only when they help.

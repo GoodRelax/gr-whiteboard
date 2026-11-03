@@ -641,17 +641,19 @@ function buildSheet(specs) {
 
 // The frame spec of one framework in data/frameworks.json: { shape, ...cells } with its name as title and its
 // guide under it. lang "ja" (default) uses the Japanese name with the English name beside it, and guideJa;
-// "en" uses name and summary.
+// "en" uses name and summary. subject (what the talk is about) follows the name in the title, so every frame
+// says which framework it is and what it is for ("SWOT Analysis  Sample Inc. products").
 // @purity pure
-function specFromData(data, id, prefix, lang = "ja") {
+function specFromData(data, id, prefix, lang = "ja", subject = "") {
   const found = data.frameworks.find((f) => f.id === id);
   if (!found) throw new Error(`unknown framework id: ${id}`);
   if (found.skill) throw new Error(`${id} has no frame: run the skill ${found.skill} of this plugin`);
   const ja = lang === "ja";
   const same = found.nameJa.toLowerCase().replace(/\s/g, "") === found.name.toLowerCase().replace(/\s/g, "");
+  const name = ja && !same ? `${found.nameJa} ${found.name}` : found.name;
   return {
     shape: found.shape, prefix: prefix || id.replace(/[^A-Za-z0-9]/g, "").slice(0, 12),
-    title: ja && !same ? `${found.nameJa} ${found.name}` : found.name, guide: ja ? found.guideJa : found.summary, ...found.cells,
+    title: subject ? `${name}  ${subject}` : name, guide: ja ? found.guideJa : found.summary, ...found.cells,
   };
 }
 
@@ -668,8 +670,8 @@ function locateSlot(spec, x, y) {
 
 // Usage:
 //   node frame.js spec.json                  draw a spec (or the spec JSON on stdin)
-//   node frame.js --id swot [--prefix P] [--lang en]   draw a framework of the data
-//   node frame.js --spec swot [--lang en]    print the spec of a framework, to edit and draw with a file
+//   node frame.js --id swot [--subject S] [--prefix P] [--lang en]   draw a framework of the data
+//   node frame.js --spec swot [--subject S] [--lang en]    print the spec of a framework, to edit and draw with a file
 //   node frame.js --slots spec.json          print the slots of a spec, to write its examples
 //   node frame.js --locate spec.json X Y     print the slot nearest to X,Y (board place minus the frame's at)
 // @purity non-pure
@@ -680,7 +682,7 @@ function main() {
   const flag = (name) => (args.indexOf(name) > 0 ? args[args.indexOf(name) + 1] : undefined);
   const fromData = () => {
     const data = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "data", "frameworks.json"), "utf8"));
-    return specFromData(data, args[1], flag("--prefix"), flag("--lang"));
+    return specFromData(data, args[1], flag("--prefix"), flag("--lang"), flag("--subject"));
   };
   const fromFile = (file) => JSON.parse(file ? fs.readFileSync(file, "utf8") : fs.readFileSync(0, "utf8"));
   let out;

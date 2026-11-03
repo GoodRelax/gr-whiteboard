@@ -148,6 +148,14 @@ test("every label has the English term beside the Japanese one (codes and number
   assert.equal(specFromData(DATA, "kpt").title.includes("KPT"), true);
 });
 
+test("a subject follows the framework name in the title", () => {
+  assert.equal(specFromData(DATA, "swot", undefined, "en", "Sample Inc. products").title, "SWOT Analysis  Sample Inc. products");
+  assert.equal(specFromData(DATA, "swot", undefined, "en").title, "SWOT Analysis");
+  const run = spawnSync(process.execPath, [FRAME, "--spec", "swot", "--lang", "en", "--subject", "Sample Inc."], { encoding: "utf8" });
+  assert.equal(run.status, 0, run.stderr);
+  assert.equal(JSON.parse(run.stdout).title, "SWOT Analysis  Sample Inc.");
+});
+
 test("locate gives the slot nearest to a point", () => {
   const spec = { shape: "contrast", prefix: "c", columns: ["A", "B"] };
   const [first, second] = frameSlots(spec);
