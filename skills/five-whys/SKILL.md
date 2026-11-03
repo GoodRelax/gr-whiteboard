@@ -21,6 +21,9 @@ Talk in the chat first, one why at a time in short bullets. Open the board only 
 Check each answer as you go. When one fails, ask a short question; do not fix it yourself. When the subject is plain, add it yourself, and confirm such additions once, when a step settles.
 
 - One box holds one sentence. Do not leave out the subject or the verb, nor the object of a transitive verb.
+- One box holds one cause. When an answer has two causes, split the branch.
+- The chain explains the specific part of the problem (where, when, which one), not only a general cause.
+- When two conditions must both hold, write them as two boxes under the same why, not as a chain.
 - The subject is a role (worker, designer), never a person's name.
 - Each answer is a cause of the answer before it, not a measure.
 - Do not skip a step.
@@ -32,9 +35,9 @@ Check each answer as you go. When one fails, ask a short question; do not fix it
 
 ## Clean chart
 
-1. For each root cause, ask the person for a measure and settle it in one sentence. When the person has none, ask the people or files that know the facts, and offer candidates for an OK. When the person leaves it to you, fill it from those sources and mark the box as a proposal.
+1. For each root cause, ask the person for a measure and settle it in one sentence. When the person has none, ask the people or files that know the facts, and offer candidates for an OK. When the person leaves it to you, fill it from those sources and mark the box as a proposal. Each measure removes its root cause and agrees with every why on its branch. Each measure comes from a root cause on the chart. For a measure with no root cause, add its branch first.
 2. When all branches are done, ask "Shall I draw the clean chart?". Draw only after a yes.
-3. Before drawing, read each branch back from the root cause to the problem with "so" ("A, so B"). Where a link does not hold, ask the person.
+3. Before drawing, read each branch both ways: from the problem down with "why?", and from the root cause up with "so". Each link holds both ways; where one does not, ask the person.
 4. Draw it right of the draft with `draw_mermaid` in the shape of the template, one row per branch; keep the draft. Head each box with its step ("Why 1", "Why 2", and "Root cause" for the root cause), in the person's language. Write its own title and the gray definition above it.
 5. Line up the root causes in one column and the measures in the next (`edit_items`).
 6. Make the root cause boxes thick (`edit_items`, `strokeWidth` 4).

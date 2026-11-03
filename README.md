@@ -1,6 +1,6 @@
 # gr-whiteboard (GRWB)
 
-> **Alpha (0.7.12).** It works for its author every day, but it is young. Known limits:
+> **Alpha (0.7.13).** It works for its author every day, but it is young. Known limits:
 > - The page needs internet access: it loads Excalidraw, React, and Mermaid from esm.sh.
 > - It is tested on Windows 11 with Edge, and on an iPad and an iPhone with Safari. Other systems and browsers may work but are untested.
 > - Names and tools may still change before 1.0.
