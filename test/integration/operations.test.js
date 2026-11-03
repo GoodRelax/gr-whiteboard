@@ -173,7 +173,7 @@ test("draw, edit, mermaid, delete, and undo on the real Server (FR-087 to FR-109
   const dataDir = fs.mkdtempSync(path.join(os.tmpdir(), "wbc-ops-"));
   let server = await startServer(dataDir);
   try {
-    assert.equal(readLog(server.logPath).find((e) => e.event === "ServerReady").version, "0.7.4");
+    assert.equal(readLog(server.logPath).find((e) => e.event === "ServerReady").version, "0.7.5");
     const skeletons = [
       { id: "web", type: "rectangle", x: 0, y: 0, width: 160, height: 80, label: { text: "Web" } },
       { id: "db", type: "rectangle", x: 300, y: 0, width: 160, height: 80 },

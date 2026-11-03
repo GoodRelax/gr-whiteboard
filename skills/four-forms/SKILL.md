@@ -1,6 +1,6 @@
 ---
 name: four-forms
-description: Think a subject through with the Four Forms of Thinking (by GoodRelax, compiled from classic thinking moves) on the local whiteboard. Four forms in order: Divide, Compare, Infer, Transform; each has two core moves and one optional move. Works only on the board; it uses the board tools of this plugin (server board-control). Use when the user types /gr-whiteboard:four-forms, asks on the board to think a subject through with the Four Forms of Thinking, or when consult-on-board or issue-driven picks it.
+description: Think a subject through with the Four Forms of Thinking (by GoodRelax, compiled from classic thinking moves) on the local whiteboard. The four forms, in order, are Divide, Compare, Infer, and Transform; each has two core moves and one optional move. Works only on the board; it uses the board tools of this plugin (server board-control). Use when the user types /gr-whiteboard:four-forms, asks on the board to think a subject through with the Four Forms of Thinking, or when consult-on-board or issue-driven picks it.
 ---
 
 # four-forms

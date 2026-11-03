@@ -1,6 +1,6 @@
 {
   "name": "debug-board-server",
-  "version": "0.7.4",
+  "version": "0.7.5",
   "description": "Claude Code Skill: a local whiteboard (Excalidraw component) that Claude Code can read and write.",
   "license": "Apache-2.0",
   "private": true,
