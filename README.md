@@ -48,11 +48,27 @@ claude plugin marketplace add GoodRelax/gr-whiteboard
 claude plugin install gr-whiteboard@goodrelax --scope user
 ```
 
+Claude then asks: "Turn on auto-update?" On a yes, it adds `"autoUpdate": true` to `extraKnownMarketplaces.goodrelax` in `~/.claude/settings.json`; on a no, it leaves the file alone. To turn it on yourself later: type `/plugin` in a Claude Code terminal, then Marketplaces, goodrelax, Enable auto-update.
+
 Then close Claude Desktop and start it again (or type `/reload-plugins` in Claude Code). The restart also lets Claude find a Node.js or Git that it has just installed.
 
 On a new Windows computer, the three steps (install, restart, "open the whiteboard") take about 15 minutes.
 
 If you used an older version (the plugin `whiteboard-chat@goodrelax`, or the two folders in `~/.claude/skills/`), remove it after the install, so each skill loads once. The new plugin starts with an empty board; open your old board in the old version first and save it with Excalidraw's own menu if you want to keep it.
+
+## Update
+
+With auto-update on, you need nothing here. Otherwise, ask Claude to update the plugin, or run:
+
+```bash
+claude plugin marketplace update goodrelax
+```
+
+```bash
+claude plugin update gr-whiteboard@goodrelax
+```
+
+Then type `/reload-plugins` in Claude Code, or restart Claude Desktop.
 
 ## Use
 
