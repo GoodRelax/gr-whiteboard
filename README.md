@@ -1,6 +1,6 @@
 # gr-whiteboard (GRWB)
 
-> **Alpha (0.7.9).** It works for its author every day, but it is young. Known limits:
+> **Alpha (0.7.10).** It works for its author every day, but it is young. Known limits:
 > - The page needs internet access: it loads Excalidraw, React, and Mermaid from esm.sh.
 > - It is tested on Windows 11 with Edge, and on an iPad and an iPhone with Safari. Other systems and browsers may work but are untested.
 > - Names and tools may still change before 1.0.
@@ -15,7 +15,7 @@ The board runs on your own computer. Your iPad or other computers on your networ
 
 Powered by [Excalidraw](https://github.com/excalidraw/excalidraw) (MIT).
 
-This repository is one [Claude Code](https://claude.com/claude-code) plugin, `gr-whiteboard` (GRWB). It has an MCP server, `board-control`, with tools such as `open_board` and `draw_mermaid`, and five skills:
+This repository is one [Claude Code](https://claude.com/claude-code) plugin, `gr-whiteboard` (GRWB). It has an MCP server, `board-control`, with tools such as `open_board` and `draw_mermaid`, and six skills:
 
 | Skill | What it does |
 | ----- | ------------ |
@@ -23,6 +23,7 @@ This repository is one [Claude Code](https://claude.com/claude-code) plugin, `gr
 | `consult-on-board` | Talk a worry through with Claude as a consultant, sorted with 125 business frameworks drawn on the board. |
 | `issue-driven` | Find the one question worth answering, then walk down to its answer, with the Issue-Driven Framework. |
 | `four-forms` | Think a subject through with the Four Forms of Thinking: divide, compare, infer, transform. |
+| `five-whys` | Ask why, step by step, down to each root cause, then draw a clean chart with the measures. |
 | `debug-board-server` | Check Node.js, and debug the board server. |
 
 ## What you need

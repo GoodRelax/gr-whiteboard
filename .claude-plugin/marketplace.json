@@ -11,7 +11,7 @@
       "name": "gr-whiteboard",
       "source": "./",
       "description": "Talk and draw with Claude on a local whiteboard (Excalidraw component).",
-      "version": "0.7.9"
+      "version": "0.7.10"
     }
   ]
 }

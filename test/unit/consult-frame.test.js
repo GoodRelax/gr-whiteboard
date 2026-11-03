@@ -49,7 +49,7 @@ test("every entry with a frame has 1 to 3 English checks; skill entries have non
 
 test("an entry with skill points to a skill of the plugin and has no frame", () => {
   const withSkill = DATA.frameworks.filter((e) => e.skill);
-  assert.deepEqual(withSkill.map((e) => e.skill).sort(), ["four-forms", "issue-driven"]);
+  assert.deepEqual(withSkill.map((e) => e.skill).sort(), ["five-whys", "four-forms", "issue-driven"]);
   for (const f of withSkill) {
     assert.ok(fs.existsSync(path.join(SKILL, "..", f.skill, "SKILL.md")), f.skill);
     assert.equal(f.shape, undefined);
