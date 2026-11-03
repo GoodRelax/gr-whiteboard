@@ -1,13 +1,13 @@
 ---
 name: four-forms
-description: Think a subject through with the Four Forms of Thinking (by GoodRelax, compiled from classic thinking moves) on the local whiteboard. The four forms, in order, are Divide, Compare, Infer, and Transform; each has two core moves and one optional move. Works only on the board; it uses the board tools of this plugin (server board-control). Use when the user types /gr-whiteboard:four-forms, asks on the board to think a subject through with the Four Forms of Thinking, or when consult-on-board or issue-driven picks it.
+description: Think a subject through with the Four Forms of Thinking (by GoodRelax, compiled from classic thinking moves). The four forms, in order, are Divide, Compare, Infer, and Transform; each has two core moves and one optional move. It works in the chat, and on the local whiteboard of this plugin (server board-control) when the person asks for it or agrees to it. Use when the user types /gr-whiteboard:four-forms, asks to think a subject through with the Four Forms of Thinking, or when consult-on-board or issue-driven picks it.
 ---
 
 # four-forms
 
 Use the Four Forms of Thinking and the board to help the person look at a subject from new angles, one form at a time.
 
-Open and run the board as the skill `talk-on-board` says. Draw the person's words, not your own ideas, and validate them, as `consult-on-board` says.
+Talk in the chat first, one form at a time in short bullets. Open the board only when the person asks for it, or when a picture would make it clearer and you ask "Shall we sort this out on the whiteboard?" and they agree; then run it as the skill `talk-on-board` says. Draw the person's words, not your own ideas, and validate them, as `consult-on-board` says.
 
 ## The forms
 

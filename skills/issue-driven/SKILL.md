@@ -1,13 +1,13 @@
 ---
 name: issue-driven
-description: Run the Issue-Driven Framework (by GoodRelax) on the local whiteboard. It walks from the background of a matter to the one question worth answering (the Issue), then down through challenges, measures, and tasks to the answer, one step at a time. Works only on the board; it uses the board tools of this plugin (server board-control). Use when the user types /gr-whiteboard:issue-driven, asks on the board to sort out a matter with the Issue-Driven Framework (Yomon), or when consult-on-board picks it.
+description: Run the Issue-Driven Framework (by GoodRelax) with the person. It walks from the background of a matter to the one question worth answering (the Issue), then down through challenges, measures, and tasks to the answer, one step at a time. It works in the chat, and on the local whiteboard of this plugin (server board-control) when the person asks for it or agrees to it. Use when the user types /gr-whiteboard:issue-driven, asks to sort out a matter with the Issue-Driven Framework (Yomon), or when consult-on-board picks it.
 ---
 
 # issue-driven
 
 Use the Issue-Driven Framework and the board to find, with the person, the one question worth answering, and to lead them step by step to its answer.
 
-Open and run the board as the skill `talk-on-board` says. Draw the person's words, not your own ideas, and validate them, as `consult-on-board` says.
+Talk in the chat first, one step at a time in short bullets. Open the board only when the person asks for it, or when a picture would make it clearer and you ask "Shall we sort this out on the whiteboard?" and they agree; then run it as the skill `talk-on-board` says. Draw the person's words, not your own ideas, and validate them, as `consult-on-board` says.
 
 ## The eight steps
 
