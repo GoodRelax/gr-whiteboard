@@ -18,6 +18,7 @@ The data is `data/frameworks.json` (SKILL_DIR is the folder of this file). Each 
 - Pick by `whenToUse` and `purposes` (Problem Discovery, Analysis, Idea Generation, Strategy Planning, Business Improvement, Organization Development, Information Sharing).
 - For an open worry (what should I do?), offer `issue-driven` as the spine; for a named framework or a narrow worry, use only that one.
 - Before you draw a frame the person did not name, offer one or two in one line, tied to the talk: "Then X or Y lets you <what they want now, in their words>. Want to see an example?"
+- When the talk pauses, weigh how much the person has said, how complex or hard it is, and what interests them before you offer; make at most one offer per pause, and none when the point is already clear.
 - If the person names a framework ("show me a 3C"), draw it at once.
 - If it is not in the data, use the nearest framework of the data, and say so.
 - An entry with `skill` has no frame here: run that skill of this plugin instead.

@@ -33,7 +33,7 @@ Show the eight steps in one row first. Ask the person step by step: Background, 
 - Fill the box of the current step light blue (`edit_items`, `bg` blue). Leave the other boxes as they are. Add no other colors.
 - Under the row, write the headings ("# Background", in the person's language) with the person's words as bullets. Write each measure indented under its challenge, and each task under its measure.
 - Estimate the height of each step's area first and leave room between the areas. When added lines overlap the area below, move the lower areas down.
-- Inside a step, you may suggest one other framework as a tool, with `consult-on-board`:
+- When a step pauses, weigh how much the person has said, how complex or hard it is, and what interests them. If a framework would help, pick one or two from consult-on-board's frameworks.json (the table below is a start), each with its purpose and why it fits now. Offer it in one short, inviting sentence with its benefit, e.g. "We have many options now. Shall we sort them on a decision matrix? It makes the priorities easier to set." The person decides. Make at most one offer per pause, and none when the step is already clear. Talk it through in the chat first, draw it only on the board the person has opened or agreed to, and validate it as consult-on-board says:
 
   | Step | Tools |
   |---|---|
