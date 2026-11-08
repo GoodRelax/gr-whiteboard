@@ -8,6 +8,10 @@
     "node": ">=20"
   },
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "lint:comments": "node tools/comment-lint/cli.js"
+  },
+  "devDependencies": {
+    "acorn": "8.19.0"
   }
 }

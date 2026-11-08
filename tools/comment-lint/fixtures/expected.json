@@ -1,0 +1,70 @@
+{
+  "standard": {
+    "repository": "GoodRelax/gr-sw-maker",
+    "commit": "51958f0",
+    "file": "process-rules/review-standards-ja.md",
+    "version": "2026-11-08T10:11:13+09:00"
+  },
+  "config": "comment-lint.config.json",
+  "errors": [
+    "parsing/error-syntax.js"
+  ],
+  "files": {
+    "parsing/pass-esm.js": [],
+    "parsing/pass-license.js": [],
+    "parsing/pass-module.mjs": [],
+    "parsing/pass-script.cjs": [],
+    "parsing/pass-shebang.js": [],
+    "r3-english/fail-japanese.js": [
+      { "line": 3, "column": 27, "rule": "R3-comment-kind", "check": "english" },
+      { "line": 10, "column": 23, "rule": "R3-comment-kind", "check": "english" }
+    ],
+    "r3-english/pass-ascii.js": [],
+    "r3-kind/fail-after-purity.js": [
+      { "line": 4, "column": 4, "rule": "R3-comment-kind", "check": "kind" }
+    ],
+    "r3-kind/fail-in-test.excluded.js": [
+      { "line": 6, "column": 4, "rule": "R3-comment-kind", "check": "kind" }
+    ],
+    "r3-kind/fail-untyped.js": [
+      { "line": 3, "column": 4, "rule": "R3-comment-kind", "check": "kind" },
+      { "line": 7, "column": 20, "rule": "R3-comment-kind", "check": "kind" },
+      { "line": 10, "column": 4, "rule": "R3-comment-kind", "check": "kind" }
+    ],
+    "r3-kind/pass-continuation.js": [],
+    "r3-kind/pass-kinds.js": [],
+    "r3-spec/fail-spec.js": [
+      { "line": 3, "column": 4, "rule": "R3-comment-spec" },
+      { "line": 9, "column": 4, "rule": "R3-comment-spec" }
+    ],
+    "r3-spec/pass-spec-in-test.excluded.js": [],
+    "r3-spec/pass-spec.js": [],
+    "r3-summary/fail-summary.js": [
+      { "line": 3, "column": 4, "rule": "R3-comment-summary" },
+      { "line": 9, "column": 4, "rule": "R3-comment-summary" },
+      { "line": 16, "column": 4, "rule": "R3-comment-summary" }
+    ],
+    "r3-summary/pass-summary.js": [],
+    "r3-temporary/fail-temporary.js": [
+      { "line": 3, "column": 4, "rule": "R3-comment-temporary" },
+      { "line": 9, "column": 4, "rule": "R3-comment-temporary" },
+      { "line": 15, "column": 4, "rule": "R3-comment-temporary" }
+    ],
+    "r3-temporary/pass-temporary.js": [],
+    "r7-purity/fail-legacy.excluded.js": [
+      { "line": 3, "column": 4, "rule": "R7-purity-tag" }
+    ],
+    "r7-purity/fail-purity.js": [
+      { "line": 3, "column": 1, "rule": "R7-purity-tag" },
+      { "line": 7, "column": 4, "rule": "R7-purity-tag" },
+      { "line": 14, "column": 1, "rule": "R7-purity-tag" },
+      { "line": 18, "column": 4, "rule": "R7-purity-tag" },
+      { "line": 23, "column": 4, "rule": "R7-purity-tag" },
+      { "line": 29, "column": 3, "rule": "R7-purity-tag" },
+      { "line": 35, "column": 4, "rule": "R7-purity-tag" },
+      { "line": 40, "column": 21, "rule": "R7-purity-tag" }
+    ],
+    "r7-purity/pass-purity.js": [],
+    "r7-purity/pass-untagged.excluded.js": []
+  }
+}

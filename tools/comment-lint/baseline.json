@@ -1,0 +1,189 @@
+{
+  "tool": "comment-lint 1.0.0",
+  "standard": {
+    "repository": "GoodRelax/gr-sw-maker",
+    "commit": "51958f0",
+    "file": "process-rules/review-standards-ja.md",
+    "version": "2026-11-08T10:11:13+09:00"
+  },
+  "files": {
+    "skills/consult-on-board/scripts/frame.js": {
+      "R3-comment-kind": 43,
+      "R3-comment-spec": 1,
+      "R7-purity-tag": 29
+    },
+    "skills/debug-board-server/page/app.js": {
+      "R3-comment-kind": 85,
+      "R7-purity-tag": 102
+    },
+    "skills/debug-board-server/scripts/board.js": {
+      "R3-comment-kind": 5,
+      "R7-purity-tag": 5
+    },
+    "skills/debug-board-server/scripts/lib/answer-placement.js": {
+      "R3-comment-kind": 9
+    },
+    "skills/debug-board-server/scripts/lib/app-error.js": {
+      "R3-comment-kind": 1
+    },
+    "skills/debug-board-server/scripts/lib/board-api.js": {
+      "R3-comment-kind": 10,
+      "R7-purity-tag": 2
+    },
+    "skills/debug-board-server/scripts/lib/board-diff.js": {
+      "R3-comment-kind": 8,
+      "R7-purity-tag": 1
+    },
+    "skills/debug-board-server/scripts/lib/board-files.js": {
+      "R3-comment-kind": 6,
+      "R7-purity-tag": 1
+    },
+    "skills/debug-board-server/scripts/lib/board-hub.js": {
+      "R3-comment-kind": 29,
+      "R7-purity-tag": 7
+    },
+    "skills/debug-board-server/scripts/lib/board-ops.js": {
+      "R3-comment-kind": 29,
+      "R7-purity-tag": 9
+    },
+    "skills/debug-board-server/scripts/lib/board-store.js": {
+      "R3-comment-kind": 10
+    },
+    "skills/debug-board-server/scripts/lib/ca-http.js": {
+      "R3-comment-kind": 3,
+      "R7-purity-tag": 4
+    },
+    "skills/debug-board-server/scripts/lib/cert.js": {
+      "R3-comment-kind": 10,
+      "R7-purity-tag": 5
+    },
+    "skills/debug-board-server/scripts/lib/config.js": {
+      "R3-comment-kind": 6
+    },
+    "skills/debug-board-server/scripts/lib/control-api.js": {
+      "R3-comment-kind": 5,
+      "R7-purity-tag": 6
+    },
+    "skills/debug-board-server/scripts/lib/data-files.js": {
+      "R3-comment-kind": 11,
+      "R7-purity-tag": 4
+    },
+    "skills/debug-board-server/scripts/lib/event-sink.js": {
+      "R3-comment-kind": 2
+    },
+    "skills/debug-board-server/scripts/lib/excalidraw-file.js": {
+      "R3-comment-kind": 3
+    },
+    "skills/debug-board-server/scripts/lib/http-util.js": {
+      "R3-comment-kind": 2
+    },
+    "skills/debug-board-server/scripts/lib/idle-timer.js": {
+      "R3-comment-kind": 4,
+      "R7-purity-tag": 2
+    },
+    "skills/debug-board-server/scripts/lib/lan.js": {
+      "R3-comment-kind": 6,
+      "R7-purity-tag": 1
+    },
+    "skills/debug-board-server/scripts/lib/message-tracker.js": {
+      "R3-comment-kind": 6
+    },
+    "skills/debug-board-server/scripts/lib/operation-log.js": {
+      "R3-comment-kind": 12,
+      "R7-purity-tag": 1
+    },
+    "skills/debug-board-server/scripts/server.js": {
+      "R3-comment-kind": 33,
+      "R7-purity-tag": 10
+    },
+    "skills/debug-board-server/scripts/setup.js": {
+      "R3-comment-kind": 6,
+      "R7-purity-tag": 3
+    },
+    "skills/talk-on-board/scripts/client.js": {
+      "R3-comment-kind": 12,
+      "R7-purity-tag": 5
+    },
+    "skills/talk-on-board/scripts/lib/brief.js": {
+      "R3-comment-kind": 15,
+      "R7-purity-tag": 3
+    },
+    "skills/talk-on-board/scripts/lib/control-client.js": {
+      "R3-comment-kind": 5,
+      "R7-purity-tag": 3
+    },
+    "skills/talk-on-board/scripts/lib/json-schema.js": {
+      "R3-comment-kind": 1
+    },
+    "skills/talk-on-board/scripts/lib/mcp-stdio.js": {
+      "R3-comment-kind": 3,
+      "R7-purity-tag": 3
+    },
+    "skills/talk-on-board/scripts/lib/mermaid-pick.js": {
+      "R3-comment-kind": 13,
+      "R7-purity-tag": 3
+    },
+    "skills/talk-on-board/scripts/lib/table.js": {
+      "R3-comment-kind": 4,
+      "R7-purity-tag": 3
+    },
+    "skills/talk-on-board/scripts/mcp.js": {
+      "R3-comment-kind": 29,
+      "R7-purity-tag": 8
+    },
+    "test/integration/client-log.test.js": {
+      "R3-comment-kind": 2
+    },
+    "test/integration/idle.test.js": {
+      "R3-comment-kind": 5
+    },
+    "test/integration/mcp.test.js": {
+      "R3-comment-kind": 28
+    },
+    "test/integration/operations.test.js": {
+      "R3-comment-kind": 28
+    },
+    "test/integration/server.test.js": {
+      "R3-comment-kind": 12
+    },
+    "test/unit/answer-placement.test.js": {
+      "R3-comment-kind": 1
+    },
+    "test/unit/board-diff.test.js": {
+      "R3-comment-kind": 1
+    },
+    "test/unit/board-files.test.js": {
+      "R3-comment-kind": 1
+    },
+    "test/unit/board-hub-ops.test.js": {
+      "R3-comment-kind": 2
+    },
+    "test/unit/board-hub.test.js": {
+      "R3-comment-kind": 1
+    },
+    "test/unit/board-ops.test.js": {
+      "R3-comment-kind": 4
+    },
+    "test/unit/consult-frame.test.js": {
+      "R3-comment-kind": 2
+    },
+    "test/unit/idle-ca.test.js": {
+      "R3-comment-kind": 1
+    },
+    "test/unit/join-ca-http.test.js": {
+      "R3-comment-kind": 1
+    },
+    "test/unit/mcp-libs.test.js": {
+      "R3-comment-kind": 1
+    },
+    "test/unit/message-tracker.test.js": {
+      "R3-comment-kind": 1
+    },
+    "test/unit/operation-log.test.js": {
+      "R3-comment-kind": 1
+    },
+    "test/unit/skill-frontmatter.test.js": {
+      "R3-comment-kind": 1
+    }
+  }
+}

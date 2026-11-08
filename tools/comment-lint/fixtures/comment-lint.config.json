@@ -1,0 +1,18 @@
+{
+  "root": ".",
+  "paths": ["."],
+  "exclude": [],
+  "extraKinds": [
+    { "name": "eslint-directive", "pattern": "^eslint-" }
+  ],
+  "allowShebang": true,
+  "licenseHeaderPattern": "Copyright",
+  "spec": {
+    "files": ["spec.md"],
+    "idPattern": "\\b(?:FR|NFR)-\\d{3}[a-z]?\\b"
+  },
+  "purity": {
+    "exclude": ["**/*.excluded.js"],
+    "exemptSingleExpressionLambdas": true
+  }
+}

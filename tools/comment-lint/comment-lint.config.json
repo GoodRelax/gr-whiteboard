@@ -1,0 +1,21 @@
+{
+  "root": "../..",
+  "paths": ["skills", "test", "tools/comment-lint"],
+  "exclude": ["**/node_modules/**", "tools/comment-lint/fixtures/**", ".claude/**"],
+  "extraKinds": [
+    { "name": "eslint-directive", "pattern": "^(eslint-disable|eslint-enable|eslint-disable-next-line|eslint-disable-line|eslint |global |exported )" },
+    { "name": "ts-directive", "pattern": "^@ts-(ignore|expect-error|nocheck|check)\\b" },
+    { "name": "spdx", "pattern": "^SPDX-License-Identifier:" }
+  ],
+  "allowShebang": true,
+  "licenseHeaderPattern": "(Copyright|Licensed under|@license)",
+  "spec": {
+    "files": ["docs/spec-en.md", "docs/design-060-mcp-en.md"],
+    "idPattern": "\\b(?:FR|NFR|ADR|SC|IC|UAT)-\\d{3}[a-z]?\\b"
+  },
+  "purity": {
+    "exclude": ["test/**", "**/*.test.js", "**/*.test.cjs", "**/*.test.mjs", "tools/comment-lint/test/**"],
+    "exemptSingleExpressionLambdas": true
+  },
+  "baseline": "tools/comment-lint/baseline.json"
+}
