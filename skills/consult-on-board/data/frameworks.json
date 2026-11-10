@@ -751,8 +751,8 @@
      "whenToUse": "A person or a team has an open worry (what should I do?) with many facts but no clear question at its center.",
      "skill": "issue-driven"},
     {"id": "four-forms", "name": "Four Forms of Thinking", "nameJa": "思考の4型", "origin": "GoodRelax (compiled from classic thinking moves)", "category": "Problem Solving", "purposes": ["Analysis", "Idea Generation", "Problem Discovery"],
-     "summary": "Think a subject through four forms in order: divide, compare, infer, and transform, each with two core moves and one optional move.",
-     "whenToUse": "A person is stuck on a subject and needs fresh angles to look at it from.",
+     "summary": "Rebuild how you look at a subject, from a higher vantage point, in four forms: divide, compare, infer, and transform.",
+     "whenToUse": "A person has run out of ideas, is stuck, wants a fresh idea, wants to compare one thing with another, or wants to rebuild how they look at a subject from a higher vantage point.",
      "skill": "four-forms"}
   ]
 }
